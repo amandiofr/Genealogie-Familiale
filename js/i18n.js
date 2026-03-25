@@ -85,6 +85,39 @@ const LANGS = {
     gen_0:'Ancêtres fondateurs', gen_1:'Arrière-grands-parents',
     gen_2:'Grands-parents', gen_3:'Parents', gen_4:'Votre génération',
     gen_5:'Enfants', gen_6:'Petits-enfants',
+    // Form titles
+    form_title_new_person:'Nouvelle personne', form_title_edit:'Modifier',
+    form_title_new_event:'Nouvel événement', form_title_new_anec:'Nouvelle anecdote',
+    form_title_new_user:'Nouveau compte',
+    // Form field labels
+    lbl_date:'Date', form_titre:'Titre', form_type:'Type',
+    form_date_debut:'Date début', form_date_fin:'Date fin (si étalé)',
+    form_lieu:'Lieu', form_contenu:'Contenu', form_date_approx:'Date approximative',
+    form_written_by:'Écrit par', form_email:'Email',
+    form_password:'Mot de passe', form_role:'Rôle',
+    form_participants:'Participants (Ctrl+clic pour sélection multiple)',
+    form_mentions:'Personnes mentionnées',
+    // Role descriptions (user form)
+    role_lecteur_desc:'Lecteur — consultation uniquement',
+    role_editeur_desc:'Éditeur — peut ajouter/modifier',
+    role_admin_desc:'Administrateur — accès total',
+    // Photo / avatar
+    btn_add_link:'+ Ajouter un lien familial',
+    lbl_avatar:'avatar', title_set_avatar:'Définir comme avatar',
+    lbl_add_photos:'Ajouter des photos',
+    lbl_upload_hint:'Cliquez ou déposez vos photos',
+    lbl_by:'Par', btn_create_account:'Créer le compte',
+    // Event type labels
+    evt_mariage:'Mariage', evt_naissance:'Naissance', evt_deces:'Décès',
+    evt_rencontre:'Rencontre', evt_voyage:'Voyage', evt_reunion:'Réunion',
+    evt_fete:'Fête', evt_autre:'Autre',
+    // Errors & validation
+    error_name_required:'Prénom et nom requis',
+    error_title_required:'Titre requis',
+    error_title_content_required:'Titre et contenu requis',
+    error_no_photo:'Aucune photo sélectionnée',
+    error_select_file:'Sélectionnez un fichier',
+    toast_photos_added:'Photos ajoutées',
   },
   pt: {
     nav_tree:'Árvore', nav_list:'Membros', nav_events:'Eventos',
@@ -150,11 +183,45 @@ const LANGS = {
     gen_0:'Antepassados fundadores', gen_1:'Bisavós',
     gen_2:'Avós', gen_3:'Pais', gen_4:'A sua geração',
     gen_5:'Filhos', gen_6:'Netos',
+    // Form titles
+    form_title_new_person:'Nova pessoa', form_title_edit:'Editar',
+    form_title_new_event:'Novo evento', form_title_new_anec:'Nova anedota',
+    form_title_new_user:'Nova conta',
+    // Form field labels
+    lbl_date:'Data', form_titre:'Título', form_type:'Tipo',
+    form_date_debut:'Data início', form_date_fin:'Data fim (se prolongado)',
+    form_lieu:'Local', form_contenu:'Conteúdo', form_date_approx:'Data aproximada',
+    form_written_by:'Escrito por', form_email:'Email',
+    form_password:'Palavra-passe', form_role:'Função',
+    form_participants:'Participantes (Ctrl+clique para seleção múltipla)',
+    form_mentions:'Pessoas mencionadas',
+    // Role descriptions (user form)
+    role_lecteur_desc:'Leitor — consulta apenas',
+    role_editeur_desc:'Editor — pode adicionar/modificar',
+    role_admin_desc:'Administrador — acesso total',
+    // Photo / avatar
+    btn_add_link:'+ Adicionar ligação familiar',
+    lbl_avatar:'avatar', title_set_avatar:'Definir como avatar',
+    lbl_add_photos:'Adicionar fotos',
+    lbl_upload_hint:'Clique ou solte as suas fotos',
+    lbl_by:'Por', btn_create_account:'Criar conta',
+    // Event type labels
+    evt_mariage:'Casamento', evt_naissance:'Nascimento', evt_deces:'Falecimento',
+    evt_rencontre:'Encontro', evt_voyage:'Viagem', evt_reunion:'Reunião',
+    evt_fete:'Festa', evt_autre:'Outro',
+    // Errors & validation
+    error_name_required:'Primeiro nome e apelido obrigatórios',
+    error_title_required:'Título obrigatório',
+    error_title_content_required:'Título e conteúdo obrigatórios',
+    error_no_photo:'Nenhuma foto selecionada',
+    error_select_file:'Selecione um ficheiro',
+    toast_photos_added:'Fotos adicionadas',
   }
 };
 
 let currentLang = localStorage.getItem('lang') || 'fr';
 function T(key) { return LANGS[currentLang][key] || LANGS['fr'][key] || key; }
+function evtLabel(type) { return T('evt_' + type) || type; }
 
 const LANG_META = { fr:{flag:'<img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzIDIiPjxyZWN0IHdpZHRoPSIxIiBoZWlnaHQ9IjIiIGZpbGw9IiMwMDIzOTUiLz48cmVjdCB4PSIxIiB3aWR0aD0iMSIgaGVpZ2h0PSIyIiBmaWxsPSIjZmZmIi8+PHJlY3QgeD0iMiIgd2lkdGg9IjEiIGhlaWdodD0iMiIgZmlsbD0iI0VEMjkzOSIvPjwvc3ZnPg==" width="18" height="12" style="border-radius:2px;vertical-align:middle;flex-shrink:0;" alt="">',code:'FR'}, pt:{flag:'<img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1IDMiPjxyZWN0IHdpZHRoPSIyIiBoZWlnaHQ9IjMiIGZpbGw9IiMwMDY2MDAiLz48cmVjdCB4PSIyIiB3aWR0aD0iMyIgaGVpZ2h0PSIzIiBmaWxsPSIjRkYwMDAwIi8+PGNpcmNsZSBjeD0iMiIgY3k9IjEuNSIgcj0iMC42IiBmaWxsPSIjRkZENzAwIiBzdHJva2U9IiMwMDMzOTkiIHN0cm9rZS13aWR0aD0iMC4xMiIvPjwvc3ZnPg==" width="18" height="12" style="border-radius:2px;vertical-align:middle;flex-shrink:0;" alt="">',code:'PT'} };
 
@@ -190,7 +257,7 @@ function applyLang() {
   const logoEl = document.getElementById('logo-title');
   if (logoEl) logoEl.textContent = T('site_title');
   // Nav buttons
-  const navMap = {tree:'nav_tree',list:'nav_list',events:'nav_events',anecdotes:'nav_anecdotes',stats:'nav_stats',admin:'nav_admin'};
+  const navMap = {tree:'nav_tree',list:'nav_list',events:'nav_events',anecdotes:'nav_anecdotes',admin:'nav_admin'};
   document.querySelectorAll('nav button[data-view]').forEach(b => { b.textContent = T(navMap[b.dataset.view]||b.dataset.view); });
   // Logout
   const logoutBtn = document.getElementById('btn-logout');
@@ -219,7 +286,6 @@ function applyLang() {
     'view-list-heading':     'h_membres',
     'view-events-heading':   'h_events',
     'view-anecdotes-heading':'h_anecdotes',
-    'view-stats-heading':    'h_stats',
     'view-admin-heading':    'h_admin',
   };
   Object.entries(headings).forEach(([id, key]) => {
@@ -245,10 +311,8 @@ function applyLang() {
     const el = document.getElementById(id);
     if (el) el.textContent = T(key);
   });
-  // Re-render current view if list/stats
   const activeView = document.querySelector('.view.active');
   if (activeView?.id === 'view-list') filterList();
-  if (activeView?.id === 'view-stats') renderStats();
 }
 
 // BASE_URL : chemin absolu vers la racine du site (fonctionne quel que soit le sous-répertoire)

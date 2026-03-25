@@ -6,7 +6,7 @@ async function loadUsers(){
   document.getElementById('users-list').innerHTML=users.map(u=>`
     <div class="user-row">
       <div style="flex:1;"><div style="font-size:.88rem;font-weight:500;">${u.nom}</div><div style="font-size:.72rem;color:var(--ink3);">${u.email}</div></div>
-      <span class="role-badge ${u.role}">${u.role}</span>
+      <span class="role-badge ${u.role}">${T('role_' + u.role)}</span>
       <button class="btn-sm" onclick="deleteUser(${u.id},'${u.role}')">🗑</button>
     </div>`).join('');
 }
@@ -14,17 +14,17 @@ async function loadUsers(){
 function showAddUser(){
   document.getElementById('modal-user').innerHTML=`
     <div class="modal-hd" style="padding:1.2rem 1.4rem .8rem;">
-      <div style="flex:1;font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:500;">Nouveau compte</div>
+      <div style="flex:1;font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:500;">${T('form_title_new_user')}</div>
       <button class="modal-close" onclick="closeOverlay('modal-user-overlay')">✕</button>
     </div>
     <div class="modal-bd">
-      <div class="fg"><label>Nom</label><input id="nu-nom" placeholder="Prénom Nom"></div>
-      <div class="fg"><label>Email</label><input type="email" id="nu-email" placeholder="email@exemple.fr"></div>
-      <div class="fg"><label>Mot de passe</label><input type="password" id="nu-pass" placeholder="Min. 8 caractères"></div>
-      <div class="fg"><label>Rôle</label><select id="nu-role"><option value="lecteur">Lecteur — consultation uniquement</option><option value="editeur">Éditeur — peut ajouter/modifier</option><option value="admin">Administrateur — accès total</option></select></div>
+      <div class="fg"><label>${T('form_nom')}</label><input id="nu-nom" placeholder="Prénom Nom"></div>
+      <div class="fg"><label>${T('form_email')}</label><input type="email" id="nu-email" placeholder="email@exemple.fr"></div>
+      <div class="fg"><label>${T('form_password')}</label><input type="password" id="nu-pass" placeholder="Min. 8 caractères"></div>
+      <div class="fg"><label>${T('form_role')}</label><select id="nu-role"><option value="lecteur">${T('role_lecteur_desc')}</option><option value="editeur">${T('role_editeur_desc')}</option><option value="admin">${T('role_admin_desc')}</option></select></div>
       <div class="form-actions">
-        <button class="btn-primary" onclick="createUser()">Créer le compte</button>
-        <button class="btn-secondary" onclick="closeOverlay('modal-user-overlay')">Annuler</button>
+        <button class="btn-primary" onclick="createUser()">${T('btn_create_account')}</button>
+        <button class="btn-secondary" onclick="closeOverlay('modal-user-overlay')">${T('form_cancel')}</button>
       </div>
     </div>`;
   document.getElementById('modal-user-overlay').classList.add('open');
@@ -53,7 +53,7 @@ async function changePassword(){
 // ══════════════════════════════════════════════════════════════
 async function importFile(type){
   const input=document.getElementById(`import-${type}-file`);
-  if(!input?.files?.length){toast('Sélectionnez un fichier','error');return;}
+  if(!input?.files?.length){toast(T('error_select_file'),'error');return;}
   const fd=new FormData(); fd.append('file',input.files[0]);
   try{
     const r=await fetch(`api/export.php?action=import-${type}`,{method:'POST',body:fd});

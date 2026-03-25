@@ -26,7 +26,7 @@ function filterList() {
     const deces = p.deces ? ' – ' + fmtDate(p.deces) : '';
     const sub=[p.profession, naiss+deces].filter(Boolean).join(' · ');
     const av=p.chemin_thumb?`<div class="li-avatar ${p.genre}"><img src="${imgUrl(p.chemin_thumb)}" alt=""></div>`:`<div class="li-avatar ${p.genre}">${initials(p)}</div>`;
-    return `<div class="list-item" onclick="openPerson(${p.id})">${av}<div class="li-info"><div class="li-name">${fullName(p)}${p.nom_naiss?` <span style="color:var(--ink3);font-size:.8em;font-style:italic;">née ${p.nom_naiss}</span>`:''}</div><div class="li-sub">${sub}</div></div><span class="li-badge">${genLabel(p.generation)}</span><span class="li-arrow">›</span></div>`;
+    return `<div class="list-item" onclick="openPerson(${p.id})">${av}<div class="li-info"><div class="li-name">${fullName(p)}${p.nom_naiss?` <span style="color:var(--ink3);font-size:.8em;font-style:italic;">${T('nee_label')} ${p.nom_naiss}</span>`:''}</div><div class="li-sub">${sub}</div></div><span class="li-badge">${genLabel(p.generation)}</span><span class="li-arrow">›</span></div>`;
   }).join('');
 }
 
@@ -41,13 +41,13 @@ async function openPerson(id) {
   let html=`<div class="modal-hd">`;
   if(av) html+=`<div class="modal-av ${p.genre}"><img src="${imgUrl(av.chemin)}" alt=""></div>`;
   else   html+=`<div class="modal-av ${p.genre}">${initials(p)}</div>`;
-  html+=`<div class="modal-ti"><div class="modal-name">${p.prenom} ${p.nom}</div>${p.nom_naiss?`<div class="modal-maiden">née ${p.nom_naiss}</div>`:''}<div class="modal-gen">${genLabel(p.generation)}</div></div><button class="modal-close" onclick="closeOverlay('modal-person-overlay')">✕</button></div>`;
+  html+=`<div class="modal-ti"><div class="modal-name">${p.prenom} ${p.nom}</div>${p.nom_naiss?`<div class="modal-maiden">${T('nee_label')} ${p.nom_naiss}</div>`:''}<div class="modal-gen">${genLabel(p.generation)}</div></div><button class="modal-close" onclick="closeOverlay('modal-person-overlay')">✕</button></div>`;
   html+=`<div class="modal-bd">`;
 
   // Infos
   html+=`<div class="modal-section"><div class="sec-title">${T('sec_info')}</div>`;
   if(p.naissance) html+=`<div class="info-row"><span class="info-icon">🎂</span><span class="info-label">${T('lbl_naiss')}</span><span class="info-val">${fmtDate(p.naissance)}${p.lieu_naiss?' — '+p.lieu_naiss:''}</span></div>`;
-  if(age!==null)  html+=`<div class="info-row"><span class="info-icon">⏳</span><span class="info-label">${T('lbl_age')}</span><span class="info-val">${age} ans${!p.vivant?' (décédé'+(p.genre==='female'?'e':'')+')':''}</span></div>`;
+  if(age!==null)  html+=`<div class="info-row"><span class="info-icon">⏳</span><span class="info-label">${T('lbl_age')}</span><span class="info-val">${age} ${T('stat_ans')}${!p.vivant?' ('+T(p.genre==='female'?'deceased_f':'deceased_m')+')':''}</span></div>`;
   if(p.deces)     html+=`<div class="info-row"><span class="info-icon">🕊</span><span class="info-label">${T('lbl_deces')}</span><span class="info-val">${fmtDate(p.deces)}${p.lieu_deces?' — '+p.lieu_deces:''}</span></div>`;
   if(p.profession)html+=`<div class="info-row"><span class="info-icon">💼</span><span class="info-label">${T('lbl_job')}</span><span class="info-val">${p.profession}</span></div>`;
   html+=`</div>`;
@@ -65,10 +65,10 @@ async function openPerson(id) {
       html+=`<div class="family-link" onclick="openPerson(${lid})">${fav}<div><div class="fl-name">${l.prenom} ${l.nom}</div><div class="fl-role">${l.role}</div></div><span style="margin-left:auto;color:var(--ink3);font-size:.8rem;">›</span></div>`;
     });
     // Bouton ajouter un lien
-    if(currentUser.role!=='lecteur') html+=`<button class="btn-secondary" style="width:100%;margin-top:8px;font-size:.75rem;" onclick="showLienForm(${id})">+ Ajouter un lien familial</button>`;
+    if(currentUser.role!=='lecteur') html+=`<button class="btn-secondary" style="width:100%;margin-top:8px;font-size:.75rem;" onclick="showLienForm(${id})">${T('btn_add_link')}</button>`;
     html+=`</div>`;
   } else if(currentUser.role!=='lecteur'){
-    html+=`<div class="modal-section"><div class="sec-title">${T('sec_famille')}</div><button class="btn-secondary" style="width:100%;font-size:.75rem;" onclick="showLienForm(${id})">+ Ajouter un lien familial</button></div>`;
+    html+=`<div class="modal-section"><div class="sec-title">${T('sec_famille')}</div><button class="btn-secondary" style="width:100%;font-size:.75rem;" onclick="showLienForm(${id})">${T('btn_add_link')}</button></div>`;
   }
 
   // Photos
@@ -76,8 +76,8 @@ async function openPerson(id) {
     html+=`<div class="modal-section"><div class="sec-title">${T('sec_photos')}</div><div class="photos-strip">`;
     p.photos.forEach(ph=>{
       const isMain = ph.id == p.photo_id;
-      const mainBadge = isMain ? `<div style="position:absolute;bottom:3px;left:3px;background:var(--accent);color:#fff;font-size:.55rem;padding:2px 5px;border-radius:4px;letter-spacing:.03em;">avatar</div>` : '';
-      const setBtn = (!isMain && currentUser.role!=='lecteur') ? `<div onclick="event.stopPropagation();setAvatar(${id},${ph.id})" style="position:absolute;top:3px;right:3px;background:rgba(26,24,20,.55);color:#fff;font-size:.6rem;padding:2px 6px;border-radius:4px;cursor:pointer;" title="Définir comme avatar">★</div>` : '';
+      const mainBadge = isMain ? `<div style="position:absolute;bottom:3px;left:3px;background:var(--accent);color:#fff;font-size:.55rem;padding:2px 5px;border-radius:4px;letter-spacing:.03em;">${T('lbl_avatar')}</div>` : '';
+      const setBtn = (!isMain && currentUser.role!=='lecteur') ? `<div onclick="event.stopPropagation();setAvatar(${id},${ph.id})" style="position:absolute;top:3px;right:3px;background:rgba(26,24,20,.55);color:#fff;font-size:.6rem;padding:2px 6px;border-radius:4px;cursor:pointer;" title="${T('title_set_avatar')}">★</div>` : '';
       html+=`<div style="position:relative;display:inline-block;"><img class="photo-thumb" src="${imgUrl(ph.chemin_thumb||ph.chemin)}" onclick="openLightbox(imgUrl('${ph.chemin}'))" title="${ph.legende||''}">${mainBadge}${setBtn}</div>`;
     });
     html+=`</div></div>`;
@@ -125,7 +125,7 @@ function calcAge(p){
 // ══════════════════════════════════════════════════════════════
 function showPersonForm(id) {
   const p = id ? people.find(x=>x.id==id) : null;
-  const t = p ? 'Modifier' : 'Nouvelle personne';
+  const t = p ? T('form_title_edit') : T('form_title_new_person');
   const genOptions = GEN_LABELS().map((l,i)=>`<option value="${i}"${(p?.generation||0)==i?' selected':''}>${i} — ${l}</option>`).join('');
   document.getElementById('modal-form-person').innerHTML=`
     <div class="modal-hd" style="padding:1.2rem 1.4rem .8rem;">
@@ -134,21 +134,21 @@ function showPersonForm(id) {
     </div>
     <div class="modal-bd">
       <div class="form-grid">
-        <div class="fg"><label>Prénom *</label><input id="fp-prenom" value="${p?.prenom||''}"></div>
-        <div class="fg"><label>Nom *</label><input id="fp-nom" value="${p?.nom||''}"></div>
-        <div class="fg"><label>Nom de naissance</label><input id="fp-maiden" value="${p?.nom_naiss||''}"></div>
-        <div class="fg"><label>Genre</label><select id="fp-genre"><option value="male"${p?.genre==='male'?' selected':''}>Homme</option><option value="female"${p?.genre==='female'?' selected':''}>Femme</option><option value="autre"${p?.genre==='autre'?' selected':''}>Autre</option></select></div>
-        <div class="fg"><label>Date de naissance</label><input type="date" id="fp-naiss" value="${p?.naissance||''}"></div>
-        <div class="fg"><label>Lieu de naissance</label><input id="fp-lieu-naiss" value="${p?.lieu_naiss||''}"></div>
-        <div class="fg"><label>Date de décès</label><input type="date" id="fp-deces" value="${p?.deces||''}"></div>
-        <div class="fg"><label>Lieu de décès</label><input id="fp-lieu-deces" value="${p?.lieu_deces||''}"></div>
-        <div class="fg full"><label>Génération</label><select id="fp-gen">${genOptions}</select></div>
-        <div class="fg full"><label>Profession</label><input id="fp-job" value="${p?.profession||''}"></div>
-        <div class="fg full"><label>Biographie / Notes</label><textarea id="fp-bio">${p?.biographie||''}</textarea></div>
+        <div class="fg"><label>${T('form_prenom')} *</label><input id="fp-prenom" value="${p?.prenom||''}"></div>
+        <div class="fg"><label>${T('form_nom')} *</label><input id="fp-nom" value="${p?.nom||''}"></div>
+        <div class="fg"><label>${T('form_nom_naiss')}</label><input id="fp-maiden" value="${p?.nom_naiss||''}"></div>
+        <div class="fg"><label>${T('form_genre')}</label><select id="fp-genre"><option value="male"${p?.genre==='male'?' selected':''}>${T('form_homme')}</option><option value="female"${p?.genre==='female'?' selected':''}>${T('form_femme')}</option><option value="autre"${p?.genre==='autre'?' selected':''}>${T('form_autre')}</option></select></div>
+        <div class="fg"><label>${T('form_naiss')}</label><input type="date" id="fp-naiss" value="${p?.naissance||''}"></div>
+        <div class="fg"><label>${T('form_lieu_naiss')}</label><input id="fp-lieu-naiss" value="${p?.lieu_naiss||''}"></div>
+        <div class="fg"><label>${T('form_deces')}</label><input type="date" id="fp-deces" value="${p?.deces||''}"></div>
+        <div class="fg"><label>${T('form_lieu_deces')}</label><input id="fp-lieu-deces" value="${p?.lieu_deces||''}"></div>
+        <div class="fg full"><label>${T('form_generation')}</label><select id="fp-gen">${genOptions}</select></div>
+        <div class="fg full"><label>${T('form_job')}</label><input id="fp-job" value="${p?.profession||''}"></div>
+        <div class="fg full"><label>${T('form_bio')}</label><textarea id="fp-bio">${p?.biographie||''}</textarea></div>
       </div>
       <div class="form-actions">
-        <button class="btn-primary" onclick="savePerson(${id||''})">💾 Enregistrer</button>
-        <button class="btn-secondary" onclick="closeOverlay('modal-form-person-overlay')">Annuler</button>
+        <button class="btn-primary" onclick="savePerson(${id||''})">${T('form_save')}</button>
+        <button class="btn-secondary" onclick="closeOverlay('modal-form-person-overlay')">${T('form_cancel')}</button>
       </div>
     </div>`;
   document.getElementById('modal-form-person-overlay').classList.add('open');
@@ -168,7 +168,7 @@ async function savePerson(id) {
     profession:document.getElementById('fp-job').value.trim()||null,
     biographie:document.getElementById('fp-bio').value.trim()||null,
   };
-  if(!body.prenom||!body.nom){toast('Prénom et nom requis','error');return;}
+  if(!body.prenom||!body.nom){toast(T('error_name_required'),'error');return;}
   try{
     if(id) await api('PUT',`api/personnes.php?id=${id}`,body);
     else   await api('POST','api/personnes.php',body);

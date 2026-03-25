@@ -15,7 +15,7 @@ async function loadEvents(){
   el.innerHTML=evts.map(e=>`
     <div class="ev-card" onclick="openEvent(${e.id})">
       ${e.thumb?`<img class="ev-thumb" src="${imgUrl(e.thumb)}" alt="">`:''}
-      <div class="ev-type">${EVT_ICONS[e.type]||''} ${e.type}</div>
+      <div class="ev-type">${EVT_ICONS[e.type]||''} ${evtLabel(e.type)}</div>
       <div class="ev-title">${e.titre}</div>
       <div class="ev-meta">${[fmtDate(e.date_debut),e.lieu].filter(Boolean).join(' · ')}${e.nb_personnes>0?` · ${e.nb_personnes} ${T('nb_personnes_label')}`:''}</div>
     </div>`).join('');
@@ -29,18 +29,18 @@ async function openEvent(id){
     : `<div style="font-size:1.8rem;line-height:1;">${EVT_ICONS[e.type]||'📌'}</div>`;
   let html=`<div class="modal-hd" style="padding:1.2rem 1.4rem .8rem;">
     ${avatarHtml}
-    <div class="modal-ti"><div class="modal-name">${e.titre}</div><div class="modal-gen">${e.type}</div></div>
+    <div class="modal-ti"><div class="modal-name">${e.titre}</div><div class="modal-gen">${evtLabel(e.type)}</div></div>
     <button class="modal-close" onclick="closeOverlay('modal-person-overlay')">✕</button>
   </div><div class="modal-bd">`;
   if(e.date_debut||e.lieu){
     html+=`<div class="modal-section"><div class="sec-title">${T('sec_info')}</div>`;
-    if(e.date_debut) html+=`<div class="info-row"><span class="info-icon">📅</span><span class="info-label">Date</span><span class="info-val">${fmtDate(e.date_debut)}${e.date_fin&&e.date_fin!==e.date_debut?' → '+fmtDate(e.date_fin):''}</span></div>`;
-    if(e.lieu) html+=`<div class="info-row"><span class="info-icon">📍</span><span class="info-label">Lieu</span><span class="info-val">${e.lieu}</span></div>`;
+    if(e.date_debut) html+=`<div class="info-row"><span class="info-icon">📅</span><span class="info-label">${T('lbl_date')}</span><span class="info-val">${fmtDate(e.date_debut)}${e.date_fin&&e.date_fin!==e.date_debut?' → '+fmtDate(e.date_fin):''}</span></div>`;
+    if(e.lieu) html+=`<div class="info-row"><span class="info-icon">📍</span><span class="info-label">${T('form_lieu')}</span><span class="info-val">${e.lieu}</span></div>`;
     html+=`</div>`;
   }
-  if(e.description) html+=`<div class="modal-section"><div class="sec-title">Description</div><div class="notes-box">${e.description.replace(/\n/g,'<br>')}</div></div>`;
+  if(e.description) html+=`<div class="modal-section"><div class="sec-title">${T('sec_description')}</div><div class="notes-box">${e.description.replace(/\n/g,'<br>')}</div></div>`;
   if((e.personnes||[]).length){
-    html+=`<div class="modal-section"><div class="sec-title">Participants</div>`;
+    html+=`<div class="modal-section"><div class="sec-title">${T('sec_participants')}</div>`;
     e.personnes.forEach(p=>{
       const av=p.chemin_thumb?`<div class="fl-av ${p.genre}"><img src="${imgUrl(p.chemin_thumb)}" alt=""></div>`:`<div class="fl-av ${p.genre}">${(p.prenom[0]||'')+(p.nom[0]||'')}</div>`;
       html+=`<div class="family-link" onclick="openPerson(${p.id});closeOverlay('modal-person-overlay')">${av}<div><div class="fl-name">${p.prenom} ${p.nom}</div>${p.role?`<div class="fl-role">${p.role}</div>`:''}</div></div>`;
@@ -80,36 +80,36 @@ async function showEventForm(id){
   const peopleOptions = people.map(p=>`<option value="${p.id}"${participantIds.has(String(p.id))?' selected':''}>${fullName(p)}</option>`).join('');
 
   const typeOptions = ['mariage','naissance','deces','rencontre','voyage','reunion','fete','autre']
-    .map(t => `<option value="${t}"${e?.type===t?' selected':''}>${EVT_ICONS[t]||''} ${t.charAt(0).toUpperCase()+t.slice(1)}</option>`).join('');
+    .map(t => `<option value="${t}"${e?.type===t?' selected':''}>${EVT_ICONS[t]||''} ${evtLabel(t)}</option>`).join('');
 
   document.getElementById('modal-form-event').innerHTML=`
     <div class="modal-hd" style="padding:1.2rem 1.4rem .8rem;">
-      <div style="flex:1;font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:500;">${id?'Modifier':'Nouvel événement'}</div>
+      <div style="flex:1;font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:500;">${id?T('form_title_edit'):T('form_title_new_event')}</div>
       <button class="modal-close" onclick="closeOverlay('modal-form-event-overlay')">✕</button>
     </div>
     <div class="modal-bd">
       <div class="form-grid">
-        <div class="fg full"><label>Titre *</label><input id="fe-titre" value="${e?.titre||''}" placeholder="Ex : Mariage de Thomas et Claire"></div>
-        <div class="fg"><label>Type *</label><select id="fe-type">${typeOptions}</select></div>
-        <div class="fg"><label>Date début</label><input type="date" id="fe-date-debut" value="${e?.date_debut||''}"></div>
-        <div class="fg"><label>Date fin (si étalé)</label><input type="date" id="fe-date-fin" value="${e?.date_fin||''}"></div>
-        <div class="fg full"><label>Lieu</label><input id="fe-lieu" value="${e?.lieu||''}" placeholder="Paris, France"></div>
-        <div class="fg full"><label>Description</label><textarea id="fe-desc" placeholder="Racontez cet événement…">${e?.description||''}</textarea></div>
-        <div class="fg full"><label>Participants (Ctrl+clic pour sélection multiple)</label><select id="fe-personnes" multiple size="6" style="height:130px;">${peopleOptions}</select></div>
+        <div class="fg full"><label>${T('form_titre')} *</label><input id="fe-titre" value="${e?.titre||''}" placeholder="Ex : Mariage de Thomas et Claire"></div>
+        <div class="fg"><label>${T('form_type')} *</label><select id="fe-type">${typeOptions}</select></div>
+        <div class="fg"><label>${T('form_date_debut')}</label><input type="date" id="fe-date-debut" value="${e?.date_debut||''}"></div>
+        <div class="fg"><label>${T('form_date_fin')}</label><input type="date" id="fe-date-fin" value="${e?.date_fin||''}"></div>
+        <div class="fg full"><label>${T('form_lieu')}</label><input id="fe-lieu" value="${e?.lieu||''}" placeholder="Paris, France"></div>
+        <div class="fg full"><label>${T('sec_description')}</label><textarea id="fe-desc" placeholder="Racontez cet événement…">${e?.description||''}</textarea></div>
+        <div class="fg full"><label>${T('form_participants')}</label><select id="fe-personnes" multiple size="6" style="height:130px;">${peopleOptions}</select></div>
       </div>
       ${id ? `<div class="fg full" style="margin-top:.8rem;">
-        <label>Ajouter des photos</label>
+        <label>${T('lbl_add_photos')}</label>
         <div class="upload-zone">
           <input type="file" accept="image/*" multiple onchange="previewEventPhotos(this)">
           <div class="upload-icon">📷</div>
-          <div class="upload-label">Cliquez ou déposez vos photos<br><span style="font-size:.7rem;color:var(--ink3);">JPEG, PNG, WebP — max 20 Mo</span></div>
+          <div class="upload-label">${T('lbl_upload_hint')}<br><span style="font-size:.7rem;color:var(--ink3);">JPEG, PNG, WebP — max 20 Mo</span></div>
         </div>
         <div class="upload-preview" id="evt-upload-preview"></div>
       </div>` : ''}
       <div class="form-actions">
-        <button class="btn-primary" onclick="saveEvent(${id||''})">💾 Enregistrer</button>
-        ${id ? `<button class="btn-secondary" onclick="uploadEventPhotos(${id})" style="font-size:.78rem;">📤 Envoyer photos</button>` : ''}
-        <button class="btn-secondary" onclick="closeOverlay('modal-form-event-overlay')">Annuler</button>
+        <button class="btn-primary" onclick="saveEvent(${id||''})">${T('form_save')}</button>
+        ${id ? `<button class="btn-secondary" onclick="uploadEventPhotos(${id})" style="font-size:.78rem;">📤 ${T('lbl_add_photos')}</button>` : ''}
+        <button class="btn-secondary" onclick="closeOverlay('modal-form-event-overlay')">${T('form_cancel')}</button>
       </div>
     </div>`;
   document.getElementById('modal-form-event-overlay').classList.add('open');
@@ -129,14 +129,14 @@ function previewEventPhotos(input) {
 }
 
 async function uploadEventPhotos(eventId) {
-  if (!pendingEventFiles.length) { toast('Aucune photo sélectionnée', 'error'); return; }
+  if (!pendingEventFiles.length) { toast(T('error_no_photo'), 'error'); return; }
   for (const f of pendingEventFiles) {
     const fd = new FormData();
     fd.append('photo', f);
     await fetch(`api/evenements.php?id=${eventId}&sub=photos`, { method:'POST', body:fd });
   }
   pendingEventFiles = [];
-  toast('Photos ajoutées');
+  toast(T('toast_photos_added'));
   closeOverlay('modal-form-event-overlay');
   loadEvents();
 }
@@ -145,7 +145,7 @@ async function saveEvent(id){
   const sel=document.getElementById('fe-personnes');
   const personnes=Array.from(sel.selectedOptions).map(o=>({id:o.value,role:''}));
   const body={titre:document.getElementById('fe-titre').value.trim(),type:document.getElementById('fe-type').value,date_debut:document.getElementById('fe-date-debut').value||null,date_fin:document.getElementById('fe-date-fin').value||null,lieu:document.getElementById('fe-lieu').value.trim()||null,description:document.getElementById('fe-desc').value.trim()||null,personnes};
-  if(!body.titre){toast('Titre requis','error');return;}
+  if(!body.titre){toast(T('error_title_required'),'error');return;}
   try{
     if(id) await api('PUT',`api/evenements.php?id=${id}`,body);
     else   await api('POST','api/evenements.php',body);
@@ -171,7 +171,7 @@ async function loadAnecdotes(){
       <span style="font-size:1.5rem;flex-shrink:0;margin-top:2px;">📖</span>
       <div style="flex:1;">
         <div class="an-title">${a.titre}</div>
-        <div class="an-meta">${[a.date_anec,a.auteur?'Par '+a.auteur:'',a.personnes_noms].filter(Boolean).join(' · ')}</div>
+        <div class="an-meta">${[a.date_anec,a.auteur?T('lbl_by')+' '+a.auteur:'',a.personnes_noms].filter(Boolean).join(' · ')}</div>
         <div class="an-excerpt">${a.contenu}</div>
       </div>
     </div>`).join('');
@@ -181,12 +181,12 @@ async function openAnecdote(id){
   const a=await api('GET',`api/anecdotes.php?id=${id}`);
   let html=`<div class="modal-hd" style="padding:1.2rem 1.4rem .8rem;">
     <div style="font-size:1.5rem;">📖</div>
-    <div class="modal-ti"><div class="modal-name">${a.titre}</div>${a.date_anec||a.auteur?`<div class="modal-maiden">${[a.date_anec,a.auteur?'Par '+a.auteur:''].filter(Boolean).join(' · ')}</div>`:''}</div>
+    <div class="modal-ti"><div class="modal-name">${a.titre}</div>${a.date_anec||a.auteur?`<div class="modal-maiden">${[a.date_anec,a.auteur?T('lbl_by')+' '+a.auteur:''].filter(Boolean).join(' · ')}</div>`:''}</div>
     <button class="modal-close" onclick="closeOverlay('modal-person-overlay')">✕</button>
   </div><div class="modal-bd">`;
   html+=`<div class="notes-box" style="margin-bottom:1rem;">${a.contenu.replace(/\n/g,'<br>')}</div>`;
   if((a.personnes||[]).length){
-    html+=`<div class="modal-section"><div class="sec-title">Personnes mentionnées</div>`;
+    html+=`<div class="modal-section"><div class="sec-title">${T('form_mentions')}</div>`;
     a.personnes.forEach(p=>{
       const av=p.chemin_thumb?`<div class="fl-av ${p.genre}"><img src="${imgUrl(p.chemin_thumb)}" alt=""></div>`:`<div class="fl-av ${p.genre}">${(p.prenom[0]||'')+(p.nom[0]||'')}</div>`;
       html+=`<div class="family-link" onclick="openPerson(${p.id});closeOverlay('modal-person-overlay')">${av}<div class="fl-name">${p.prenom} ${p.nom}</div></div>`;
@@ -207,20 +207,20 @@ function showAnecdoteForm(id){
   const peopleOptions=people.map(p=>`<option value="${p.id}">${fullName(p)}</option>`).join('');
   document.getElementById('modal-form-anecdote').innerHTML=`
     <div class="modal-hd" style="padding:1.2rem 1.4rem .8rem;">
-      <div style="flex:1;font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:500;">${id?'Modifier':'Nouvelle anecdote'}</div>
+      <div style="flex:1;font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:500;">${id?T('form_title_edit'):T('form_title_new_anec')}</div>
       <button class="modal-close" onclick="closeOverlay('modal-form-anecdote-overlay')">✕</button>
     </div>
     <div class="modal-bd">
-      <div class="fg"><label>Titre *</label><input id="fa-titre" placeholder="Ex : L'été où grand-père a construit la cabane"></div>
-      <div class="fg"><label>Contenu *</label><textarea id="fa-contenu" style="min-height:160px;" placeholder="Racontez cette histoire…"></textarea></div>
+      <div class="fg"><label>${T('form_titre')} *</label><input id="fa-titre" placeholder="Ex : L'été où grand-père a construit la cabane"></div>
+      <div class="fg"><label>${T('form_contenu')} *</label><textarea id="fa-contenu" style="min-height:160px;" placeholder="Racontez cette histoire…"></textarea></div>
       <div class="form-grid">
-        <div class="fg"><label>Date approximative</label><input id="fa-date" placeholder="Ex : 1972, Été 1985…"></div>
-        <div class="fg"><label>Écrit par</label><input id="fa-auteur" placeholder="Votre prénom"></div>
-        <div class="fg full"><label>Personnes mentionnées</label><select id="fa-personnes" multiple size="5" style="height:110px;">${peopleOptions}</select></div>
+        <div class="fg"><label>${T('form_date_approx')}</label><input id="fa-date" placeholder="Ex : 1972, Été 1985…"></div>
+        <div class="fg"><label>${T('form_written_by')}</label><input id="fa-auteur" placeholder="Votre prénom"></div>
+        <div class="fg full"><label>${T('form_mentions')}</label><select id="fa-personnes" multiple size="5" style="height:110px;">${peopleOptions}</select></div>
       </div>
       <div class="form-actions">
-        <button class="btn-primary" onclick="saveAnecdote(${id||''})">💾 Enregistrer</button>
-        <button class="btn-secondary" onclick="closeOverlay('modal-form-anecdote-overlay')">Annuler</button>
+        <button class="btn-primary" onclick="saveAnecdote(${id||''})">${T('form_save')}</button>
+        <button class="btn-secondary" onclick="closeOverlay('modal-form-anecdote-overlay')">${T('form_cancel')}</button>
       </div>
     </div>`;
   document.getElementById('modal-form-anecdote-overlay').classList.add('open');
@@ -230,7 +230,7 @@ async function saveAnecdote(id){
   const sel=document.getElementById('fa-personnes');
   const personnes=Array.from(sel.selectedOptions).map(o=>parseInt(o.value));
   const body={titre:document.getElementById('fa-titre').value.trim(),contenu:document.getElementById('fa-contenu').value.trim(),date_anec:document.getElementById('fa-date').value.trim()||null,auteur:document.getElementById('fa-auteur').value.trim()||null,personnes};
-  if(!body.titre||!body.contenu){toast('Titre et contenu requis','error');return;}
+  if(!body.titre||!body.contenu){toast(T('error_title_content_required'),'error');return;}
   try{
     if(id) await api('PUT',`api/anecdotes.php?id=${id}`,body);
     else   await api('POST','api/anecdotes.php',body);

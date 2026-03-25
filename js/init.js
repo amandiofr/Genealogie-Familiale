@@ -5,7 +5,7 @@ async function init() {
   try {
     const r = await api('GET','api/auth.php?action=me');
     currentUser = r.user;
-    document.getElementById('user-badge').textContent = r.user.nom + ' (' + r.user.role + ')';
+    document.getElementById('user-badge').textContent = r.user.nom + ' (' + T('role_' + r.user.role) + ')';
     if (r.user.role === 'admin') document.getElementById('nav-admin').style.display = '';
     // Masquer bouton ajouter pour lecteurs
     if (r.user.role === 'lecteur') {
@@ -63,7 +63,6 @@ function showView(name, btn) {
   if (name==='list')      { renderList(); }
   if (name==='events')    { loadEvents(); }
   if (name==='anecdotes') { loadAnecdotes(); }
-  if (name==='stats')     { renderStats(); }
   if (name==='admin')     { loadUsers(); }
 }
 
