@@ -54,9 +54,10 @@ async function openPerson(id) {
 
   // Famille
   const conjoints  = (p.liens||[]).filter(l=>l.type==='conjoint');
+  const fiancailles= (p.liens||[]).filter(l=>l.type==='fiancailles');
   const parents    = (p.liens||[]).filter(l=>l.type==='parent_enfant'&&Number(l.personne_b)===id);
   const enfants    = (p.liens||[]).filter(l=>l.type==='parent_enfant'&&Number(l.personne_a)===id);
-  const allFamily  = [...conjoints.map(l=>({...l,role:T('role_conjoint')})),...parents.map(l=>({...l,role:l.genre==='male'?T('role_pere'):T('role_mere')})),...enfants.map(l=>({...l,role:l.genre==='male'?T('role_fils'):T('role_fille')}))];
+  const allFamily  = [...conjoints.map(l=>({...l,role:'💍'})),...fiancailles.map(l=>({...l,role:'💑'})),...parents.map(l=>({...l,role:'👨‍👩‍👧'})),...enfants.map(l=>({...l,role:l.genre==='male'?'👦':'👧'}))];
   if(allFamily.length){
     html+=`<div class="modal-section"><div class="sec-title">${T('sec_famille')}</div>`;
     allFamily.forEach(l=>{
@@ -281,10 +282,10 @@ function showLienForm(personId) {
       </div>
       <div class="fg"><label>Type de lien</label>
         <select id="lf-type">
-          <option value="conjoint">💍 Marié(e) avec</option>
-          <option value="parent_enfant_a">👶 Est parent de</option>
-          <option value="parent_enfant_b">👨‍👩‍👧 A pour parent</option>
-          <option value="fiancailles">💌 Fiancé(e) avec</option>
+          <option value="conjoint">💍 ${T('lien_conjoint')}</option>
+          <option value="parent_enfant_a">👶 ${T('lien_parent_a')}</option>
+          <option value="parent_enfant_b">👨‍👩‍👧 ${T('lien_parent_b')}</option>
+          <option value="fiancailles">💑 ${T('lien_fiancailles')}</option>
         </select>
       </div>
       <div class="fg"><label>Avec qui</label><select id="lf-other">${others}</select></div>

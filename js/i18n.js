@@ -103,6 +103,8 @@ const LANGS = {
     role_admin_desc:'Administrateur — accès total',
     // Photo / avatar
     btn_add_link:'+ Ajouter un lien familial',
+    lien_conjoint:'Marié(e) avec', lien_parent_a:'Est parent de',
+    lien_parent_b:'A pour parent', lien_fiancailles:'Fiancé(e) avec',
     lbl_avatar:'avatar', title_set_avatar:'Définir comme avatar',
     lbl_add_photos:'Ajouter des photos',
     lbl_upload_hint:'Cliquez ou déposez vos photos',
@@ -201,6 +203,8 @@ const LANGS = {
     role_admin_desc:'Administrador — acesso total',
     // Photo / avatar
     btn_add_link:'+ Adicionar ligação familiar',
+    lien_conjoint:'Casado(a) com', lien_parent_a:'É pai/mãe de',
+    lien_parent_b:'Tem como pai/mãe', lien_fiancailles:'Noivo(a) de',
     lbl_avatar:'avatar', title_set_avatar:'Definir como avatar',
     lbl_add_photos:'Adicionar fotos',
     lbl_upload_hint:'Clique ou solte as suas fotos',
