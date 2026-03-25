@@ -1,0 +1,50 @@
+# ─── Généalogie Familiale — .htaccess ────────────────────────────────────────
+
+Options -Indexes
+ServerSignature Off
+
+# ── Protéger config.php en accès direct ──────────────────────────────────────
+<FilesMatch "^config\.php$">
+    Order Deny,Allow
+    Deny from all
+</FilesMatch>
+
+# ── Headers de sécurité ───────────────────────────────────────────────────────
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set X-XSS-Protection "1; mode=block"
+</IfModule>
+
+# ── Cache pour assets statiques ───────────────────────────────────────────────
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/jpeg "access plus 30 days"
+    ExpiresByType image/png  "access plus 30 days"
+    ExpiresByType image/webp "access plus 30 days"
+    ExpiresByType text/css   "access plus 7 days"
+    ExpiresByType application/javascript "access plus 7 days"
+</IfModule>
+
+# ── Compression Gzip ─────────────────────────────────────────────────────────
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/css application/javascript application/json
+</IfModule>
+
+# ── Réécriture : toutes les routes → index.html (SPA) ────────────────────────
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /familia-new/
+
+    # Laisser passer les fichiers/dossiers qui existent vraiment
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # API → fichiers PHP directs
+    RewriteRule ^api/(.+)$ api/$1 [L]
+
+    # Tout le reste → SPA
+    RewriteRule ^ index.html [L]
+</IfModule>

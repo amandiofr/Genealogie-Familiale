@@ -1,0 +1,261 @@
+// ══════════════════════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
+//  i18n — Traductions FR / PT
+// ══════════════════════════════════════════════════════════════
+const LANGS = {
+  fr: {
+    // Nav
+    nav_tree:'Arbre', nav_list:'Membres', nav_events:'Événements',
+    nav_anecdotes:'Anecdotes', nav_stats:'Statistiques', nav_admin:'Admin',
+    // Site title & page headers
+    site_title:'Notre Famille',
+    h_membres:'Membres', h_events:'Événements', h_anecdotes:'Anecdotes',
+    h_stats:'Statistiques', h_admin:'Administration',
+    h_repartition:'Répartition par génération',
+    h_longevite:'Longévité la plus élevée',
+    // Header
+    logout:'Déconnexion',
+    // List
+    search_placeholder:'Rechercher par nom, lieu, profession…',
+    filter_all:'Tous', filter_male:'Hommes', filter_female:'Femmes',
+    filter_living:'Vivants', filter_deceased:'Décédés',
+    add_person:'+ Ajouter',
+    // Tree
+    tree_hint:'Cliquez sur une personne pour voir sa fiche',
+    // Person modal
+    sec_info:'Informations', sec_famille:'Famille', sec_photos:'Photos',
+    sec_bio:'Biographie', sec_events:'Événements', sec_anecdotes:'Anecdotes',
+    lbl_naiss:'Naissance', lbl_age:'Âge', lbl_deces:'Décès', lbl_job:'Profession',
+    btn_edit:'✏️ Modifier', btn_photos:'📷 Photos', btn_delete:'🗑',
+    avatar_set:'Avatar mis à jour',
+    deceased_m:'décédé', deceased_f:'décédée',
+    ne_m:'né en', ne_f:'née en',
+    ne_label:'né', nee_label:'née',
+    // Events
+    add_event:'+ Ajouter', add_anecdote:'+ Écrire',
+    sec_participants:'Participants', sec_description:'Description',
+    // Stats
+    stat_membres:'Membres', stat_vivants:'Vivants', stat_decedes:'Décédés',
+    stat_gens:'Générations', stat_professions:'Professions renseignées',
+    stat_photos:'Avec une photo', stat_repartition:'Répartition par génération',
+    stat_longevite:'Longévité la plus élevée', stat_ans:'ans',
+    // Admin
+    admin_comptes:'Gestion des comptes', admin_export:'Export des données',
+    admin_import:'Importer des données', admin_password:'Changer mon mot de passe',
+    admin_new_user:'+ Nouveau compte', admin_save:'Enregistrer',
+    import_ged:'Fichier GEDCOM (.ged)', import_json:'Fichier JSON (export précédent)',
+    pwd_old:'Ancien mot de passe', pwd_new:'Nouveau mot de passe', pwd_save:'Modifier',
+    btn_import_ged:'Importer GEDCOM', btn_import_json:'Importer JSON',
+    // Forms
+    form_prenom:'Prénom', form_nom:'Nom', form_nom_naiss:'Nom de naissance',
+    form_genre:'Genre', form_homme:'Homme', form_femme:'Femme', form_autre:'Autre',
+    form_naiss:'Date de naissance', form_lieu_naiss:'Lieu de naissance',
+    form_deces:'Date de décès', form_lieu_deces:'Lieu de décès',
+    form_generation:'Génération', form_job:'Profession', form_bio:'Biographie / Notes',
+    form_cancel:'Annuler', form_save:'💾 Enregistrer',
+    // Empty states
+    nb_personnes_label:'personne(s)',
+    empty_events:'Aucun événement', empty_events_sub:'Ajoutez votre premier événement familial',
+    empty_anecdotes:'Aucune anecdote', empty_anecdotes_sub:'Écrivez la première histoire familiale',
+    empty_search:'Aucun résultat',
+    // Roles
+    role_lecteur:'Lecteur', role_editeur:'Éditeur', role_admin:'Administrateur',
+    // Avatar événement
+    event_avatar_set:'Avatar de l\'événement mis à jour',
+    event_favourite:'favori',
+    btn_delete_photo:'Supprimer la photo',
+    // Toasts
+    toast_added:'Personne ajoutée', toast_edited:'Personne modifiée',
+    toast_deleted:'Personne supprimée', toast_event_added:'Événement ajouté',
+    toast_event_edited:'Événement modifié', toast_event_deleted:'Événement supprimé',
+    toast_anec_added:'Anecdote ajoutée', toast_anec_edited:'Anecdote modifiée',
+    toast_anec_deleted:'Anecdote supprimée', toast_user_created:'Compte créé',
+    toast_user_deleted:'Compte supprimé', toast_pwd:'Mot de passe modifié',
+    // Confirmations
+    confirm_delete_person:'Supprimer définitivement cette personne ?',
+    confirm_delete_event:'Supprimer cet événement ?',
+    confirm_delete_anec:'Supprimer cette anecdote ?',
+    confirm_delete_user:'Supprimer ce compte ?',
+    // Famille rôles
+    role_conjoint:'Conjoint(e)', role_pere:'Père', role_mere:'Mère',
+    role_fils:'Fils', role_fille:'Fille',
+    // Gen labels
+    gen_0:'Ancêtres fondateurs', gen_1:'Arrière-grands-parents',
+    gen_2:'Grands-parents', gen_3:'Parents', gen_4:'Votre génération',
+    gen_5:'Enfants', gen_6:'Petits-enfants',
+  },
+  pt: {
+    nav_tree:'Árvore', nav_list:'Membros', nav_events:'Eventos',
+    nav_anecdotes:'Anedotas', nav_stats:'Estatísticas', nav_admin:'Admin',
+    // Site title & page headers
+    site_title:'Nossa Família',
+    h_membres:'Membros', h_events:'Eventos', h_anecdotes:'Anedotas',
+    h_stats:'Estatísticas', h_admin:'Administração',
+    h_repartition:'Distribuição por geração',
+    h_longevite:'Maior longevidade',
+    logout:'Sair',
+    search_placeholder:'Pesquisar por nome, local, profissão…',
+    filter_all:'Todos', filter_male:'Homens', filter_female:'Mulheres',
+    filter_living:'Vivos', filter_deceased:'Falecidos',
+    add_person:'+ Adicionar',
+    tree_hint:'Clique numa pessoa para ver a sua ficha',
+    sec_info:'Informações', sec_famille:'Família', sec_photos:'Fotos',
+    sec_bio:'Biografia', sec_events:'Eventos', sec_anecdotes:'Anedotas',
+    lbl_naiss:'Nascimento', lbl_age:'Idade', lbl_deces:'Falecimento', lbl_job:'Profissão',
+    btn_edit:'✏️ Editar', btn_photos:'📷 Fotos', btn_delete:'🗑',
+    avatar_set:'Avatar atualizado',
+    deceased_m:'falecido', deceased_f:'falecida',
+    ne_m:'nascido em', ne_f:'nascida em',
+    ne_label:'nascido', nee_label:'nascida',
+    add_event:'+ Adicionar', add_anecdote:'+ Escrever',
+    sec_participants:'Participantes', sec_description:'Descrição',
+    stat_membres:'Membros', stat_vivants:'Vivos', stat_decedes:'Falecidos',
+    stat_gens:'Gerações', stat_professions:'Profissões registadas',
+    stat_photos:'Com foto', stat_repartition:'Distribuição por geração',
+    stat_longevite:'Maior longevidade', stat_ans:'anos',
+    admin_comptes:'Gestão de contas', admin_export:'Exportar dados',
+    admin_import:'Importar dados', admin_password:'Alterar a minha palavra-passe',
+    admin_new_user:'+ Nova conta', admin_save:'Guardar',
+    import_ged:'Ficheiro GEDCOM (.ged)', import_json:'Ficheiro JSON (exportação anterior)',
+    pwd_old:'Palavra-passe atual', pwd_new:'Nova palavra-passe', pwd_save:'Alterar',
+    btn_import_ged:'Importar GEDCOM', btn_import_json:'Importar JSON',
+    form_prenom:'Primeiro nome', form_nom:'Apelido', form_nom_naiss:'Nome de solteira',
+    form_genre:'Género', form_homme:'Homem', form_femme:'Mulher', form_autre:'Outro',
+    form_naiss:'Data de nascimento', form_lieu_naiss:'Local de nascimento',
+    form_deces:'Data de falecimento', form_lieu_deces:'Local de falecimento',
+    form_generation:'Geração', form_job:'Profissão', form_bio:'Biografia / Notas',
+    form_cancel:'Cancelar', form_save:'💾 Guardar',
+    nb_personnes_label:'pessoa(s)',
+    empty_events:'Nenhum evento', empty_events_sub:'Adicione o primeiro evento familiar',
+    empty_anecdotes:'Nenhuma anedota', empty_anecdotes_sub:'Escreva a primeira história familiar',
+    empty_search:'Sem resultados',
+    role_lecteur:'Leitor', role_editeur:'Editor', role_admin:'Administrador',
+    event_avatar_set:'Avatar do evento atualizado',
+    event_favourite:'favorito',
+    btn_delete_photo:'Eliminar foto',
+    toast_added:'Pessoa adicionada', toast_edited:'Pessoa modificada',
+    toast_deleted:'Pessoa eliminada', toast_event_added:'Evento adicionado',
+    toast_event_edited:'Evento modificado', toast_event_deleted:'Evento eliminado',
+    toast_anec_added:'Anedota adicionada', toast_anec_edited:'Anedota modificada',
+    toast_anec_deleted:'Anedota eliminada', toast_user_created:'Conta criada',
+    toast_user_deleted:'Conta eliminada', toast_pwd:'Palavra-passe alterada',
+    confirm_delete_person:'Eliminar definitivamente esta pessoa?',
+    confirm_delete_event:'Eliminar este evento?',
+    confirm_delete_anec:'Eliminar esta anedota?',
+    confirm_delete_user:'Eliminar esta conta?',
+    role_conjoint:'Cônjuge', role_pere:'Pai', role_mere:'Mãe',
+    role_fils:'Filho', role_fille:'Filha',
+    gen_0:'Antepassados fundadores', gen_1:'Bisavós',
+    gen_2:'Avós', gen_3:'Pais', gen_4:'A sua geração',
+    gen_5:'Filhos', gen_6:'Netos',
+  }
+};
+
+let currentLang = localStorage.getItem('lang') || 'fr';
+function T(key) { return LANGS[currentLang][key] || LANGS['fr'][key] || key; }
+
+const LANG_META = { fr:{flag:'<img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzIDIiPjxyZWN0IHdpZHRoPSIxIiBoZWlnaHQ9IjIiIGZpbGw9IiMwMDIzOTUiLz48cmVjdCB4PSIxIiB3aWR0aD0iMSIgaGVpZ2h0PSIyIiBmaWxsPSIjZmZmIi8+PHJlY3QgeD0iMiIgd2lkdGg9IjEiIGhlaWdodD0iMiIgZmlsbD0iI0VEMjkzOSIvPjwvc3ZnPg==" width="18" height="12" style="border-radius:2px;vertical-align:middle;flex-shrink:0;" alt="">',code:'FR'}, pt:{flag:'<img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1IDMiPjxyZWN0IHdpZHRoPSIyIiBoZWlnaHQ9IjMiIGZpbGw9IiMwMDY2MDAiLz48cmVjdCB4PSIyIiB3aWR0aD0iMyIgaGVpZ2h0PSIzIiBmaWxsPSIjRkYwMDAwIi8+PGNpcmNsZSBjeD0iMiIgY3k9IjEuNSIgcj0iMC42IiBmaWxsPSIjRkZENzAwIiBzdHJva2U9IiMwMDMzOTkiIHN0cm9rZS13aWR0aD0iMC4xMiIvPjwvc3ZnPg==" width="18" height="12" style="border-radius:2px;vertical-align:middle;flex-shrink:0;" alt="">',code:'PT'} };
+
+function toggleLangMenu() {
+  const menu = document.getElementById('lang-menu');
+  const btn  = document.getElementById('lang-btn');
+  const open = menu.style.display === 'block';
+  menu.style.display = open ? 'none' : 'block';
+  btn.setAttribute('aria-expanded', String(!open));
+}
+function closeLangMenu() {
+  document.getElementById('lang-menu').style.display = 'none';
+  document.getElementById('lang-btn').setAttribute('aria-expanded','false');
+}
+// Fermer le menu si clic en dehors
+document.addEventListener('click', e => {
+  if (!document.getElementById('lang-picker')?.contains(e.target)) closeLangMenu();
+});
+
+function setLang(lang) {
+  currentLang = lang;
+  localStorage.setItem('lang', lang);
+  const m = LANG_META[lang] || LANG_META['fr'];
+  const flagEl = document.getElementById('lang-flag');
+  const codeEl = document.getElementById('lang-code');
+  if (flagEl) flagEl.innerHTML = m.flag;
+  if (codeEl) codeEl.textContent = m.code;
+  applyLang();
+}
+
+function applyLang() {
+  // Logo title
+  const logoEl = document.getElementById('logo-title');
+  if (logoEl) logoEl.textContent = T('site_title');
+  // Nav buttons
+  const navMap = {tree:'nav_tree',list:'nav_list',events:'nav_events',anecdotes:'nav_anecdotes',stats:'nav_stats',admin:'nav_admin'};
+  document.querySelectorAll('nav button[data-view]').forEach(b => { b.textContent = T(navMap[b.dataset.view]||b.dataset.view); });
+  // Logout
+  const logoutBtn = document.getElementById('btn-logout');
+  if (logoutBtn) logoutBtn.textContent = T('logout');
+  // Search placeholder
+  const si = document.getElementById('search');
+  if (si) si.placeholder = T('search_placeholder');
+  // Filter buttons
+  const filterMap = {all:'filter_all',male:'filter_male',female:'filter_female',living:'filter_living',deceased:'filter_deceased'};
+  document.querySelectorAll('.filter-btn[onclick]').forEach(b => {
+    const m = b.getAttribute('onclick').match(/setFilter\('(\w+)'/);
+    if (m && filterMap[m[1]]) b.textContent = T(filterMap[m[1]]);
+  });
+  // Add buttons
+  const btnP = document.getElementById('btn-add-person');
+  if (btnP) btnP.textContent = T('add_person');
+  const btnE = document.getElementById('btn-add-event');
+  if (btnE) btnE.textContent = T('add_event');
+  const btnA = document.getElementById('btn-add-anecdote');
+  if (btnA) btnA.textContent = T('add_anecdote');
+  // Tree hint
+  const th = document.getElementById('tree-hint');
+  if (th) th.textContent = T('tree_hint');
+  // Page section headings (h2 titles of each view)
+  const headings = {
+    'view-list-heading':     'h_membres',
+    'view-events-heading':   'h_events',
+    'view-anecdotes-heading':'h_anecdotes',
+    'view-stats-heading':    'h_stats',
+    'view-admin-heading':    'h_admin',
+  };
+  Object.entries(headings).forEach(([id, key]) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = T(key);
+  });
+  // Admin labels
+  const adminIds = {
+    'lbl-admin-comptes':  'admin_comptes',
+    'lbl-admin-export':   'admin_export',
+    'lbl-admin-import':   'admin_import',
+    'lbl-admin-password': 'admin_password',
+    'btn-admin-new-user': 'admin_new_user',
+    'lbl-import-ged':     'import_ged',
+    'lbl-import-json':    'import_json',
+    'lbl-pwd-old':        'pwd_old',
+    'lbl-pwd-new':        'pwd_new',
+    'btn-pwd-save':       'pwd_save',
+    'btn-import-ged':     'btn_import_ged',
+    'btn-import-json':    'btn_import_json',
+  };
+  Object.entries(adminIds).forEach(([id, key]) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = T(key);
+  });
+  // Re-render current view if list/stats
+  const activeView = document.querySelector('.view.active');
+  if (activeView?.id === 'view-list') filterList();
+  if (activeView?.id === 'view-stats') renderStats();
+}
+
+// BASE_URL : chemin absolu vers la racine du site (fonctionne quel que soit le sous-répertoire)
+const BASE_URL = window.location.pathname.replace(/\/[^\/]*$/, '/');
+function imgUrl(path) { return path ? BASE_URL + path : ''; }
+
+let people = [], currentFilter = 'all', currentUser = null;
+const GEN_LABELS = () => [T('gen_0'),T('gen_1'),T('gen_2'),T('gen_3'),T('gen_4'),T('gen_5'),T('gen_6')];
+const EVT_ICONS  = {mariage:'💍',naissance:'👶',deces:'🕊',rencontre:'🤝',voyage:'✈️',reunion:'🏠',fete:'🎉',autre:'📌'};
+

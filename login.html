@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Connexion — Généalogie Familiale</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#faf9f6;--bg2:#f2efe8;--ink:#1a1814;--ink2:#5a5650;--ink3:#9a948c;
+  --accent:#8b6f4e;--accent2:#c9a87c;--border:rgba(26,24,20,.1);
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem;}
+.card{width:100%;max-width:380px;background:#fff;border:1px solid var(--border);border-radius:16px;padding:2.5rem 2rem;box-shadow:0 4px 40px rgba(26,24,20,.06);}
+.logo{text-align:center;margin-bottom:2rem;}
+.logo-icon{font-size:2rem;margin-bottom:.5rem;}
+.logo-title{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:400;color:var(--ink);}
+.logo-sub{font-size:.75rem;color:var(--ink3);margin-top:4px;letter-spacing:.04em;}
+label{display:block;font-size:.75rem;font-weight:500;color:var(--ink2);margin-bottom:5px;letter-spacing:.02em;}
+input{width:100%;padding:10px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.9rem;color:var(--ink);outline:none;transition:border-color .15s;margin-bottom:1rem;}
+input:focus{border-color:var(--accent2);}
+.btn{width:100%;padding:11px;background:var(--ink);color:var(--bg);border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:500;cursor:pointer;transition:opacity .15s;margin-top:.5rem;}
+.btn:hover{opacity:.85;}
+.err{background:#fde8e8;color:#a00;border-radius:8px;padding:10px 12px;font-size:.82rem;margin-bottom:1rem;display:none;}
+.err.show{display:block;}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">
+    <div class="logo-icon">🌿</div>
+    <div class="logo-title">Notre Famille</div>
+    <div class="logo-sub">Espace privé — connexion requise</div>
+  </div>
+  <div class="err" id="err"></div>
+  <label for="email">Adresse e-mail</label>
+  <input type="email" id="email" placeholder="vous@exemple.fr" autocomplete="username">
+  <label for="password">Mot de passe</label>
+  <input type="password" id="password" placeholder="••••••••" autocomplete="current-password">
+  <button class="btn" id="btn">Se connecter</button>
+</div>
+<script>
+async function login() {
+  const email = document.getElementById('email').value.trim();
+  const pass  = document.getElementById('password').value;
+  const err   = document.getElementById('err');
+  const btn   = document.getElementById('btn');
+  err.classList.remove('show');
+  btn.textContent = 'Connexion…'; btn.disabled = true;
+  try {
+    const r = await fetch('api/auth.php?action=login', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({email, password: pass})
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || 'Erreur');
+    window.location.href = './';
+  } catch(e) {
+    err.textContent = e.message; err.classList.add('show');
+    btn.textContent = 'Se connecter'; btn.disabled = false;
+  }
+}
+document.getElementById('btn').onclick = login;
+document.getElementById('password').onkeydown = e => { if(e.key==='Enter') login(); };
+document.getElementById('email').onkeydown = e => { if(e.key==='Enter') document.getElementById('password').focus(); };
+</script>
+</body>
+</html>

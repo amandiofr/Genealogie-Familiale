@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Généalogie Familiale</title>
+<meta name="version" content="2.1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+</head>
+<body>
+
+<header>
+  <div class="logo">🌿 <span id="logo-title">Notre Famille</span></div>
+  <nav id="nav">
+    <button class="active" data-view="tree">Arbre</button>
+    <button data-view="list">Membres</button>
+    <button data-view="events">Événements</button>
+    <button data-view="anecdotes">Anecdotes</button>
+    <button data-view="stats">Statistiques</button>
+    <button data-view="admin" id="nav-admin" style="display:none">Admin</button>
+  </nav>
+  <div class="header-right">
+    <span class="user-badge" id="user-badge"></span>
+    <div id="lang-picker" style="position:relative;">
+      <button id="lang-btn" onclick="toggleLangMenu()" style="background:none;border:1px solid var(--border);border-radius:6px;padding:4px 9px;font-size:.8rem;color:var(--ink2);font-family:'DM Sans',sans-serif;cursor:pointer;display:flex;align-items:center;gap:5px;white-space:nowrap;" aria-haspopup="true" aria-expanded="false">
+        <span id="lang-flag"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzIDIiPjxyZWN0IHdpZHRoPSIxIiBoZWlnaHQ9IjIiIGZpbGw9IiMwMDIzOTUiLz48cmVjdCB4PSIxIiB3aWR0aD0iMSIgaGVpZ2h0PSIyIiBmaWxsPSIjZmZmIi8+PHJlY3QgeD0iMiIgd2lkdGg9IjEiIGhlaWdodD0iMiIgZmlsbD0iI0VEMjkzOSIvPjwvc3ZnPg==" width="18" height="12" style="border-radius:2px;vertical-align:middle;flex-shrink:0;" alt=""></span><span id="lang-code">FR</span><span style="font-size:.6rem;opacity:.6;">▾</span>
+      </button>
+      <div id="lang-menu" style="display:none;position:absolute;right:0;top:calc(100% + 4px);background:var(--bg);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow-lg);z-index:150;min-width:110px;overflow:hidden;">
+        <button onclick="setLang('fr');closeLangMenu()" style="display:flex;align-items:center;gap:8px;width:100%;padding:8px 12px;background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.82rem;color:var(--ink);text-align:left;" onmouseover="this.style.background='var(--bg2)'" onmouseout="this.style.background='none'"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzIDIiPjxyZWN0IHdpZHRoPSIxIiBoZWlnaHQ9IjIiIGZpbGw9IiMwMDIzOTUiLz48cmVjdCB4PSIxIiB3aWR0aD0iMSIgaGVpZ2h0PSIyIiBmaWxsPSIjZmZmIi8+PHJlY3QgeD0iMiIgd2lkdGg9IjEiIGhlaWdodD0iMiIgZmlsbD0iI0VEMjkzOSIvPjwvc3ZnPg==" width="18" height="12" style="border-radius:2px;vertical-align:middle;flex-shrink:0;" alt=""> <span>Français</span></button>
+        <button onclick="setLang('pt');closeLangMenu()" style="display:flex;align-items:center;gap:8px;width:100%;padding:8px 12px;background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.82rem;color:var(--ink);text-align:left;" onmouseover="this.style.background='var(--bg2)'" onmouseout="this.style.background='none'"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1IDMiPjxyZWN0IHdpZHRoPSIyIiBoZWlnaHQ9IjMiIGZpbGw9IiMwMDY2MDAiLz48cmVjdCB4PSIyIiB3aWR0aD0iMyIgaGVpZ2h0PSIzIiBmaWxsPSIjRkYwMDAwIi8+PGNpcmNsZSBjeD0iMiIgY3k9IjEuNSIgcj0iMC42IiBmaWxsPSIjRkZENzAwIiBzdHJva2U9IiMwMDMzOTkiIHN0cm9rZS13aWR0aD0iMC4xMiIvPjwvc3ZnPg==" width="18" height="12" style="border-radius:2px;vertical-align:middle;flex-shrink:0;" alt=""> <span>Português</span></button>
+      </div>
+    </div>
+    <button class="btn-sm" id="btn-logout" onclick="logout()">Déconnexion</button>
+  </div>
+</header>
+
+<!-- ── ARBRE ─────────────────────────────────────────────────── -->
+<div id="view-tree" class="view active">
+  <p class="tree-hint" id="tree-hint" style="padding-top:1rem;"></p>
+  <div class="tree-wrap" style="width:100%;"><div id="tree-container"></div></div>
+</div>
+
+<!-- ── LISTE ─────────────────────────────────────────────────── -->
+<div id="view-list" class="view">
+  <div class="view-inner">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+      <h2 id="view-list-heading" style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:400;">Membres</h2>
+      <button class="btn-primary" id="btn-add-person" style="font-size:.78rem;padding:7px 14px;">+ Ajouter</button>
+    </div>
+    <div class="search-wrap">
+      <span style="color:var(--ink3);font-size:.9rem;">🔍</span>
+      <input type="text" id="search" placeholder="Rechercher par nom, lieu, profession…" oninput="filterList()">
+    </div>
+    <div class="filter-row">
+      <button class="filter-btn active" onclick="setFilter('all',this)">Tous</button>
+      <button class="filter-btn" onclick="setFilter('male',this)">Hommes</button>
+      <button class="filter-btn" onclick="setFilter('female',this)">Femmes</button>
+      <button class="filter-btn" onclick="setFilter('living',this)">Vivants</button>
+      <button class="filter-btn" onclick="setFilter('deceased',this)">Décédés</button>
+    </div>
+    <div id="person-list"></div>
+  </div>
+</div>
+
+<!-- ── ÉVÉNEMENTS ─────────────────────────────────────────────── -->
+<div id="view-events" class="view">
+  <div class="view-inner">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.2rem;">
+      <h2 id="view-events-heading" style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:400;">Événements</h2>
+      <button class="btn-primary" id="btn-add-event" style="font-size:.78rem;padding:7px 14px;">+ Ajouter</button>
+    </div>
+    <div id="events-grid" class="cards-grid"></div>
+  </div>
+</div>
+
+<!-- ── ANECDOTES ──────────────────────────────────────────────── -->
+<div id="view-anecdotes" class="view">
+  <div class="view-inner">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.2rem;">
+      <h2 id="view-anecdotes-heading" style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:400;">Anecdotes</h2>
+      <button class="btn-primary" id="btn-add-anecdote" style="font-size:.78rem;padding:7px 14px;">+ Écrire</button>
+    </div>
+    <div id="anecdotes-list"></div>
+  </div>
+</div>
+
+<!-- ── STATS ──────────────────────────────────────────────────── -->
+<div id="view-stats" class="view">
+  <div class="view-inner">
+    <h2 id="view-stats-heading" style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:400;margin-bottom:1.2rem;">Statistiques</h2>
+    <div class="stats-grid" id="stats-grid"></div>
+    <div id="stats-extra"></div>
+  </div>
+</div>
+
+<!-- ── ADMIN ──────────────────────────────────────────────────── -->
+<div id="view-admin" class="view">
+  <div class="view-inner">
+    <h2 id="view-admin-heading" style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:400;margin-bottom:1.2rem;">Administration</h2>
+    <!-- Utilisateurs -->
+    <div class="form-card">
+      <div class="form-title" id="lbl-admin-comptes">Gestion des comptes</div>
+      <div id="users-list" style="margin-bottom:1rem;"></div>
+      <button class="btn-primary" onclick="showAddUser()" style="font-size:.78rem;padding:7px 14px;" id="btn-admin-new-user">+ Nouveau compte</button>
+    </div>
+    <!-- Export -->
+    <div class="form-card">
+      <div class="form-title" id="lbl-admin-export">Export des données</div>
+      <a class="export-btn" href="api/export.php?action=gedcom">
+        <span style="font-size:1.1rem;">🧬</span>
+        <div><div class="export-title">Exporter en GEDCOM</div><div class="export-sub">Standard universel — compatible Ancestry, MyHeritage, Geneanet…</div></div>
+        <span style="color:var(--ink3);">↓</span>
+      </a>
+      <a class="export-btn" href="api/export.php?action=json">
+        <span style="font-size:1.1rem;">📦</span>
+        <div><div class="export-title">Exporter en JSON</div><div class="export-sub">Sauvegarde complète — toutes les données, événements, anecdotes</div></div>
+        <span style="color:var(--ink3);">↓</span>
+      </a>
+      <a class="export-btn" href="api/export.php?action=csv">
+        <span style="font-size:1.1rem;">📊</span>
+        <div><div class="export-title">Exporter en CSV</div><div class="export-sub">Liste des membres — compatible Excel / Google Sheets</div></div>
+        <span style="color:var(--ink3);">↓</span>
+      </a>
+    </div>
+    <!-- Import -->
+    <div class="form-card">
+      <div class="form-title" id="lbl-admin-import">Importer des données</div>
+      <div class="fg"><label id="lbl-import-ged">Fichier GEDCOM (.ged)</label><input type="file" accept=".ged" id="import-ged-file"></div>
+      <button class="btn-secondary" onclick="importFile('gedcom')" style="font-size:.8rem;" id="btn-import-ged">Importer GEDCOM</button>
+      <div style="margin-top:.9rem;" class="fg"><label id="lbl-import-json">Fichier JSON (export précédent)</label><input type="file" accept=".json" id="import-json-file"></div>
+      <button class="btn-secondary" onclick="importFile('json')" style="font-size:.8rem;" id="btn-import-json">Importer JSON</button>
+    </div>
+    <!-- Changer mdp -->
+    <div class="form-card">
+      <div class="form-title" id="lbl-admin-password">Changer mon mot de passe</div>
+      <div class="form-grid">
+        <div class="fg"><label id="lbl-pwd-old">Ancien mot de passe</label><input type="password" id="pwd-old"></div>
+        <div class="fg"><label id="lbl-pwd-new">Nouveau mot de passe</label><input type="password" id="pwd-new"></div>
+      </div>
+      <button class="btn-primary" onclick="changePassword()" style="font-size:.8rem;" id="btn-pwd-save">Modifier</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL FICHE PERSONNE ──────────────────────────────────── -->
+<div class="overlay" id="modal-person-overlay" onclick="closeOverlay('modal-person-overlay')">
+  <div class="modal" id="modal-person" onclick="event.stopPropagation()"></div>
+</div>
+
+<!-- ── MODAL FORM PERSONNE ───────────────────────────────────── -->
+<div class="overlay" id="modal-form-person-overlay" onclick="closeOverlay('modal-form-person-overlay')">
+  <div class="modal" id="modal-form-person" onclick="event.stopPropagation()" style="max-width:560px;"></div>
+</div>
+
+<!-- ── MODAL FORM ÉVÉNEMENT ──────────────────────────────────── -->
+<div class="overlay" id="modal-form-event-overlay" onclick="closeOverlay('modal-form-event-overlay')">
+  <div class="modal" id="modal-form-event" onclick="event.stopPropagation()" style="max-width:560px;"></div>
+</div>
+
+<!-- ── MODAL FORM ANECDOTE ───────────────────────────────────── -->
+<div class="overlay" id="modal-form-anecdote-overlay" onclick="closeOverlay('modal-form-anecdote-overlay')">
+  <div class="modal" id="modal-form-anecdote" onclick="event.stopPropagation()" style="max-width:560px;"></div>
+</div>
+
+<!-- ── MODAL ADD USER ────────────────────────────────────────── -->
+<div class="overlay" id="modal-user-overlay" onclick="closeOverlay('modal-user-overlay')">
+  <div class="modal" id="modal-user" onclick="event.stopPropagation()" style="max-width:420px;"></div>
+</div>
+
+<!-- ── LIGHTBOX ──────────────────────────────────────────────── -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <img id="lightbox-img" src="" alt="">
+</div>
+
+<div class="toast" id="toast"></div>
+
+
+<script src="js/i18n.js"></script>
+<script src="js/init.js"></script>
+<script src="js/arbre.js"></script>
+<script src="js/list.js"></script>
+<script src="js/events.js"></script>
+<script src="js/stats.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>

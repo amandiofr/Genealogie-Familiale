@@ -1,0 +1,6 @@
+# Bloquer uniquement l'exécution des scripts PHP — autoriser les images
+<FilesMatch "\.ph(p[0-9]?|tml|ar)$">
+    Order Deny,Allow
+    Deny from all
+</FilesMatch>
+Options -ExecCGI
