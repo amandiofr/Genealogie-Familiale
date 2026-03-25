@@ -41,7 +41,7 @@ async function openPerson(id) {
   let html=`<div class="modal-hd">`;
   if(av) html+=`<div class="modal-av ${p.genre}"><img src="${imgUrl(av.chemin)}" alt=""></div>`;
   else   html+=`<div class="modal-av ${p.genre}">${initials(p)}</div>`;
-  html+=`<div class="modal-ti"><div class="modal-name">${p.prenom} ${p.nom}</div>${p.nom_naiss?`<div class="modal-maiden">${T('nee_label')} ${p.nom_naiss}</div>`:''}<div class="modal-gen">${genLabel(p.generation)}</div></div><button class="modal-close" onclick="closeOverlay('modal-person-overlay')">✕</button></div>`;
+  html+=`<div class="modal-ti"><div class="modal-name">${p.prenom} ${p.nom}</div>${p.nom_naiss?`<div class="modal-maiden">${T('nee_label')} ${p.nom_naiss}</div>`:''}<div class="modal-gen">${genLabel(p.generation)}</div></div><button class="modal-close" onclick="closeOverlay('modal-person-view-overlay')">✕</button></div>`;
   html+=`<div class="modal-bd">`;
 
   // Infos
@@ -89,29 +89,29 @@ async function openPerson(id) {
   // Événements liés
   if((p.evenements||[]).length){
     html+=`<div class="modal-section"><div class="sec-title">${T('sec_events')}</div>`;
-    p.evenements.forEach(e=>{html+=`<div class="list-item" onclick="openEvent(${e.id});closeOverlay('modal-person-overlay')"><span style="font-size:1rem;">${EVT_ICONS[e.type]||'📌'}</span><div class="li-info"><div class="li-name">${e.titre}</div><div class="li-sub">${fmtDate(e.date_debut)||''}</div></div></div>`;});
+    p.evenements.forEach(e=>{html+=`<div class="list-item" onclick="openEvent(${e.id});closeOverlay('modal-person-view-overlay')"><span style="font-size:1rem;">${EVT_ICONS[e.type]||'📌'}</span><div class="li-info"><div class="li-name">${e.titre}</div><div class="li-sub">${fmtDate(e.date_debut)||''}</div></div></div>`;});
     html+=`</div>`;
   }
 
   // Anecdotes liées
   if((p.anecdotes||[]).length){
     html+=`<div class="modal-section"><div class="sec-title">${T('sec_anecdotes')}</div>`;
-    p.anecdotes.forEach(a=>{html+=`<div class="list-item" onclick="openAnecdote(${a.id});closeOverlay('modal-person-overlay')"><span style="font-size:1rem;">📖</span><div class="li-info"><div class="li-name">${a.titre}</div><div class="li-sub">${a.date_anec||a.auteur||''}</div></div></div>`;});
+    p.anecdotes.forEach(a=>{html+=`<div class="list-item" onclick="openAnecdote(${a.id});closeOverlay('modal-person-view-overlay')"><span style="font-size:1rem;">📖</span><div class="li-info"><div class="li-name">${a.titre}</div><div class="li-sub">${a.date_anec||a.auteur||''}</div></div></div>`;});
     html+=`</div>`;
   }
 
   // Actions
   if(currentUser.role!=='lecteur'){
     html+=`<div style="display:flex;gap:8px;margin-top:1rem;">
-      <button class="btn-secondary" style="flex:1;font-size:.78rem;" onclick="showPersonForm(${id});closeOverlay('modal-person-overlay')">${T('btn_edit')}</button>
+      <button class="btn-secondary" style="flex:1;font-size:.78rem;" onclick="showPersonForm(${id});closeOverlay('modal-person-view-overlay')">${T('btn_edit')}</button>
       <button class="btn-secondary" style="font-size:.78rem;" onclick="showPhotoUpload(${id})">${T('btn_photos')}</button>
       <button class="btn-danger" style="font-size:.78rem;" onclick="deletePerson(${id})">🗑</button>
     </div>`;
   }
   html+=`</div>`;
 
-  document.getElementById('modal-person').innerHTML=html;
-  document.getElementById('modal-person-overlay').classList.add('open');
+  document.getElementById('modal-person-view').innerHTML=html;
+  document.getElementById('modal-person-view-overlay').classList.add('open');
 }
 
 function calcAge(p){
@@ -127,10 +127,10 @@ function showPersonForm(id) {
   const p = id ? people.find(x=>x.id==id) : null;
   const t = p ? T('form_title_edit') : T('form_title_new_person');
   const genOptions = GEN_LABELS().map((l,i)=>`<option value="${i}"${(p?.generation||0)==i?' selected':''}>${i} — ${l}</option>`).join('');
-  document.getElementById('modal-form-person').innerHTML=`
+  document.getElementById('modal-person-edit').innerHTML=`
     <div class="modal-hd" style="padding:1.2rem 1.4rem .8rem;">
       <div style="flex:1;font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:500;">${t}</div>
-      <button class="modal-close" onclick="closeOverlay('modal-form-person-overlay')">✕</button>
+      <button class="modal-close" onclick="closeOverlay('modal-person-edit-overlay')">✕</button>
     </div>
     <div class="modal-bd">
       <div class="form-grid">
@@ -148,10 +148,10 @@ function showPersonForm(id) {
       </div>
       <div class="form-actions">
         <button class="btn-primary" onclick="savePerson(${id||''})">${T('form_save')}</button>
-        <button class="btn-secondary" onclick="closeOverlay('modal-form-person-overlay')">${T('form_cancel')}</button>
+        <button class="btn-secondary" onclick="closeOverlay('modal-person-edit-overlay')">${T('form_cancel')}</button>
       </div>
     </div>`;
-  document.getElementById('modal-form-person-overlay').classList.add('open');
+  document.getElementById('modal-person-edit-overlay').classList.add('open');
 }
 
 async function savePerson(id) {
@@ -173,7 +173,7 @@ async function savePerson(id) {
     if(id) await api('PUT',`api/personnes.php?id=${id}`,body);
     else   await api('POST','api/personnes.php',body);
     await loadPeople(); renderTree(); renderList();
-    closeOverlay('modal-form-person-overlay');
+    closeOverlay('modal-person-edit-overlay');
     toast(id?T('toast_edited'):T('toast_added'));
   }catch(e){toast(e.message,'error');}
 }
@@ -206,7 +206,7 @@ async function setAvatar(personId, photoId){
 async function deletePerson(id){
   if(!confirm(T('confirm_delete_person'))) return;
   await api('DELETE',`api/personnes.php?id=${id}`);
-  closeOverlay('modal-person-overlay');
+  closeOverlay('modal-person-view-overlay');
   await loadPeople(); renderTree(); renderList();
   toast(T('toast_deleted'));
 }
@@ -215,10 +215,10 @@ async function deletePerson(id){
 //  PHOTO UPLOAD
 // ══════════════════════════════════════════════════════════════
 function showPhotoUpload(personId){
-  document.getElementById('modal-form-person').innerHTML=`
+  document.getElementById('modal-person-edit').innerHTML=`
     <div class="modal-hd" style="padding:1.2rem 1.4rem .8rem;">
       <div style="flex:1;font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:500;">Ajouter des photos</div>
-      <button class="modal-close" onclick="closeOverlay('modal-form-person-overlay')">✕</button>
+      <button class="modal-close" onclick="closeOverlay('modal-person-edit-overlay')">✕</button>
     </div>
     <div class="modal-bd">
       <div class="fg"><label>Légende (optionnelle)</label><input id="ph-legende" placeholder="Ex : Été 1985 à Marseille"></div>
@@ -231,10 +231,10 @@ function showPhotoUpload(personId){
       <div class="upload-preview" id="upload-preview"></div>
       <div class="form-actions" style="margin-top:1rem;">
         <button class="btn-primary" onclick="uploadPhotos(${personId})">📤 Envoyer</button>
-        <button class="btn-secondary" onclick="closeOverlay('modal-form-person-overlay')">Annuler</button>
+        <button class="btn-secondary" onclick="closeOverlay('modal-person-edit-overlay')">Annuler</button>
       </div>
     </div>`;
-  document.getElementById('modal-form-person-overlay').classList.add('open');
+  document.getElementById('modal-person-edit-overlay').classList.add('open');
 }
 
 let pendingFiles=[];
@@ -255,7 +255,7 @@ async function uploadPhotos(personId){
   }
   pendingFiles=[];
   await loadPeople();
-  closeOverlay('modal-form-person-overlay');
+  closeOverlay('modal-person-edit-overlay');
   toast(`${pendingFiles.length||'Photos'} envoyée(s)`);
   openPerson(personId);
 }
@@ -269,10 +269,10 @@ function showLienForm(personId) {
     .sort((a,b) => a.nom.localeCompare(b.nom))
     .map(x => `<option value="${x.id}">${fullName(x)}</option>`).join('');
 
-  document.getElementById('modal-form-person').innerHTML = `
+  document.getElementById('modal-person-edit').innerHTML = `
     <div class="modal-hd" style="padding:1.2rem 1.4rem .8rem;">
       <div style="flex:1;font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:500;">Ajouter un lien familial</div>
-      <button class="modal-close" onclick="closeOverlay('modal-form-person-overlay')">✕</button>
+      <button class="modal-close" onclick="closeOverlay('modal-person-edit-overlay')">✕</button>
     </div>
     <div class="modal-bd">
       <div class="fg" style="margin-bottom:.5rem;">
@@ -295,11 +295,11 @@ function showLienForm(personId) {
       <div class="fg"><label>Notes</label><input id="lf-notes" placeholder="Ex : Mariés à Lyon…"></div>
       <div class="form-actions">
         <button class="btn-primary" onclick="saveLien(${personId})">💾 Enregistrer</button>
-        <button class="btn-secondary" onclick="closeOverlay('modal-form-person-overlay')">Annuler</button>
+        <button class="btn-secondary" onclick="closeOverlay('modal-person-edit-overlay')">Annuler</button>
       </div>
     </div>`;
-  closeOverlay('modal-person-overlay');
-  document.getElementById('modal-form-person-overlay').classList.add('open');
+  closeOverlay('modal-person-view-overlay');
+  document.getElementById('modal-person-edit-overlay').classList.add('open');
 }
 
 async function saveLien(personId) {
@@ -317,7 +317,7 @@ async function saveLien(personId) {
     await api('POST', `api/personnes.php?id=${persA}&sub=liens`, {
       personne_b: persB, type, date_debut: debut, date_fin: fin, notes
     });
-    closeOverlay('modal-form-person-overlay');
+    closeOverlay('modal-person-edit-overlay');
     toast('Lien ajouté');
     openPerson(personId);
   } catch(e) { toast(e.message, 'error'); }

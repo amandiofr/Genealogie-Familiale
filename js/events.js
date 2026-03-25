@@ -30,7 +30,7 @@ async function openEvent(id){
   let html=`<div class="modal-hd" style="padding:1.2rem 1.4rem .8rem;">
     ${avatarHtml}
     <div class="modal-ti"><div class="modal-name">${e.titre}</div><div class="modal-gen">${evtLabel(e.type)}</div></div>
-    <button class="modal-close" onclick="closeOverlay('modal-person-overlay')">✕</button>
+    <button class="modal-close" onclick="closeOverlay('modal-person-view-overlay')">✕</button>
   </div><div class="modal-bd">`;
   if(e.date_debut||e.lieu){
     html+=`<div class="modal-section"><div class="sec-title">${T('sec_info')}</div>`;
@@ -43,7 +43,7 @@ async function openEvent(id){
     html+=`<div class="modal-section"><div class="sec-title">${T('sec_participants')}</div>`;
     e.personnes.forEach(p=>{
       const av=p.chemin_thumb?`<div class="fl-av ${p.genre}"><img src="${imgUrl(p.chemin_thumb)}" alt=""></div>`:`<div class="fl-av ${p.genre}">${(p.prenom[0]||'')+(p.nom[0]||'')}</div>`;
-      html+=`<div class="family-link" onclick="openPerson(${p.id});closeOverlay('modal-person-overlay')">${av}<div><div class="fl-name">${p.prenom} ${p.nom}</div>${p.role?`<div class="fl-role">${p.role}</div>`:''}</div></div>`;
+      html+=`<div class="family-link" onclick="openPerson(${p.id});closeOverlay('modal-person-view-overlay')">${av}<div><div class="fl-name">${p.prenom} ${p.nom}</div>${p.role?`<div class="fl-role">${p.role}</div>`:''}</div></div>`;
     }); html+=`</div>`;
   }
   if((e.photos||[]).length){
@@ -59,16 +59,16 @@ async function openEvent(id){
   }
   if(currentUser.role!=='lecteur'){
     html+=`<div style="display:flex;gap:8px;margin-top:1rem;">
-      <button class="btn-secondary" style="flex:1;font-size:.78rem;" onclick="showEventForm(${id});closeOverlay('modal-person-overlay')">${T('btn_edit')}</button>
+      <button class="btn-secondary" style="flex:1;font-size:.78rem;" onclick="showEventForm(${id});closeOverlay('modal-person-view-overlay')">${T('btn_edit')}</button>
       <button class="btn-danger" style="font-size:.78rem;" onclick="deleteEvent(${id})">🗑</button>
     </div>`;
   }
   html+=`</div>`;
   // Utiliser modal-form-event-overlay pour pleine largeur sur mobile
-  document.getElementById('modal-person').innerHTML=html;
-  document.getElementById('modal-person-overlay').classList.add('open');
+  document.getElementById('modal-person-view').innerHTML=html;
+  document.getElementById('modal-person-view-overlay').classList.add('open');
   // Forcer max-width plus large pour les événements
-  document.getElementById('modal-person').style.maxWidth='640px';
+  document.getElementById('modal-person-view').style.maxWidth='640px';
 }
 
 async function showEventForm(id){
@@ -156,7 +156,7 @@ async function saveEvent(id){
 async function deleteEvent(id){
   if(!confirm(T('confirm_delete_event'))) return;
   await api('DELETE',`api/evenements.php?id=${id}`);
-  closeOverlay('modal-person-overlay'); loadEvents(); toast(T('toast_event_deleted'));
+  closeOverlay('modal-person-view-overlay'); loadEvents(); toast(T('toast_event_deleted'));
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -182,14 +182,14 @@ async function openAnecdote(id){
   let html=`<div class="modal-hd" style="padding:1.2rem 1.4rem .8rem;">
     <div style="font-size:1.5rem;">📖</div>
     <div class="modal-ti"><div class="modal-name">${a.titre}</div>${a.date_anec||a.auteur?`<div class="modal-maiden">${[a.date_anec,a.auteur?T('lbl_by')+' '+a.auteur:''].filter(Boolean).join(' · ')}</div>`:''}</div>
-    <button class="modal-close" onclick="closeOverlay('modal-person-overlay')">✕</button>
+    <button class="modal-close" onclick="closeOverlay('modal-person-view-overlay')">✕</button>
   </div><div class="modal-bd">`;
   html+=`<div class="notes-box" style="margin-bottom:1rem;">${a.contenu.replace(/\n/g,'<br>')}</div>`;
   if((a.personnes||[]).length){
     html+=`<div class="modal-section"><div class="sec-title">${T('form_mentions')}</div>`;
     a.personnes.forEach(p=>{
       const av=p.chemin_thumb?`<div class="fl-av ${p.genre}"><img src="${imgUrl(p.chemin_thumb)}" alt=""></div>`:`<div class="fl-av ${p.genre}">${(p.prenom[0]||'')+(p.nom[0]||'')}</div>`;
-      html+=`<div class="family-link" onclick="openPerson(${p.id});closeOverlay('modal-person-overlay')">${av}<div class="fl-name">${p.prenom} ${p.nom}</div></div>`;
+      html+=`<div class="family-link" onclick="openPerson(${p.id});closeOverlay('modal-person-view-overlay')">${av}<div class="fl-name">${p.prenom} ${p.nom}</div></div>`;
     }); html+=`</div>`;
   }
   if((a.photos||[]).length){
@@ -197,10 +197,10 @@ async function openAnecdote(id){
     a.photos.forEach(ph=>html+=`<img class="photo-thumb" src="${imgUrl(ph.chemin_thumb||ph.chemin)}" onclick="openLightbox(imgUrl('${ph.chemin}'))">`);
     html+=`</div></div>`;
   }
-  if(currentUser.role!=='lecteur') html+=`<div style="display:flex;gap:8px;margin-top:1rem;"><button class="btn-secondary" style="flex:1;font-size:.78rem;" onclick="showAnecdoteForm(${id});closeOverlay('modal-person-overlay')">${T('btn_edit')}</button><button class="btn-danger" style="font-size:.78rem;" onclick="deleteAnecdote(${id})">🗑</button></div>`;
+  if(currentUser.role!=='lecteur') html+=`<div style="display:flex;gap:8px;margin-top:1rem;"><button class="btn-secondary" style="flex:1;font-size:.78rem;" onclick="showAnecdoteForm(${id});closeOverlay('modal-person-view-overlay')">${T('btn_edit')}</button><button class="btn-danger" style="font-size:.78rem;" onclick="deleteAnecdote(${id})">🗑</button></div>`;
   html+=`</div>`;
-  document.getElementById('modal-person').innerHTML=html;
-  document.getElementById('modal-person-overlay').classList.add('open');
+  document.getElementById('modal-person-view').innerHTML=html;
+  document.getElementById('modal-person-view-overlay').classList.add('open');
 }
 
 function showAnecdoteForm(id){
@@ -241,6 +241,6 @@ async function saveAnecdote(id){
 async function deleteAnecdote(id){
   if(!confirm(T('confirm_delete_anec'))) return;
   await api('DELETE',`api/anecdotes.php?id=${id}`);
-  closeOverlay('modal-person-overlay'); loadAnecdotes(); toast(T('toast_anec_deleted'));
+  closeOverlay('modal-person-view-overlay'); loadAnecdotes(); toast(T('toast_anec_deleted'));
 }
 
