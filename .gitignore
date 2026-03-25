@@ -1,0 +1,47 @@
+🔐 Fichiers sensibles
+
+.env .env.local .env.*.local
+
+⚙️ Config locales
+
+config.local.php config.php
+
+📦 Dépendances
+
+/vendor/ /node_modules/
+
+🧪 Logs et cache
+
+*.log /logs/ /cache/ /tmp/
+
+🖥️ Fichiers système
+
+.DS_Store Thumbs.db
+
+🧰 IDE / éditeurs
+
+.vscode/ .idea/
+
+🔄 Git
+
+.swp .swo
+
+🧪 Tests / coverage
+
+/coverage/
+
+🚀 Build / export
+
+/dist/ /build/
+
+🔑 Clés / certificats
+
+.pem .key *.crt
+
+🐘 PHPStorm spécifique
+
+/.phpunit.result.cache
+
+📁 Uploads utilisateurs (ignorer tout sauf .htaccess)
+
+/uploads/* !/uploads/.htaccess
