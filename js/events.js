@@ -194,7 +194,10 @@ async function openAnecdote(id){
   }
   if((a.photos||[]).length){
     html+=`<div class="modal-section"><div class="sec-title">${T('sec_photos')}</div><div class="photos-strip">`;
-    a.photos.forEach(ph=>html+=`<img class="photo-thumb" src="${imgUrl(ph.chemin_thumb||ph.chemin)}" onclick="openLightbox(imgUrl('${ph.chemin}'))">`);
+    a.photos.forEach(ph=>{
+      const delBtn = currentUser.role!=='lecteur' ? `<div onclick="event.stopPropagation();deleteAnecdotePhoto(${a.id},${ph.id})" style="position:absolute;bottom:3px;right:3px;background:rgba(180,40,40,.7);color:#fff;font-size:.6rem;padding:2px 6px;border-radius:4px;cursor:pointer;" title="${T('btn_delete_photo')}">🗑</div>` : '';
+      html+=`<div style="position:relative;display:inline-block;"><img class="photo-thumb" src="${imgUrl(ph.chemin_thumb||ph.chemin)}" onclick="openLightbox(imgUrl('${ph.chemin}'))">${delBtn}</div>`;
+    });
     html+=`</div></div>`;
   }
   if(currentUser.role!=='lecteur') html+=`<div style="display:flex;gap:8px;margin-top:1rem;"><button class="btn-secondary" style="flex:1;font-size:.78rem;" onclick="showAnecdoteForm(${id});closeOverlay('modal-person-view-overlay')">${T('btn_edit')}</button><button class="btn-danger" style="font-size:.78rem;" onclick="deleteAnecdote(${id})">🗑</button></div>`;
@@ -203,27 +206,77 @@ async function openAnecdote(id){
   document.getElementById('modal-person-view-overlay').classList.add('open');
 }
 
-function showAnecdoteForm(id){
-  const peopleOptions=people.map(p=>`<option value="${p.id}">${fullName(p)}</option>`).join('');
+async function showAnecdoteForm(id){
+  let a = null;
+  if (id) { try { a = await api('GET', `api/anecdotes.php?id=${id}`); } catch {} }
+
+  const mentionIds = new Set((a?.personnes||[]).map(p=>String(p.id)));
+  const peopleOptions=people.map(p=>`<option value="${p.id}"${mentionIds.has(String(p.id))?' selected':''}>${fullName(p)}</option>`).join('');
+
   document.getElementById('modal-form-anecdote').innerHTML=`
     <div class="modal-hd" style="padding:1.2rem 1.4rem .8rem;">
       <div style="flex:1;font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:500;">${id?T('form_title_edit'):T('form_title_new_anec')}</div>
       <button class="modal-close" onclick="closeOverlay('modal-form-anecdote-overlay')">✕</button>
     </div>
     <div class="modal-bd">
-      <div class="fg"><label>${T('form_titre')} *</label><input id="fa-titre" placeholder="Ex : L'été où grand-père a construit la cabane"></div>
-      <div class="fg"><label>${T('form_contenu')} *</label><textarea id="fa-contenu" style="min-height:160px;" placeholder="Racontez cette histoire…"></textarea></div>
+      <div class="fg"><label>${T('form_titre')} *</label><input id="fa-titre" value="${a?.titre||''}" placeholder="Ex : L'été où grand-père a construit la cabane"></div>
+      <div class="fg"><label>${T('form_contenu')} *</label><textarea id="fa-contenu" style="min-height:160px;" placeholder="Racontez cette histoire…">${a?.contenu||''}</textarea></div>
       <div class="form-grid">
-        <div class="fg"><label>${T('form_date_approx')}</label><input id="fa-date" placeholder="Ex : 1972, Été 1985…"></div>
-        <div class="fg"><label>${T('form_written_by')}</label><input id="fa-auteur" placeholder="Votre prénom"></div>
+        <div class="fg"><label>${T('form_date_approx')}</label><input id="fa-date" value="${a?.date_anec||''}" placeholder="Ex : 1972, Été 1985…"></div>
+        <div class="fg"><label>${T('form_written_by')}</label><input id="fa-auteur" value="${a?.auteur||''}" placeholder="Votre prénom"></div>
         <div class="fg full"><label>${T('form_mentions')}</label><select id="fa-personnes" multiple size="5" style="height:110px;">${peopleOptions}</select></div>
       </div>
+      ${id ? `<div class="fg full" style="margin-top:.8rem;">
+        <label>${T('lbl_add_photos')}</label>
+        <div class="upload-zone">
+          <input type="file" accept="image/*" multiple onchange="previewAnecdotePhotos(this)">
+          <div class="upload-icon">📷</div>
+          <div class="upload-label">${T('lbl_upload_hint')}<br><span style="font-size:.7rem;color:var(--ink3);">JPEG, PNG, WebP — max 20 Mo</span></div>
+        </div>
+        <div class="upload-preview" id="anec-upload-preview"></div>
+      </div>` : ''}
       <div class="form-actions">
         <button class="btn-primary" onclick="saveAnecdote(${id||''})">${T('form_save')}</button>
+        ${id ? `<button class="btn-secondary" onclick="uploadAnecdotePhotos(${id})" style="font-size:.78rem;">📤 ${T('lbl_add_photos')}</button>` : ''}
         <button class="btn-secondary" onclick="closeOverlay('modal-form-anecdote-overlay')">${T('form_cancel')}</button>
       </div>
     </div>`;
   document.getElementById('modal-form-anecdote-overlay').classList.add('open');
+}
+
+let pendingAnecdoteFiles = [];
+function previewAnecdotePhotos(input) {
+  pendingAnecdoteFiles = Array.from(input.files);
+  const prev = document.getElementById('anec-upload-preview');
+  if (!prev) return;
+  prev.innerHTML = '';
+  pendingAnecdoteFiles.forEach(f => {
+    const r = new FileReader();
+    r.onload = e => { prev.innerHTML += `<img src="${e.target.result}" alt="">`; };
+    r.readAsDataURL(f);
+  });
+}
+
+async function uploadAnecdotePhotos(anecdoteId) {
+  if (!pendingAnecdoteFiles.length) { toast(T('error_no_photo'), 'error'); return; }
+  for (const f of pendingAnecdoteFiles) {
+    const fd = new FormData();
+    fd.append('photo', f);
+    await fetch(`api/anecdotes.php?id=${anecdoteId}&sub=photos`, { method:'POST', body:fd });
+  }
+  pendingAnecdoteFiles = [];
+  toast(T('toast_photos_added'));
+  closeOverlay('modal-form-anecdote-overlay');
+  loadAnecdotes();
+}
+
+async function deleteAnecdotePhoto(anecdoteId, photoId) {
+  if (!confirm(T('btn_delete_photo') + ' ?')) return;
+  try {
+    await api('DELETE', `api/anecdotes.php?id=${anecdoteId}&sub=photos&subid=${photoId}`);
+    toast(T('toast_anec_edited'));
+    openAnecdote(anecdoteId);
+  } catch(e) { toast(e.message, 'error'); }
 }
 
 async function saveAnecdote(id){
