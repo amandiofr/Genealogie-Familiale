@@ -41,7 +41,7 @@ async function init() {
 
   // Deep linking via URL hash
   const hash = window.location.hash.slice(1);
-  const validViews = ['tree', 'list', 'events', 'reunions', 'anecdotes', 'admin'];
+  const validViews = ['tree', 'list', 'events', 'reunions', 'anecdotes', 'timeline', 'admin'];
   if (hash && validViews.includes(hash)) {
     if (hash !== 'admin' || currentUser.role === 'admin') {
       const btn = document.querySelector(`nav button[data-view="${hash}"]`);
@@ -77,6 +77,7 @@ function showView(name, btn) {
   if (name==='events')    { loadEvents(); }
   if (name==='reunions')  { loadReunions(); }
   if (name==='anecdotes') { loadAnecdotes(); }
+  if (name==='timeline')  { loadTimeline(); }
   if (name==='admin')     { loadUsers(); }
 }
 

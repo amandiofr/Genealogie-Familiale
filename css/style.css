@@ -172,6 +172,46 @@ nav button.active{background:var(--ink);color:var(--bg);}
 .empty-title{font-family:'Cormorant Garamond',serif;font-size:1.2rem;color:var(--ink2);margin-bottom:.4rem;}
 .empty-sub{font-size:.8rem;}
 
+/* ── TIMELINE ────────────────────────────────────────────── */
+.tl-wrap{position:relative;padding:.25rem 0 2rem;}
+.tl-rail{position:absolute;top:0;bottom:0;width:2px;pointer-events:none;}
+.tl-rail-life   {left:12px; background:#6aab72;}
+.tl-rail-mariage{left:47px; background:#c0617a;}
+.tl-rail-other  {left:82px; background:#8880c8;}
+.tl-year{position:relative;z-index:1;display:flex;align-items:center;margin:.9rem 0 .25rem;padding-left:0;}
+.tl-year::after{content:'';flex:1;height:1px;background:var(--border);margin-left:.6rem;opacity:.2;}
+.tl-year span{font-family:'Cormorant Garamond',serif;font-weight:500;letter-spacing:.04em;background:var(--bg);padding:.07rem .3rem .23rem;position:relative;z-index:1;}
+.tl-year-decade{margin-top:1.5rem;}
+.tl-year-decade span{font-size:1.2rem;color:var(--ink);font-weight:600;}
+.tl-year-five span{font-size:.82rem;color:var(--ink3);font-weight:400;}
+.tl-item{position:relative;margin-bottom:.55rem;}
+.tl-item-life   {padding-left:30px;}
+.tl-item-mariage{padding-left:65px;}
+.tl-item-other  {padding-left:100px;}
+.tl-item::before{content:'';position:absolute;top:18px;height:1px;}
+.tl-item-life::before   {left:18px;width:12px;background:#6aab72;}
+.tl-item-mariage::before{left:53px;width:12px;background:#c0617a;}
+.tl-item-other::before  {left:88px;width:12px;background:#8880c8;}
+.tl-dot{position:absolute;top:13px;width:12px;height:12px;border-radius:50%;background:var(--bg);border:2px solid;}
+.tl-item-life    .tl-dot{left:6px; border-color:#6aab72;}
+.tl-item-mariage .tl-dot{left:41px;border-color:#c0617a;}
+.tl-item-other   .tl-dot{left:76px;border-color:#8880c8;}
+.tl-card{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:.6rem .9rem;cursor:pointer;transition:box-shadow .15s,border-color .15s;}
+.tl-item-life    .tl-card:hover{box-shadow:var(--shadow);border-color:#6aab72;}
+.tl-item-mariage .tl-card:hover{box-shadow:var(--shadow);border-color:#c0617a;}
+.tl-item-other   .tl-card:hover{box-shadow:var(--shadow);border-color:#8880c8;}
+.tl-card-head{display:flex;align-items:center;gap:.45rem;}
+.tl-card-icon{font-size:.95rem;flex-shrink:0;}
+.tl-card-title{font-size:.87rem;font-weight:500;color:var(--ink);}
+.tl-card-date{font-size:.73rem;color:var(--ink3);margin-top:.1rem;margin-left:1.4rem;}
+.tl-rail-label{position:relative;z-index:1;font-size:.73rem;font-weight:600;letter-spacing:.03em;padding:.3rem .5rem;margin-bottom:.5rem;background:var(--bg);border-radius:4px;}
+.tl-item-life    .tl-rail-label{color:#6aab72;}
+.tl-item-mariage .tl-rail-label{color:#c0617a;}
+.tl-item-other   .tl-rail-label{color:#8880c8;}
+.tl-item-lbl{margin-bottom:.1rem;}
+.tl-item-lbl .tl-dot{top:5px;}
+.tl-item-lbl::before{top:10px;}
+
 /* ── LIGHTBOX ────────────────────────────────────────────── */
 .lightbox{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;align-items:center;justify-content:center;z-index:300;}
 .lightbox.open{display:flex;overflow:hidden;}

@@ -8,10 +8,10 @@ const LANGS = {
   fr: {
     // Nav
     nav_tree:'Arbre', nav_list:'Membres', nav_events:'Événements',
-    nav_reunions:'Réunions', nav_anecdotes:'Anecdotes', nav_stats:'Statistiques', nav_admin:'Admin',
+    nav_reunions:'Réunions', nav_anecdotes:'Anecdotes', nav_timeline:'Chronologie', nav_stats:'Statistiques', nav_admin:'Admin',
     // Site title & page headers
     site_title:'Notre Famille',
-    h_membres:'Membres', h_events:'Événements', h_reunions:'Réunions familiales', h_anecdotes:'Anecdotes',
+    h_membres:'Membres', h_events:'Événements', h_reunions:'Réunions familiales', h_anecdotes:'Anecdotes', h_timeline:'Frise chronologique',
     h_stats:'Statistiques', h_admin:'Administration',
     h_repartition:'Répartition par génération',
     h_longevite:'Longévité la plus élevée',
@@ -59,6 +59,8 @@ const LANGS = {
     nb_personnes_label:'personne(s)',
     empty_events:'Aucun événement', empty_events_sub:'Ajoutez votre premier événement familial',
     empty_reunions:'Aucune réunion', empty_reunions_sub:'Ajoutez votre première réunion familiale',
+    empty_timeline:'Aucun événement daté', empty_timeline_sub:'Ajoutez des membres ou des événements avec une date',
+    tl_label_life:'Naissances & Décès', tl_label_mariage:'Mariages', tl_label_other:'Autres événements',
     empty_anecdotes:'Aucune anecdote', empty_anecdotes_sub:'Écrivez la première histoire familiale',
     empty_search:'Aucun résultat',
     // Roles
@@ -127,10 +129,10 @@ const LANGS = {
   },
   pt: {
     nav_tree:'Árvore', nav_list:'Membros', nav_events:'Eventos',
-    nav_reunions:'Reuniões', nav_anecdotes:'Anedotas', nav_stats:'Estatísticas', nav_admin:'Admin',
+    nav_reunions:'Reuniões', nav_anecdotes:'Anedotas', nav_timeline:'Cronologia', nav_stats:'Estatísticas', nav_admin:'Admin',
     // Site title & page headers
     site_title:'Nossa Família',
-    h_membres:'Membros', h_events:'Eventos', h_reunions:'Reuniões familiares', h_anecdotes:'Anedotas',
+    h_membres:'Membros', h_events:'Eventos', h_reunions:'Reuniões familiares', h_anecdotes:'Anedotas', h_timeline:'Linha do tempo',
     h_stats:'Estatísticas', h_admin:'Administração',
     h_repartition:'Distribuição por geração',
     h_longevite:'Maior longevidade',
@@ -169,6 +171,8 @@ const LANGS = {
     nb_personnes_label:'pessoa(s)',
     empty_events:'Nenhum evento', empty_events_sub:'Adicione o primeiro evento familiar',
     empty_reunions:'Nenhuma reunião', empty_reunions_sub:'Adicione a primeira reunião familiar',
+    empty_timeline:'Nenhum evento com data', empty_timeline_sub:'Adicione membros ou eventos com uma data',
+    tl_label_life:'Nascimentos & Óbitos', tl_label_mariage:'Casamentos', tl_label_other:'Outros eventos',
     empty_anecdotes:'Nenhuma anedota', empty_anecdotes_sub:'Escreva a primeira história familiar',
     empty_search:'Sem resultados',
     role_lecteur:'Leitor', role_editeur:'Editor', role_admin:'Administrador',
@@ -272,7 +276,7 @@ function applyLang() {
   const badge = document.getElementById('user-badge');
   if (badge && currentUser) badge.textContent = currentUser.nom + ' (' + T('role_' + currentUser.role) + ')';
   // Nav buttons
-  const navMap = {tree:'nav_tree',list:'nav_list',events:'nav_events',reunions:'nav_reunions',anecdotes:'nav_anecdotes',admin:'nav_admin'};
+  const navMap = {tree:'nav_tree',list:'nav_list',events:'nav_events',reunions:'nav_reunions',anecdotes:'nav_anecdotes',timeline:'nav_timeline',admin:'nav_admin'};
   document.querySelectorAll('nav button[data-view]').forEach(b => { b.textContent = T(navMap[b.dataset.view]||b.dataset.view); });
   // Logout
   const logoutBtn = document.getElementById('btn-logout');
@@ -304,6 +308,7 @@ function applyLang() {
     'view-events-heading':    'h_events',
     'view-reunions-heading':  'h_reunions',
     'view-anecdotes-heading': 'h_anecdotes',
+    'view-timeline-heading':  'h_timeline',
     'view-admin-heading':    'h_admin',
   };
   Object.entries(headings).forEach(([id, key]) => {

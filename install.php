@@ -40,8 +40,8 @@ CREATE TABLE IF NOT EXISTS personnes (
 'liens' => "
 CREATE TABLE IF NOT EXISTS liens (
   id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  personne_a INT UNSIGNED NOT NULL,
-  personne_b INT UNSIGNED NOT NULL,
+  personne_a   INT UNSIGNED NOT NULL,
+  personne_b   INT UNSIGNED NOT NULL,
   type       ENUM('conjoint','parent_enfant','fiancailles') NOT NULL,
   date_debut DATE    DEFAULT NULL,
   date_fin   DATE    DEFAULT NULL,

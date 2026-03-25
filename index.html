@@ -20,6 +20,7 @@
     <button data-view="events">Événements</button>
     <button data-view="reunions">Réunions</button>
     <button data-view="anecdotes">Anecdotes</button>
+    <button data-view="timeline">Timeline</button>
     <button data-view="admin" id="nav-admin" style="display:none">Admin</button>
   </nav>
   <div class="header-right">
@@ -95,6 +96,14 @@
       <button class="btn-primary" id="btn-add-anecdote" style="font-size:.78rem;padding:7px 14px;">+ Écrire</button>
     </div>
     <div id="anecdotes-list"></div>
+  </div>
+</div>
+
+<!-- ── TIMELINE ──────────────────────────────────────────────── -->
+<div id="view-timeline" class="view">
+  <div class="view-inner">
+    <h2 id="view-timeline-heading" style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:400;margin-bottom:1.2rem;">Timeline</h2>
+    <div id="timeline-list"></div>
   </div>
 </div>
 
@@ -195,6 +204,7 @@
 <script src="js/list.js"></script>
 <script src="js/events.js"></script>
 <script src="js/reunions.js"></script>
+<script src="js/timeline.js"></script>
 <script src="js/admin.js"></script>
 </body>
 </html>
