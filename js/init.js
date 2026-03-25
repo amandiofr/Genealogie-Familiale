@@ -36,6 +36,16 @@ async function init() {
 
   await loadPeople();
   try { renderTree(); } catch(e) { console.error('renderTree() failed:', e); }
+
+  // Deep linking via URL hash
+  const hash = window.location.hash.slice(1);
+  const validViews = ['tree', 'list', 'events', 'anecdotes', 'admin'];
+  if (hash && validViews.includes(hash)) {
+    if (hash !== 'admin' || currentUser.role === 'admin') {
+      const btn = document.querySelector(`nav button[data-view="${hash}"]`);
+      showView(hash, btn);
+    }
+  }
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -60,6 +70,7 @@ function showView(name, btn) {
   document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
   document.getElementById('view-'+name).classList.add('active');
   if (btn) btn.classList.add('active');
+  history.replaceState(null, '', '#' + name);
   if (name==='list')      { renderList(); }
   if (name==='events')    { loadEvents(); }
   if (name==='anecdotes') { loadAnecdotes(); }

@@ -278,6 +278,7 @@ async function setAnecdoteAvatar(anecdoteId, photoId) {
     await api('PUT', `api/anecdotes.php?id=${anecdoteId}&sub=photos&subid=${photoId}`);
     toast(T('event_avatar_set'));
     openAnecdote(anecdoteId);
+    loadAnecdotes();
   } catch(e) { toast(e.message, 'error'); }
 }
 

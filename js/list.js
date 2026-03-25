@@ -193,6 +193,7 @@ async function setEventAvatar(eventId, photoId){
     await api('PUT', `api/evenements.php?id=${eventId}&sub=photos&subid=${photoId}`);
     toast(T('event_avatar_set'));
     openEvent(eventId);
+    loadEvents();
   } catch(e) { toast(e.message,'error'); }
 }
 
@@ -201,6 +202,7 @@ async function setAvatar(personId, photoId){
     await api('PUT', `api/personnes.php?id=${personId}&sub=photos&subid=${photoId}`);
     toast(T('avatar_set'));
     openPerson(personId);
+    await loadPeople(); renderTree(); renderList();
   } catch(e) { toast(e.message,'error'); }
 }
 
