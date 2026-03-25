@@ -12,7 +12,8 @@ $subid  = (int)($_GET['subid'] ?? 0);
 if ($method === 'GET' && !$id) {
     $rows = $db->query("
         SELECT a.*,
-          GROUP_CONCAT(CONCAT(p.prenom,' ',p.nom) SEPARATOR ', ') AS personnes_noms
+          GROUP_CONCAT(CONCAT(p.prenom,' ',p.nom) SEPARATOR ', ') AS personnes_noms,
+          (SELECT chemin_thumb FROM anecdote_photos WHERE id=a.photo_id AND anecdote_id=a.id LIMIT 1) AS thumb
         FROM anecdotes a
         LEFT JOIN anecdote_personnes ap ON ap.anecdote_id=a.id
         LEFT JOIN personnes p ON p.id=ap.personne_id
@@ -84,6 +85,11 @@ if ($sub==='photos') {
         $c=UPLOAD_URL.$name.'.jpg'; $ct=THUMB_URL.$name.'_thumb.jpg';
         $db->prepare('INSERT INTO anecdote_photos (anecdote_id,chemin,chemin_thumb,legende,ordre) VALUES (?,?,?,?,?)')->execute([$id,$c,$ct,$_POST['legende']??null,(int)($_POST['ordre']??0)]);
         json_out(['id'=>$db->lastInsertId(),'chemin'=>$c,'chemin_thumb'=>$ct]);
+    }
+    if ($method==='PUT'&&$subid) {
+        require_role('admin','editeur');
+        $db->prepare('UPDATE anecdotes SET photo_id=? WHERE id=?')->execute([$subid, $id]);
+        json_out(['ok'=>true]);
     }
     if ($method==='DELETE'&&$subid) {
         $ph=$db->prepare('SELECT * FROM anecdote_photos WHERE id=?'); $ph->execute([$subid]); $ph=$ph->fetch();

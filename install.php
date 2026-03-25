@@ -106,6 +106,7 @@ CREATE TABLE IF NOT EXISTS anecdotes (
   contenu    TEXT         NOT NULL,
   date_anec  VARCHAR(50)  DEFAULT NULL,
   auteur     VARCHAR(150) DEFAULT NULL,
+  photo_id   INT UNSIGNED DEFAULT NULL,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;",
@@ -144,6 +145,17 @@ try {
         } catch (PDOException $e) {
             $errors[] = "$name : " . $e->getMessage();
         }
+    }
+
+    // Migration : ajouter photo_id à anecdotes si absent (installations existantes)
+    try {
+        $cols = $db->query("SHOW COLUMNS FROM anecdotes LIKE 'photo_id'")->fetchAll();
+        if (empty($cols)) {
+            $db->exec("ALTER TABLE anecdotes ADD COLUMN photo_id INT UNSIGNED DEFAULT NULL");
+            $done[] = '→ Migration : colonne photo_id ajoutée à anecdotes';
+        }
+    } catch (PDOException $e) {
+        $errors[] = 'Migration photo_id anecdotes : ' . $e->getMessage();
     }
 
     // Migration : ajouter photo_id à evenements si absent (installations existantes)

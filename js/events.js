@@ -168,7 +168,7 @@ async function loadAnecdotes(){
   if(!rows.length){el.innerHTML=`<div class="empty"><div class="empty-icon">📖</div><div class="empty-title">${T('empty_anecdotes')}</div><div class="empty-sub">${T('empty_anecdotes_sub')}</div></div>`;return;}
   el.innerHTML=rows.map(a=>`
     <div class="an-card" onclick="openAnecdote(${a.id})" style="margin-bottom:10px;display:flex;align-items:flex-start;gap:14px;">
-      <span style="font-size:1.5rem;flex-shrink:0;margin-top:2px;">📖</span>
+      ${a.thumb?`<img src="${imgUrl(a.thumb)}" style="width:48px;height:48px;object-fit:cover;border-radius:6px;flex-shrink:0;" alt="">`:`<span style="font-size:1.5rem;flex-shrink:0;margin-top:2px;">📖</span>`}
       <div style="flex:1;">
         <div class="an-title">${a.titre}</div>
         <div class="an-meta">${[a.date_anec,a.auteur?T('lbl_by')+' '+a.auteur:'',a.personnes_noms].filter(Boolean).join(' · ')}</div>
@@ -195,8 +195,11 @@ async function openAnecdote(id){
   if((a.photos||[]).length){
     html+=`<div class="modal-section"><div class="sec-title">${T('sec_photos')}</div><div class="photos-strip">`;
     a.photos.forEach(ph=>{
+      const isMain = ph.id == a.photo_id;
+      const mainBadge = isMain ? `<div style="position:absolute;bottom:3px;left:3px;background:var(--accent);color:#fff;font-size:.55rem;padding:2px 5px;border-radius:4px;letter-spacing:.03em;">${T('event_favourite')}</div>` : '';
+      const setBtn = (!isMain && currentUser.role!=='lecteur') ? `<div onclick="event.stopPropagation();setAnecdoteAvatar(${a.id},${ph.id})" style="position:absolute;top:3px;right:3px;background:rgba(26,24,20,.55);color:#fff;font-size:.6rem;padding:2px 6px;border-radius:4px;cursor:pointer;" title="${T('event_favourite')}">★</div>` : '';
       const delBtn = currentUser.role!=='lecteur' ? `<div onclick="event.stopPropagation();deleteAnecdotePhoto(${a.id},${ph.id})" style="position:absolute;bottom:3px;right:3px;background:rgba(180,40,40,.7);color:#fff;font-size:.6rem;padding:2px 6px;border-radius:4px;cursor:pointer;" title="${T('btn_delete_photo')}">🗑</div>` : '';
-      html+=`<div style="position:relative;display:inline-block;"><img class="photo-thumb" src="${imgUrl(ph.chemin_thumb||ph.chemin)}" onclick="openLightbox(imgUrl('${ph.chemin}'))">${delBtn}</div>`;
+      html+=`<div style="position:relative;display:inline-block;"><img class="photo-thumb" src="${imgUrl(ph.chemin_thumb||ph.chemin)}" onclick="openLightbox(imgUrl('${ph.chemin}'))">${mainBadge}${setBtn}${delBtn}</div>`;
     });
     html+=`</div></div>`;
   }
@@ -268,6 +271,14 @@ async function uploadAnecdotePhotos(anecdoteId) {
   toast(T('toast_photos_added'));
   closeOverlay('modal-form-anecdote-overlay');
   loadAnecdotes();
+}
+
+async function setAnecdoteAvatar(anecdoteId, photoId) {
+  try {
+    await api('PUT', `api/anecdotes.php?id=${anecdoteId}&sub=photos&subid=${photoId}`);
+    toast(T('event_avatar_set'));
+    openAnecdote(anecdoteId);
+  } catch(e) { toast(e.message, 'error'); }
 }
 
 async function deleteAnecdotePhoto(anecdoteId, photoId) {
