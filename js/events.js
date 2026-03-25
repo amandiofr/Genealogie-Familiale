@@ -48,12 +48,13 @@ async function openEvent(id){
   }
   if((e.photos||[]).length){
     html+=`<div class="modal-section"><div class="sec-title">${T('sec_photos')}</div><div class="photos-strip">`;
-    e.photos.forEach(ph=>{
+    _lbGallery = e.photos.map(p=>imgUrl(p.chemin));
+    e.photos.forEach((ph,i)=>{
       const isMain = ph.id == e.photo_id;
       const mainBadge = isMain ? `<div style="position:absolute;bottom:3px;left:3px;background:var(--accent);color:#fff;font-size:.55rem;padding:2px 5px;border-radius:4px;letter-spacing:.03em;">${T('event_favourite')}</div>` : '';
       const setBtn = (!isMain && currentUser.role!=='lecteur') ? `<div onclick="event.stopPropagation();setEventAvatar(${id},${ph.id})" style="position:absolute;top:3px;right:3px;background:rgba(26,24,20,.55);color:#fff;font-size:.6rem;padding:2px 6px;border-radius:4px;cursor:pointer;" title="${T('event_favourite')}">★</div>` : '';
       const delBtn = (currentUser.role!=='lecteur') ? `<div onclick="event.stopPropagation();deleteEventPhoto(${id},${ph.id})" style="position:absolute;bottom:3px;right:3px;background:rgba(180,40,40,.7);color:#fff;font-size:.6rem;padding:2px 6px;border-radius:4px;cursor:pointer;" title="${T('btn_delete_photo')}">🗑</div>` : '';
-      html+=`<div style="position:relative;display:inline-block;"><img class="photo-thumb" src="${imgUrl(ph.chemin_thumb||ph.chemin)}" onclick="openLightbox(imgUrl('${ph.chemin}'))" title="${ph.legende||''}">${mainBadge}${setBtn}${delBtn}</div>`;
+      html+=`<div style="position:relative;display:inline-block;"><img class="photo-thumb" src="${imgUrl(ph.chemin_thumb||ph.chemin)}" onclick="openLightbox(${i})" title="${ph.legende||''}">${mainBadge}${setBtn}${delBtn}</div>`;
     });
     html+=`</div></div>`;
   }
@@ -194,12 +195,13 @@ async function openAnecdote(id){
   }
   if((a.photos||[]).length){
     html+=`<div class="modal-section"><div class="sec-title">${T('sec_photos')}</div><div class="photos-strip">`;
-    a.photos.forEach(ph=>{
+    _lbGallery = a.photos.map(p=>imgUrl(p.chemin));
+    a.photos.forEach((ph,i)=>{
       const isMain = ph.id == a.photo_id;
       const mainBadge = isMain ? `<div style="position:absolute;bottom:3px;left:3px;background:var(--accent);color:#fff;font-size:.55rem;padding:2px 5px;border-radius:4px;letter-spacing:.03em;">${T('event_favourite')}</div>` : '';
       const setBtn = (!isMain && currentUser.role!=='lecteur') ? `<div onclick="event.stopPropagation();setAnecdoteAvatar(${a.id},${ph.id})" style="position:absolute;top:3px;right:3px;background:rgba(26,24,20,.55);color:#fff;font-size:.6rem;padding:2px 6px;border-radius:4px;cursor:pointer;" title="${T('event_favourite')}">★</div>` : '';
       const delBtn = currentUser.role!=='lecteur' ? `<div onclick="event.stopPropagation();deleteAnecdotePhoto(${a.id},${ph.id})" style="position:absolute;bottom:3px;right:3px;background:rgba(180,40,40,.7);color:#fff;font-size:.6rem;padding:2px 6px;border-radius:4px;cursor:pointer;" title="${T('btn_delete_photo')}">🗑</div>` : '';
-      html+=`<div style="position:relative;display:inline-block;"><img class="photo-thumb" src="${imgUrl(ph.chemin_thumb||ph.chemin)}" onclick="openLightbox(imgUrl('${ph.chemin}'))">${mainBadge}${setBtn}${delBtn}</div>`;
+      html+=`<div style="position:relative;display:inline-block;"><img class="photo-thumb" src="${imgUrl(ph.chemin_thumb||ph.chemin)}" onclick="openLightbox(${i})">${mainBadge}${setBtn}${delBtn}</div>`;
     });
     html+=`</div></div>`;
   }

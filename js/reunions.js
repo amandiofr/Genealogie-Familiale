@@ -14,7 +14,6 @@ async function loadReunions(){
   el.innerHTML=evts.map(e=>`
     <div class="ev-card" onclick="openReunion(${e.id})">
       ${e.thumb?`<img class="ev-thumb" src="${imgUrl(e.thumb)}" alt="">`:''}
-      <div class="ev-type">${EVT_ICONS[e.type]||''} ${evtLabel(e.type)}</div>
       <div class="ev-title">${e.titre}</div>
       <div class="ev-meta">${[fmtDate(e.date_debut),e.lieu].filter(Boolean).join(' · ')}${e.nb_personnes>0?` · ${e.nb_personnes} ${T('nb_personnes_label')}`:''}</div>
     </div>`).join('');
@@ -24,10 +23,10 @@ async function openReunion(id){
   const e=await api('GET',`api/reunions.php?id=${id}`);
   const avatarHtml = e.thumb
     ? `<div class="modal-av" style="border-radius:10px;overflow:hidden;width:60px;height:60px;flex-shrink:0;"><img src="${imgUrl(e.thumb)}" style="width:100%;height:100%;object-fit:cover;" alt=""></div>`
-    : `<div style="font-size:1.8rem;line-height:1;">${EVT_ICONS[e.type]||'🏡'}</div>`;
+    : `<div style="font-size:1.8rem;line-height:1;">🏡</div>`;
   let html=`<div class="modal-hd" style="padding:1.2rem 1.4rem .8rem;">
     ${avatarHtml}
-    <div class="modal-ti"><div class="modal-name">${e.titre}</div><div class="modal-gen">${evtLabel(e.type)}</div></div>
+    <div class="modal-ti"><div class="modal-name">${e.titre}</div></div>
     <button class="modal-close" onclick="closeOverlay('modal-person-view-overlay')">✕</button>
   </div><div class="modal-bd">`;
   if(e.date_debut||e.lieu){
@@ -46,12 +45,13 @@ async function openReunion(id){
   }
   if((e.photos||[]).length){
     html+=`<div class="modal-section"><div class="sec-title">${T('sec_photos')}</div><div class="photos-strip">`;
-    e.photos.forEach(ph=>{
+    _lbGallery = e.photos.map(p=>imgUrl(p.chemin));
+    e.photos.forEach((ph,i)=>{
       const isMain = ph.id == e.photo_id;
       const mainBadge = isMain ? `<div style="position:absolute;bottom:3px;left:3px;background:var(--accent);color:#fff;font-size:.55rem;padding:2px 5px;border-radius:4px;letter-spacing:.03em;">${T('event_favourite')}</div>` : '';
       const setBtn = (!isMain && currentUser.role!=='lecteur') ? `<div onclick="event.stopPropagation();setReunionAvatar(${id},${ph.id})" style="position:absolute;top:3px;right:3px;background:rgba(26,24,20,.55);color:#fff;font-size:.6rem;padding:2px 6px;border-radius:4px;cursor:pointer;" title="${T('event_favourite')}">★</div>` : '';
       const delBtn = (currentUser.role!=='lecteur') ? `<div onclick="event.stopPropagation();deleteReunionPhoto(${id},${ph.id})" style="position:absolute;bottom:3px;right:3px;background:rgba(180,40,40,.7);color:#fff;font-size:.6rem;padding:2px 6px;border-radius:4px;cursor:pointer;" title="${T('btn_delete_photo')}">🗑</div>` : '';
-      html+=`<div style="position:relative;display:inline-block;"><img class="photo-thumb" src="${imgUrl(ph.chemin_thumb||ph.chemin)}" onclick="openLightbox(imgUrl('${ph.chemin}'))" title="${ph.legende||''}">${mainBadge}${setBtn}${delBtn}</div>`;
+      html+=`<div style="position:relative;display:inline-block;"><img class="photo-thumb" src="${imgUrl(ph.chemin_thumb||ph.chemin)}" onclick="openLightbox(${i})" title="${ph.legende||''}">${mainBadge}${setBtn}${delBtn}</div>`;
     });
     html+=`</div></div>`;
   }
@@ -74,9 +74,6 @@ async function showReunionForm(id){
   const participantIds = new Set((e?.personnes||[]).map(p=>String(p.id)));
   const peopleOptions = people.map(p=>`<option value="${p.id}"${participantIds.has(String(p.id))?' selected':''}>${fullName(p)}</option>`).join('');
 
-  const typeOptions = ['mariage','naissance','deces','rencontre','voyage','reunion','fete','autre']
-    .map(t => `<option value="${t}"${e?.type===t?' selected':''}>${EVT_ICONS[t]||''} ${evtLabel(t)}</option>`).join('');
-
   document.getElementById('modal-form-reunion').innerHTML=`
     <div class="modal-hd" style="padding:1.2rem 1.4rem .8rem;">
       <div style="flex:1;font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:500;">${id?T('form_title_edit'):T('form_title_new_reunion')}</div>
@@ -85,7 +82,6 @@ async function showReunionForm(id){
     <div class="modal-bd">
       <div class="form-grid">
         <div class="fg full"><label>${T('form_titre')} *</label><input id="rn-titre" value="${e?.titre||''}" placeholder="Ex : Réunion de famille 2024"></div>
-        <div class="fg"><label>${T('form_type')} *</label><select id="rn-type">${typeOptions}</select></div>
         <div class="fg"><label>${T('form_date_debut')}</label><input type="date" id="rn-date-debut" value="${e?.date_debut||''}"></div>
         <div class="fg"><label>${T('form_date_fin')}</label><input type="date" id="rn-date-fin" value="${e?.date_fin||''}"></div>
         <div class="fg full"><label>${T('form_lieu')}</label><input id="rn-lieu" value="${e?.lieu||''}" placeholder="Paris, France"></div>
@@ -139,7 +135,7 @@ async function uploadReunionPhotos(reunionId) {
 async function saveReunion(id){
   const sel=document.getElementById('rn-personnes');
   const personnes=Array.from(sel.selectedOptions).map(o=>({id:o.value,role:''}));
-  const body={titre:document.getElementById('rn-titre').value.trim(),type:document.getElementById('rn-type').value,date_debut:document.getElementById('rn-date-debut').value||null,date_fin:document.getElementById('rn-date-fin').value||null,lieu:document.getElementById('rn-lieu').value.trim()||null,description:document.getElementById('rn-desc').value.trim()||null,personnes};
+  const body={titre:document.getElementById('rn-titre').value.trim(),date_debut:document.getElementById('rn-date-debut').value||null,date_fin:document.getElementById('rn-date-fin').value||null,lieu:document.getElementById('rn-lieu').value.trim()||null,description:document.getElementById('rn-desc').value.trim()||null,personnes};
   if(!body.titre){toast(T('error_title_required'),'error');return;}
   try{
     if(id) await api('PUT',`api/reunions.php?id=${id}`,body);

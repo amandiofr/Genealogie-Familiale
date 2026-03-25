@@ -54,10 +54,10 @@ if ($method === 'GET' && $id) {
 if ($method === 'POST' && !$id && $sub !== 'photos') {
     require_role('admin','editeur');
     $b = body();
-    if (empty($b['titre']) || empty($b['type'])) json_error('Titre et type requis');
+    if (empty($b['titre'])) json_error('Titre requis');
 
-    $db->prepare("INSERT INTO reunions (titre,type,date_debut,date_fin,lieu,description) VALUES (?,?,?,?,?,?)")
-       ->execute([$b['titre'],$b['type'],$b['date_debut']?:null,$b['date_fin']?:null,$b['lieu']?:null,$b['description']?:null]);
+    $db->prepare("INSERT INTO reunions (titre,date_debut,date_fin,lieu,description) VALUES (?,?,?,?,?)")
+       ->execute([$b['titre'],$b['date_debut']?:null,$b['date_fin']?:null,$b['lieu']?:null,$b['description']?:null]);
     $eid = $db->lastInsertId();
 
     if (!empty($b['personnes'])) {
@@ -71,8 +71,8 @@ if ($method === 'POST' && !$id && $sub !== 'photos') {
 if ($method === 'PUT' && $id && !$sub) {
     require_role('admin','editeur');
     $b = body();
-    $db->prepare("UPDATE reunions SET titre=?,type=?,date_debut=?,date_fin=?,lieu=?,description=? WHERE id=?")
-       ->execute([$b['titre'],$b['type'],$b['date_debut']?:null,$b['date_fin']?:null,$b['lieu']?:null,$b['description']?:null,$id]);
+    $db->prepare("UPDATE reunions SET titre=?,date_debut=?,date_fin=?,lieu=?,description=? WHERE id=?")
+       ->execute([$b['titre'],$b['date_debut']?:null,$b['date_fin']?:null,$b['lieu']?:null,$b['description']?:null,$id]);
 
     if (isset($b['personnes'])) {
         $db->prepare('DELETE FROM reunion_personnes WHERE reunion_id=?')->execute([$id]);

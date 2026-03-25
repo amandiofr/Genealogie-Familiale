@@ -103,7 +103,6 @@ CREATE TABLE IF NOT EXISTS evenement_photos (
 CREATE TABLE IF NOT EXISTS reunions (
   id          INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   titre       VARCHAR(300) NOT NULL,
-  type        ENUM('mariage','naissance','deces','rencontre','voyage','reunion','fete','autre') NOT NULL,
   date_debut  DATE    DEFAULT NULL,
   date_fin    DATE    DEFAULT NULL,
   lieu        VARCHAR(300) DEFAULT NULL,

@@ -75,11 +75,12 @@ async function openPerson(id) {
   // Photos
   if((p.photos||[]).length){
     html+=`<div class="modal-section"><div class="sec-title">${T('sec_photos')}</div><div class="photos-strip">`;
-    p.photos.forEach(ph=>{
+    _lbGallery = p.photos.map(ph=>imgUrl(ph.chemin));
+    p.photos.forEach((ph,i)=>{
       const isMain = ph.id == p.photo_id;
       const mainBadge = isMain ? `<div style="position:absolute;bottom:3px;left:3px;background:var(--accent);color:#fff;font-size:.55rem;padding:2px 5px;border-radius:4px;letter-spacing:.03em;">${T('lbl_avatar')}</div>` : '';
       const setBtn = (!isMain && currentUser.role!=='lecteur') ? `<div onclick="event.stopPropagation();setAvatar(${id},${ph.id})" style="position:absolute;top:3px;right:3px;background:rgba(26,24,20,.55);color:#fff;font-size:.6rem;padding:2px 6px;border-radius:4px;cursor:pointer;" title="${T('title_set_avatar')}">★</div>` : '';
-      html+=`<div style="position:relative;display:inline-block;"><img class="photo-thumb" src="${imgUrl(ph.chemin_thumb||ph.chemin)}" onclick="openLightbox(imgUrl('${ph.chemin}'))" title="${ph.legende||''}">${mainBadge}${setBtn}</div>`;
+      html+=`<div style="position:relative;display:inline-block;"><img class="photo-thumb" src="${imgUrl(ph.chemin_thumb||ph.chemin)}" onclick="openLightbox(${i})" title="${ph.legende||''}">${mainBadge}${setBtn}</div>`;
     });
     html+=`</div></div>`;
   }
