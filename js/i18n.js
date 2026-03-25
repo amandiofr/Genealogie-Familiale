@@ -8,10 +8,10 @@ const LANGS = {
   fr: {
     // Nav
     nav_tree:'Arbre', nav_list:'Membres', nav_events:'Événements',
-    nav_anecdotes:'Anecdotes', nav_stats:'Statistiques', nav_admin:'Admin',
+    nav_reunions:'Réunions', nav_anecdotes:'Anecdotes', nav_stats:'Statistiques', nav_admin:'Admin',
     // Site title & page headers
     site_title:'Notre Famille',
-    h_membres:'Membres', h_events:'Événements', h_anecdotes:'Anecdotes',
+    h_membres:'Membres', h_events:'Événements', h_reunions:'Réunions familiales', h_anecdotes:'Anecdotes',
     h_stats:'Statistiques', h_admin:'Administration',
     h_repartition:'Répartition par génération',
     h_longevite:'Longévité la plus élevée',
@@ -34,7 +34,7 @@ const LANGS = {
     ne_m:'né en', ne_f:'née en',
     ne_label:'né', nee_label:'née',
     // Events
-    add_event:'+ Ajouter', add_anecdote:'+ Écrire',
+    add_event:'+ Ajouter', add_reunion:'+ Ajouter', add_anecdote:'+ Écrire',
     sec_participants:'Participants', sec_description:'Description',
     // Stats
     stat_membres:'Membres', stat_vivants:'Vivants', stat_decedes:'Décédés',
@@ -58,6 +58,7 @@ const LANGS = {
     // Empty states
     nb_personnes_label:'personne(s)',
     empty_events:'Aucun événement', empty_events_sub:'Ajoutez votre premier événement familial',
+    empty_reunions:'Aucune réunion', empty_reunions_sub:'Ajoutez votre première réunion familiale',
     empty_anecdotes:'Aucune anecdote', empty_anecdotes_sub:'Écrivez la première histoire familiale',
     empty_search:'Aucun résultat',
     // Roles
@@ -70,12 +71,14 @@ const LANGS = {
     toast_added:'Personne ajoutée', toast_edited:'Personne modifiée',
     toast_deleted:'Personne supprimée', toast_event_added:'Événement ajouté',
     toast_event_edited:'Événement modifié', toast_event_deleted:'Événement supprimé',
+    toast_reunion_added:'Réunion ajoutée', toast_reunion_edited:'Réunion modifiée', toast_reunion_deleted:'Réunion supprimée',
     toast_anec_added:'Anecdote ajoutée', toast_anec_edited:'Anecdote modifiée',
     toast_anec_deleted:'Anecdote supprimée', toast_user_created:'Compte créé',
     toast_user_deleted:'Compte supprimé', toast_pwd:'Mot de passe modifié',
     // Confirmations
     confirm_delete_person:'Supprimer définitivement cette personne ?',
     confirm_delete_event:'Supprimer cet événement ?',
+    confirm_delete_reunion:'Supprimer cette réunion ?',
     confirm_delete_anec:'Supprimer cette anecdote ?',
     confirm_delete_user:'Supprimer ce compte ?',
     // Famille rôles
@@ -87,7 +90,8 @@ const LANGS = {
     gen_5:'Enfants', gen_6:'Petits-enfants',
     // Form titles
     form_title_new_person:'Nouvelle personne', form_title_edit:'Modifier',
-    form_title_new_event:'Nouvel événement', form_title_new_anec:'Nouvelle anecdote',
+    form_title_new_event:'Nouvel événement', form_title_new_reunion:'Nouvelle réunion',
+    form_title_new_anec:'Nouvelle anecdote',
     form_title_new_user:'Nouveau compte',
     // Form field labels
     lbl_date:'Date', form_titre:'Titre', form_type:'Type',
@@ -123,10 +127,10 @@ const LANGS = {
   },
   pt: {
     nav_tree:'Árvore', nav_list:'Membros', nav_events:'Eventos',
-    nav_anecdotes:'Anedotas', nav_stats:'Estatísticas', nav_admin:'Admin',
+    nav_reunions:'Reuniões', nav_anecdotes:'Anedotas', nav_stats:'Estatísticas', nav_admin:'Admin',
     // Site title & page headers
     site_title:'Nossa Família',
-    h_membres:'Membros', h_events:'Eventos', h_anecdotes:'Anedotas',
+    h_membres:'Membros', h_events:'Eventos', h_reunions:'Reuniões familiares', h_anecdotes:'Anedotas',
     h_stats:'Estatísticas', h_admin:'Administração',
     h_repartition:'Distribuição por geração',
     h_longevite:'Maior longevidade',
@@ -144,7 +148,7 @@ const LANGS = {
     deceased_m:'falecido', deceased_f:'falecida',
     ne_m:'nascido em', ne_f:'nascida em',
     ne_label:'nascido', nee_label:'nascida',
-    add_event:'+ Adicionar', add_anecdote:'+ Escrever',
+    add_event:'+ Adicionar', add_reunion:'+ Adicionar', add_anecdote:'+ Escrever',
     sec_participants:'Participantes', sec_description:'Descrição',
     stat_membres:'Membros', stat_vivants:'Vivos', stat_decedes:'Falecidos',
     stat_gens:'Gerações', stat_professions:'Profissões registadas',
@@ -164,6 +168,7 @@ const LANGS = {
     form_cancel:'Cancelar', form_save:'💾 Guardar',
     nb_personnes_label:'pessoa(s)',
     empty_events:'Nenhum evento', empty_events_sub:'Adicione o primeiro evento familiar',
+    empty_reunions:'Nenhuma reunião', empty_reunions_sub:'Adicione a primeira reunião familiar',
     empty_anecdotes:'Nenhuma anedota', empty_anecdotes_sub:'Escreva a primeira história familiar',
     empty_search:'Sem resultados',
     role_lecteur:'Leitor', role_editeur:'Editor', role_admin:'Administrador',
@@ -173,11 +178,13 @@ const LANGS = {
     toast_added:'Pessoa adicionada', toast_edited:'Pessoa modificada',
     toast_deleted:'Pessoa eliminada', toast_event_added:'Evento adicionado',
     toast_event_edited:'Evento modificado', toast_event_deleted:'Evento eliminado',
+    toast_reunion_added:'Reunião adicionada', toast_reunion_edited:'Reunião modificada', toast_reunion_deleted:'Reunião eliminada',
     toast_anec_added:'Anedota adicionada', toast_anec_edited:'Anedota modificada',
     toast_anec_deleted:'Anedota eliminada', toast_user_created:'Conta criada',
     toast_user_deleted:'Conta eliminada', toast_pwd:'Palavra-passe alterada',
     confirm_delete_person:'Eliminar definitivamente esta pessoa?',
     confirm_delete_event:'Eliminar este evento?',
+    confirm_delete_reunion:'Eliminar esta reunião?',
     confirm_delete_anec:'Eliminar esta anedota?',
     confirm_delete_user:'Eliminar esta conta?',
     role_conjoint:'Cônjuge', role_pere:'Pai', role_mere:'Mãe',
@@ -187,7 +194,8 @@ const LANGS = {
     gen_5:'Filhos', gen_6:'Netos',
     // Form titles
     form_title_new_person:'Nova pessoa', form_title_edit:'Editar',
-    form_title_new_event:'Novo evento', form_title_new_anec:'Nova anedota',
+    form_title_new_event:'Novo evento', form_title_new_reunion:'Nova reunião',
+    form_title_new_anec:'Nova anedota',
     form_title_new_user:'Nova conta',
     // Form field labels
     lbl_date:'Data', form_titre:'Título', form_type:'Tipo',
@@ -261,7 +269,7 @@ function applyLang() {
   const logoEl = document.getElementById('logo-title');
   if (logoEl) logoEl.textContent = T('site_title');
   // Nav buttons
-  const navMap = {tree:'nav_tree',list:'nav_list',events:'nav_events',anecdotes:'nav_anecdotes',admin:'nav_admin'};
+  const navMap = {tree:'nav_tree',list:'nav_list',events:'nav_events',reunions:'nav_reunions',anecdotes:'nav_anecdotes',admin:'nav_admin'};
   document.querySelectorAll('nav button[data-view]').forEach(b => { b.textContent = T(navMap[b.dataset.view]||b.dataset.view); });
   // Logout
   const logoutBtn = document.getElementById('btn-logout');
@@ -280,6 +288,8 @@ function applyLang() {
   if (btnP) btnP.textContent = T('add_person');
   const btnE = document.getElementById('btn-add-event');
   if (btnE) btnE.textContent = T('add_event');
+  const btnR = document.getElementById('btn-add-reunion');
+  if (btnR) btnR.textContent = T('add_reunion');
   const btnA = document.getElementById('btn-add-anecdote');
   if (btnA) btnA.textContent = T('add_anecdote');
   // Tree hint
@@ -287,9 +297,10 @@ function applyLang() {
   if (th) th.textContent = T('tree_hint');
   // Page section headings (h2 titles of each view)
   const headings = {
-    'view-list-heading':     'h_membres',
-    'view-events-heading':   'h_events',
-    'view-anecdotes-heading':'h_anecdotes',
+    'view-list-heading':      'h_membres',
+    'view-events-heading':    'h_events',
+    'view-reunions-heading':  'h_reunions',
+    'view-anecdotes-heading': 'h_anecdotes',
     'view-admin-heading':    'h_admin',
   };
   Object.entries(headings).forEach(([id, key]) => {

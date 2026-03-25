@@ -11,6 +11,7 @@ async function init() {
     if (r.user.role === 'lecteur') {
       document.getElementById('btn-add-person').style.display='none';
       document.getElementById('btn-add-event').style.display='none';
+      document.getElementById('btn-add-reunion').style.display='none';
       document.getElementById('btn-add-anecdote').style.display='none';
     }
   } catch { window.location.href='login.html'; return; }
@@ -32,6 +33,7 @@ async function init() {
   });
   document.getElementById('btn-add-person').onclick   = () => showPersonForm(null);
   document.getElementById('btn-add-event').onclick    = () => showEventForm(null);
+  document.getElementById('btn-add-reunion').onclick  = () => showReunionForm(null);
   document.getElementById('btn-add-anecdote').onclick = () => showAnecdoteForm(null);
 
   await loadPeople();
@@ -39,7 +41,7 @@ async function init() {
 
   // Deep linking via URL hash
   const hash = window.location.hash.slice(1);
-  const validViews = ['tree', 'list', 'events', 'anecdotes', 'admin'];
+  const validViews = ['tree', 'list', 'events', 'reunions', 'anecdotes', 'admin'];
   if (hash && validViews.includes(hash)) {
     if (hash !== 'admin' || currentUser.role === 'admin') {
       const btn = document.querySelector(`nav button[data-view="${hash}"]`);
@@ -73,6 +75,7 @@ function showView(name, btn) {
   history.replaceState(null, '', '#' + name);
   if (name==='list')      { renderList(); }
   if (name==='events')    { loadEvents(); }
+  if (name==='reunions')  { loadReunions(); }
   if (name==='anecdotes') { loadAnecdotes(); }
   if (name==='admin')     { loadUsers(); }
 }
