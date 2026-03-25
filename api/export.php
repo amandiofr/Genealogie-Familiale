@@ -27,6 +27,8 @@ if ($action === 'json' && $method === 'GET') {
         'evenement_personnes' => $db->query('SELECT * FROM evenement_personnes')->fetchAll(),
         'anecdotes'           => $db->query('SELECT * FROM anecdotes')->fetchAll(),
         'anecdote_personnes'  => $db->query('SELECT * FROM anecdote_personnes')->fetchAll(),
+        'reunions'            => $db->query('SELECT * FROM reunions')->fetchAll(),
+        'reunion_personnes'   => $db->query('SELECT * FROM reunion_personnes')->fetchAll(),
     ];
     echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
     exit;
@@ -226,6 +228,11 @@ function import_json(array $data, PDO $db): int {
         foreach ($data['anecdotes']??[] as $a) { $insA->execute([$a['titre'],$a['contenu'],$a['date_anec']??null,$a['auteur']??null]); $anecMap[$a['id']]=$db->lastInsertId(); }
         $insAP=$db->prepare('INSERT IGNORE INTO anecdote_personnes (anecdote_id,personne_id) VALUES (?,?)');
         foreach ($data['anecdote_personnes']??[] as $ap) { $aid=$anecMap[$ap['anecdote_id']]??null;$pid=$idMap[$ap['personne_id']]??null; if($aid&&$pid) $insAP->execute([$aid,$pid]); }
+        $reunMap=[];
+        $insR=$db->prepare('INSERT INTO reunions (titre,date_debut,date_fin,lieu,description) VALUES (?,?,?,?,?)');
+        foreach ($data['reunions']??[] as $r) { $insR->execute([$r['titre'],$r['date_debut']??null,$r['date_fin']??null,$r['lieu']??null,$r['description']??null]); $reunMap[$r['id']]=$db->lastInsertId(); }
+        $insRP=$db->prepare('INSERT IGNORE INTO reunion_personnes (reunion_id,personne_id,role) VALUES (?,?,?)');
+        foreach ($data['reunion_personnes']??[] as $rp) { $rid=$reunMap[$rp['reunion_id']]??null;$pid=$idMap[$rp['personne_id']]??null; if($rid&&$pid) $insRP->execute([$rid,$pid,$rp['role']??null]); }
         $db->commit();
     } catch (Throwable $e) { $db->rollBack(); throw $e; }
     return $imported;

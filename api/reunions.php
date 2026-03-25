@@ -18,7 +18,7 @@ if ($method === 'GET' && !$id) {
             (SELECT chemin_thumb FROM reunion_photos WHERE id=e.photo_id AND reunion_id=e.id LIMIT 1),
             (SELECT chemin_thumb FROM reunion_photos WHERE reunion_id=e.id ORDER BY ordre LIMIT 1)
           ) AS thumb
-        FROM reunions e ORDER BY e.date_debut ASC, e.created_at ASC
+        FROM reunions e ORDER BY e.date_debut DESC, e.created_at DESC
     ")->fetchAll();
     json_out($rows);
 }

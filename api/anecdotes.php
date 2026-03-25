@@ -18,7 +18,7 @@ if ($method === 'GET' && !$id) {
         LEFT JOIN anecdote_personnes ap ON ap.anecdote_id=a.id
         LEFT JOIN personnes p ON p.id=ap.personne_id
         GROUP BY a.id
-        ORDER BY a.date_anec DESC, a.created_at DESC
+        ORDER BY a.date_anec IS NULL, a.date_anec DESC, a.created_at DESC
     ")->fetchAll();
     json_out($rows);
 }

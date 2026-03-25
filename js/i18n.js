@@ -268,6 +268,9 @@ function applyLang() {
   // Logo title
   const logoEl = document.getElementById('logo-title');
   if (logoEl) logoEl.textContent = T('site_title');
+  // User badge
+  const badge = document.getElementById('user-badge');
+  if (badge && currentUser) badge.textContent = currentUser.nom + ' (' + T('role_' + currentUser.role) + ')';
   // Nav buttons
   const navMap = {tree:'nav_tree',list:'nav_list',events:'nav_events',reunions:'nav_reunions',anecdotes:'nav_anecdotes',admin:'nav_admin'};
   document.querySelectorAll('nav button[data-view]').forEach(b => { b.textContent = T(navMap[b.dataset.view]||b.dataset.view); });

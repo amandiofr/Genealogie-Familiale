@@ -9,7 +9,7 @@ async function loadReunions(){
     if(!a.date_debut && !b.date_debut) return 0;
     if(!a.date_debut) return 1;
     if(!b.date_debut) return -1;
-    return a.date_debut < b.date_debut ? -1 : a.date_debut > b.date_debut ? 1 : 0;
+    return a.date_debut > b.date_debut ? -1 : a.date_debut < b.date_debut ? 1 : 0;
   });
   el.innerHTML=evts.map(e=>`
     <div class="ev-card" onclick="openReunion(${e.id})">

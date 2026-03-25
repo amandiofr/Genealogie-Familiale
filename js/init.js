@@ -85,6 +85,10 @@ function showView(name, btn) {
 // ══════════════════════════════════════════════════════════════
 async function loadPeople() {
   people = await api('GET','api/personnes.php');
+  people.sort((a,b) => {
+    const f = a.prenom.localeCompare(b.prenom, undefined, {sensitivity:'base'});
+    return f !== 0 ? f : a.nom.localeCompare(b.nom, undefined, {sensitivity:'base'});
+  });
 }
 
 function initials(p) { return (p.prenom[0]||'')+(p.nom[0]||''); }
