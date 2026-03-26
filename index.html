@@ -55,12 +55,18 @@
       <span style="color:var(--ink3);font-size:.9rem;">🔍</span>
       <input type="text" id="search" placeholder="Rechercher par nom, lieu, profession…" oninput="filterList()">
     </div>
-    <div class="filter-row">
-      <button class="filter-btn active" onclick="setFilter('all',this)">Tous</button>
-      <button class="filter-btn" onclick="setFilter('male',this)">Hommes</button>
-      <button class="filter-btn" onclick="setFilter('female',this)">Femmes</button>
-      <button class="filter-btn" onclick="setFilter('living',this)">Vivants</button>
-      <button class="filter-btn" onclick="setFilter('deceased',this)">Décédés</button>
+    <div class="filter-row" style="justify-content:space-between;flex-wrap:wrap;gap:.4rem;">
+      <div style="display:flex;flex-wrap:wrap;gap:.35rem;">
+        <button class="filter-btn active" onclick="setFilter('all',this)">Tous</button>
+        <button class="filter-btn" onclick="setFilter('male',this)">Hommes</button>
+        <button class="filter-btn" onclick="setFilter('female',this)">Femmes</button>
+        <button class="filter-btn" onclick="setFilter('living',this)">Vivants</button>
+        <button class="filter-btn" onclick="setFilter('deceased',this)">Décédés</button>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:.35rem;">
+        <button id="sort-btn-date" class="filter-btn active" onclick="setSort('date',this)">Date de naissance</button>
+        <button id="sort-btn-alpha" class="filter-btn" onclick="setSort('alpha',this)">Alphabétique</button>
+      </div>
     </div>
     <div id="person-list"></div>
   </div>

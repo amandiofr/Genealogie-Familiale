@@ -1,13 +1,23 @@
 // ══════════════════════════════════════════════════════════════
 //  LIST
 // ══════════════════════════════════════════════════════════════
+let currentSort = 'date';
+
 function renderList() {
   filterList();
 }
 function setFilter(f,btn) {
   currentFilter=f;
   document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active'); filterList();
+  btn.classList.add('active');
+  document.getElementById('sort-btn-'+currentSort)?.classList.add('active');
+  filterList();
+}
+function setSort(s,btn) {
+  currentSort=s;
+  document.getElementById('sort-btn-date').classList.toggle('active', s==='date');
+  document.getElementById('sort-btn-alpha').classList.toggle('active', s==='alpha');
+  filterList();
 }
 function filterList() {
   const q=(document.getElementById('search').value||'').toLowerCase().trim();
@@ -18,7 +28,16 @@ function filterList() {
     if(currentFilter==='deceased'&&p.vivant&&!p.deces) return false;
     if(q){const h=[p.prenom,p.nom,p.nom_naiss,p.lieu_naiss,p.profession,p.naissance?.substring(0,4)].filter(Boolean).join(' ').toLowerCase();if(!h.includes(q))return false;}
     return true;
-  }).sort((a,b)=>a.generation-b.generation||a.nom.localeCompare(b.nom));
+  }).sort((a,b)=>{
+    if(currentSort==='alpha'){
+      const f=a.prenom.localeCompare(b.prenom,undefined,{sensitivity:'base'});
+      return f!==0?f:a.nom.localeCompare(b.nom,undefined,{sensitivity:'base'});
+    }
+    if(!a.naissance&&!b.naissance) return 0;
+    if(!a.naissance) return 1;
+    if(!b.naissance) return -1;
+    return a.naissance<b.naissance?-1:a.naissance>b.naissance?1:0;
+  });
   const el=document.getElementById('person-list');
   if(!filtered.length){el.innerHTML=`<div class="empty"><div class="empty-icon">🔍</div><div class="empty-title">${T('empty_search')}</div></div>`;return;}
   el.innerHTML=filtered.map(p=>{

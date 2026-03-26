@@ -56,6 +56,7 @@ const LANGS = {
     form_generation:'Génération', form_job:'Profession', form_bio:'Biographie / Notes',
     form_cancel:'Annuler', form_save:'💾 Enregistrer',
     // Empty states
+    sort_date:'Date de naissance', sort_alpha:'Alphabétique',
     nb_personnes_label:'personne(s)',
     empty_events:'Aucun événement', empty_events_sub:'Ajoutez votre premier événement familial',
     empty_reunions:'Aucune réunion', empty_reunions_sub:'Ajoutez votre première réunion familiale',
@@ -168,6 +169,7 @@ const LANGS = {
     form_deces:'Data de falecimento', form_lieu_deces:'Local de falecimento',
     form_generation:'Geração', form_job:'Profissão', form_bio:'Biografia / Notas',
     form_cancel:'Cancelar', form_save:'💾 Guardar',
+    sort_date:'Data de nascimento', sort_alpha:'Alfabético',
     nb_personnes_label:'pessoa(s)',
     empty_events:'Nenhum evento', empty_events_sub:'Adicione o primeiro evento familiar',
     empty_reunions:'Nenhuma reunião', empty_reunions_sub:'Adicione a primeira reunião familiar',
@@ -299,6 +301,11 @@ function applyLang() {
   if (btnR) btnR.textContent = T('add_reunion');
   const btnA = document.getElementById('btn-add-anecdote');
   if (btnA) btnA.textContent = T('add_anecdote');
+  // Sort buttons
+  const sd = document.getElementById('sort-btn-date');
+  const sa = document.getElementById('sort-btn-alpha');
+  if (sd) sd.textContent = T('sort_date');
+  if (sa) sa.textContent = T('sort_alpha');
   // Tree hint
   const th = document.getElementById('tree-hint');
   if (th) th.textContent = T('tree_hint');
