@@ -313,7 +313,7 @@ function drawTree(allLiens) {
 
 
   // ── 4. Construire le SVG
-  let svg = `<svg id="tree-svg" width="${totalWidth}" height="${totalHeight}" xmlns="http://www.w3.org/2000/svg">`;
+  let svg = `<svg id="tree-svg" width="${totalWidth}" height="${totalHeight}" viewBox="0 0 ${totalWidth} ${totalHeight}" xmlns="http://www.w3.org/2000/svg">`;
 
   const lineColor   = 'rgba(100,140,160,0.6)';
   const coupleColor = 'rgba(180,140,90,0.9)';
@@ -408,7 +408,64 @@ function drawTree(allLiens) {
 
   svg += '</svg>';
   container.innerHTML = svg;
-  enableDrag(document.getElementById('view-tree').querySelector('.tree-wrap'));
+  const wrap = document.getElementById('view-tree').querySelector('.tree-wrap');
+  enableDrag(wrap);
+  enablePinchZoom(wrap);
+}
+
+let _pinchAbort = null;
+
+function enablePinchZoom(wrap) {
+  if (_pinchAbort) _pinchAbort.abort();
+  _pinchAbort = new AbortController();
+  const { signal } = _pinchAbort;
+
+  const svg = wrap.querySelector('#tree-svg');
+  if (!svg) return;
+
+  const baseW = parseFloat(svg.getAttribute('width'));
+  const baseH = parseFloat(svg.getAttribute('height'));
+  let currentScale = 1;
+  let lastDist = null;
+
+  function pinchDist(touches) {
+    const dx = touches[0].clientX - touches[1].clientX;
+    const dy = touches[0].clientY - touches[1].clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+
+  wrap.addEventListener('touchstart', e => {
+    if (e.touches.length === 2) lastDist = pinchDist(e.touches);
+  }, { passive: true, signal });
+
+  wrap.addEventListener('touchmove', e => {
+    if (e.touches.length !== 2 || !lastDist) return;
+    e.preventDefault();
+
+    const newDist = pinchDist(e.touches);
+    const ratio   = newDist / lastDist;
+    lastDist = newDist;
+
+    const newScale = Math.min(Math.max(currentScale * ratio, 0.3), 4);
+    const factor   = newScale / currentScale;
+    currentScale   = newScale;
+
+    const rect   = wrap.getBoundingClientRect();
+    const midX   = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+    const midY   = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+    const focusX = midX - rect.left + wrap.scrollLeft;
+    const focusY = midY - rect.top  + wrap.scrollTop;
+
+    svg.setAttribute('width',  baseW * currentScale);
+    svg.setAttribute('height', baseH * currentScale);
+
+    wrap.scrollLeft = focusX * factor - (midX - rect.left);
+    wrap.scrollTop  = focusY * factor - (midY - rect.top);
+  }, { passive: false, signal });
+
+  wrap.addEventListener('touchend', e => {
+    if (e.touches.length < 2) lastDist = null;
+  }, { passive: true, signal });
 }
 
 function r(n) { return Math.round(n*10)/10; }

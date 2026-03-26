@@ -30,7 +30,8 @@ nav button.active{background:var(--ink);color:var(--bg);}
 
 /* ── ARBRE ──────────────────────────────────────────────── */
 /* ── ARBRE SVG ───────────────────────────────────────────── */
-#view-tree .tree-wrap{overflow:auto;padding-bottom:2rem;cursor:grab;user-select:none;}
+#view-tree{height:calc(100vh - 56px);overflow:hidden;}
+#view-tree .tree-wrap{overflow:auto;height:100%;cursor:grab;user-select:none;}
 #view-tree .tree-wrap:active{cursor:grabbing;}
 .tree-hint{text-align:center;color:var(--ink3);font-size:.75rem;padding:4px 0 16px;letter-spacing:.02em;}
 #tree-svg{display:block;}
