@@ -216,92 +216,91 @@ function drawTree(allLiens) {
     });
   });
 
-  // ── 4. Passe bottom-up : décaler chaque unité vers la droite pour s'aligner
-  //       sur le centre de ses enfants. Pousser les suivants si nécessaire.
-  //       Jamais vers la gauche.
-  for (let gi = sortedGens.length - 2; gi >= 0; gi--) {
-    const gen     = sortedGens[gi];
-    const childUs = units[sortedGens[gi + 1]] || [];
-    const us      = units[gen] || [];
+  // ── 4+5. Passes itératives (max 5 fois) jusqu'à convergence
+  for (let iter = 0; iter < 5; iter++) {
+    let moved = false;
 
-    for (let i = 0; i < us.length; i++) {
-      const u = us[i];
+    // Passe 4 : aligner chaque unité sur le centre de ses enfants (jamais à gauche)
+    for (let gi = sortedGens.length - 2; gi >= 0; gi--) {
+      const childUs = units[sortedGens[gi + 1]] || [];
+      const us      = units[sortedGens[gi]] || [];
 
-      // Centre des enfants de cette unité
-      const myChildUs = childUs.filter(cu =>
-        cu.people.some(child =>
-          u.people.some(parent =>
-            parentLinks.some(l => l.personne_a == parent.id && l.personne_b == child.id)
+      for (let i = 0; i < us.length; i++) {
+        const u = us[i];
+        const myChildUs = childUs.filter(cu =>
+          cu.people.some(child =>
+            u.people.some(parent =>
+              parentLinks.some(l => l.personne_a == parent.id && l.personne_b == child.id)
+            )
           )
-        )
-      );
-      if (!myChildUs.length) continue;
+        );
+        if (!myChildUs.length) continue;
 
-      const childCenter = (
-        Math.min(...myChildUs.map(cu => cu.midX - unitWidth(cu) / 2)) +
-        Math.max(...myChildUs.map(cu => cu.midX + unitWidth(cu) / 2))
-      ) / 2;
+        const childCenter = (
+          Math.min(...myChildUs.map(cu => cu.midX - unitWidth(cu) / 2)) +
+          Math.max(...myChildUs.map(cu => cu.midX + unitWidth(cu) / 2))
+        ) / 2;
 
-      const targetX = childCenter - unitWidth(u) / 2;
-      if (targetX <= u.midX - unitWidth(u) / 2) continue; // jamais à gauche
+        const targetX = childCenter - unitWidth(u) / 2;
+        if (targetX <= u.midX - unitWidth(u) / 2) continue;
 
-      setUnitX(u, targetX);
+        setUnitX(u, targetX);
+        moved = true;
 
-      // Pousser les suivants vers la droite si chevauchement
-      for (let j = i + 1; j < us.length; j++) {
-        const minX = us[j - 1].midX + unitWidth(us[j - 1]) / 2 + GAP_X;
-        if (us[j].midX - unitWidth(us[j]) / 2 < minX) {
-          setUnitX(us[j], minX);
-        } else break;
+        for (let j = i + 1; j < us.length; j++) {
+          const minX = us[j - 1].midX + unitWidth(us[j - 1]) / 2 + GAP_X;
+          if (us[j].midX - unitWidth(us[j]) / 2 < minX) { setUnitX(us[j], minX); moved = true; }
+          else break;
+        }
       }
     }
-  }
 
-  // ── 5. Passe du bas vers le haut : aligner chaque fratrie sur le milieu de ses parents.
-  //       Pousser les suivants si nécessaire. Jamais vers la gauche.
-  for (let gi = sortedGens.length - 1; gi >= 1; gi--) {
-    const us       = units[sortedGens[gi]] || [];
-    const parentUs = units[sortedGens[gi - 1]] || [];
-    const done     = new Set();
+    // Passe 5 : aligner chaque fratrie sur le milieu de ses parents (jamais à gauche)
+    for (let gi = sortedGens.length - 1; gi >= 1; gi--) {
+      const us       = units[sortedGens[gi]] || [];
+      const parentUs = units[sortedGens[gi - 1]] || [];
+      const done     = new Set();
 
-    for (let i = 0; i < us.length; i++) {
-      const u = us[i];
-
-      const parentU = parentUs.find(pu =>
-        pu.people.some(par =>
-          u.people.some(child =>
-            parentLinks.some(l => l.personne_a == par.id && l.personne_b == child.id)
+      for (let i = 0; i < us.length; i++) {
+        const u = us[i];
+        const parentU = parentUs.find(pu =>
+          pu.people.some(par =>
+            u.people.some(child =>
+              parentLinks.some(l => l.personne_a == par.id && l.personne_b == child.id)
+            )
           )
-        )
-      );
-      if (!parentU) continue;
-      const key = parentU.people.map(p => p.id).join('-');
-      if (done.has(key)) continue;
-      done.add(key);
+        );
+        if (!parentU) continue;
+        const key = parentU.people.map(p => p.id).join('-');
+        if (done.has(key)) continue;
+        done.add(key);
 
-      const fratrie = us.filter(cu =>
-        cu.people.some(child =>
-          parentU.people.some(par =>
-            parentLinks.some(l => l.personne_a == par.id && l.personne_b == child.id)
+        const fratrie = us.filter(cu =>
+          cu.people.some(child =>
+            parentU.people.some(par =>
+              parentLinks.some(l => l.personne_a == par.id && l.personne_b == child.id)
+            )
           )
-        )
-      );
+        );
 
-      const fratrieLeft  = Math.min(...fratrie.map(cu => cu.midX - unitWidth(cu) / 2));
-      const fratrieRight = Math.max(...fratrie.map(cu => cu.midX + unitWidth(cu) / 2));
-      const delta = parentU.midX - (fratrieLeft + fratrieRight) / 2;
-      if (delta <= 0) continue;
+        const fratrieLeft  = Math.min(...fratrie.map(cu => cu.midX - unitWidth(cu) / 2));
+        const fratrieRight = Math.max(...fratrie.map(cu => cu.midX + unitWidth(cu) / 2));
+        const delta = parentU.midX - (fratrieLeft + fratrieRight) / 2;
+        if (delta <= 0) continue;
 
-      fratrie.forEach(cu => setUnitX(cu, cu.midX - unitWidth(cu) / 2 + delta));
+        fratrie.forEach(cu => setUnitX(cu, cu.midX - unitWidth(cu) / 2 + delta));
+        moved = true;
 
-      // Pousser les suivants si chevauchement
-      const afterIdx = Math.max(...fratrie.map(cu => us.indexOf(cu))) + 1;
-      for (let j = afterIdx; j < us.length; j++) {
-        const needed = us[j - 1].midX + unitWidth(us[j - 1]) / 2 + GAP_X;
-        if (us[j].midX - unitWidth(us[j]) / 2 < needed) setUnitX(us[j], needed);
-        else break;
+        const afterIdx = Math.max(...fratrie.map(cu => us.indexOf(cu))) + 1;
+        for (let j = afterIdx; j < us.length; j++) {
+          const needed = us[j - 1].midX + unitWidth(us[j - 1]) / 2 + GAP_X;
+          if (us[j].midX - unitWidth(us[j]) / 2 < needed) { setUnitX(us[j], needed); moved = true; }
+          else break;
+        }
       }
     }
+
+    if (!moved) break;
   }
 
   const totalHeight = sortedGens.length * (CARD_H + GAP_Y) + 80;
