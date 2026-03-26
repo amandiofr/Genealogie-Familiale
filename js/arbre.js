@@ -10,7 +10,19 @@ const COUPLE_GAP = 16; // espace entre les deux cartes d'un couple
 const GAP_Y    = 80;   // espace vertical entre générations
 const CONN_R   = 4;    // rayon des coins arrondis sur les connecteurs
 
+let currentTreeMode = localStorage.getItem('treeMode') || 'compact';
+
+function setTreeMode(mode) {
+  currentTreeMode = mode;
+  localStorage.setItem('treeMode', mode);
+  document.getElementById('tree-mode-full').classList.toggle('active', mode === 'full');
+  document.getElementById('tree-mode-compact').classList.toggle('active', mode === 'compact');
+  renderTree();
+}
+
 function renderTree() {
+  document.getElementById('tree-mode-full')?.classList.toggle('active', currentTreeMode === 'full');
+  document.getElementById('tree-mode-compact')?.classList.toggle('active', currentTreeMode === 'compact');
   // ── Charger les liens depuis l'API (on a besoin des conjoints + parent/enfant)
   // Les liens sont déjà dans people via la fiche complète — mais la liste /personnes.php
   // ne retourne pas les liens. On les reconstruit à partir de ce qu'on a en mémoire
@@ -35,6 +47,13 @@ async function buildTreeSVG() {
 
 function drawTree(allLiens) {
   const container = document.getElementById('tree-container');
+  const cW         = currentTreeMode === 'compact' ? 46  : CARD_W;
+  const cH         = currentTreeMode === 'compact' ? 82  : CARD_H;
+  const cGapX      = currentTreeMode === 'compact' ? 12  : GAP_X;
+  const cGapY      = currentTreeMode === 'compact' ? 50  : GAP_Y;
+  const cCoupleGap = currentTreeMode === 'compact' ? 10  : COUPLE_GAP;
+  // Demi-largeur visuelle réelle de la carte (CSS width:118px en mode complet, mais foreignObject = 124px)
+  const vHalf      = currentTreeMode === 'compact' ? cW / 2 : 59;
   const conjointLinks = allLiens.filter(l => l.type === 'conjoint');
   const parentLinks   = allLiens.filter(l => l.type === 'parent_enfant');
 
@@ -54,7 +73,7 @@ function drawTree(allLiens) {
   const units = {};
 
   function unitWidth(u) {
-    return u.type === 'couple' ? CARD_W * 2 + COUPLE_GAP : CARD_W;
+    return u.type === 'couple' ? cW * 2 + cCoupleGap : cW;
   }
 
   // Trouve le conjoint d'une personne dans genPeople, non encore utilisé
@@ -196,23 +215,23 @@ function drawTree(allLiens) {
 
   function setUnitX(u, x) {
     if (u.type === 'couple') {
-      cardPositions[u.people[0].id] = { x, y: u.y, cx: x + CARD_W/2 };
-      const x2 = x + CARD_W + COUPLE_GAP;
-      cardPositions[u.people[1].id] = { x: x2, y: u.y, cx: x2 + CARD_W/2 };
-      u.midX = x + CARD_W + COUPLE_GAP/2;
+      cardPositions[u.people[0].id] = { x, y: u.y, cx: x + vHalf };
+      const x2 = x + cW + cCoupleGap;
+      cardPositions[u.people[1].id] = { x: x2, y: u.y, cx: x2 + vHalf };
+      u.midX = x + cW/2 + cCoupleGap/2 + vHalf;
     } else {
-      cardPositions[u.people[0].id] = { x, y: u.y, cx: x + CARD_W/2 };
-      u.midX = x + CARD_W/2;
+      cardPositions[u.people[0].id] = { x, y: u.y, cx: x + vHalf };
+      u.midX = x + vHalf;
     }
   }
 
   sortedGens.forEach((gen, gi) => {
-    const y = 50 + gi * (CARD_H + GAP_Y);
+    const y = 50 + gi * (cH + cGapY);
     let cx = MARGIN;
     (units[gen] || []).forEach(u => {
       u.y = y;
       setUnitX(u, cx);
-      cx += unitWidth(u) + GAP_X;
+      cx += unitWidth(u) + cGapX;
     });
   });
 
@@ -248,7 +267,7 @@ function drawTree(allLiens) {
         moved = true;
 
         for (let j = i + 1; j < us.length; j++) {
-          const minX = us[j - 1].midX + unitWidth(us[j - 1]) / 2 + GAP_X;
+          const minX = us[j - 1].midX + unitWidth(us[j - 1]) / 2 + cGapX;
           if (us[j].midX - unitWidth(us[j]) / 2 < minX) { setUnitX(us[j], minX); moved = true; }
           else break;
         }
@@ -293,7 +312,7 @@ function drawTree(allLiens) {
 
         const afterIdx = Math.max(...fratrie.map(cu => us.indexOf(cu))) + 1;
         for (let j = afterIdx; j < us.length; j++) {
-          const needed = us[j - 1].midX + unitWidth(us[j - 1]) / 2 + GAP_X;
+          const needed = us[j - 1].midX + unitWidth(us[j - 1]) / 2 + cGapX;
           if (us[j].midX - unitWidth(us[j]) / 2 < needed) { setUnitX(us[j], needed); moved = true; }
           else break;
         }
@@ -303,11 +322,17 @@ function drawTree(allLiens) {
     if (!moved) break;
   }
 
-  const totalHeight = sortedGens.length * (CARD_H + GAP_Y) + 80;
+  const totalHeight = sortedGens.length * (cH + cGapY) + 80;
   let maxRight = 0;
   people.forEach(p => {
-    if (cardPositions[p.id]) maxRight = Math.max(maxRight, cardPositions[p.id].x + CARD_W);
+    if (cardPositions[p.id]) maxRight = Math.max(maxRight, cardPositions[p.id].x + cW);
   });
+
+  // Centre horizontal de la génération racine
+  const rootUnits = units[sortedGens[0]] || [];
+  const rootLeft  = Math.min(...rootUnits.map(u => u.midX - unitWidth(u) / 2));
+  const rootRight = Math.max(...rootUnits.map(u => u.midX + unitWidth(u) / 2));
+  const rootCenterX = (rootLeft + rootRight) / 2;
   const totalWidth = maxRight + MARGIN;
 
 
@@ -328,7 +353,7 @@ function drawTree(allLiens) {
     if (!childPos || !parentUnit) return;
     const key = parentUnit.people.map(p=>p.id).sort().join('-');
     if (!familyGroups.has(key)) {
-      familyGroups.set(key, { srcX: parentUnit.midX, srcY: parentUnit.y + CARD_H, children:[] });
+      familyGroups.set(key, { srcX: parentUnit.midX, srcY: parentUnit.y + cH, children:[] });
     }
     // Éviter les doublons (deux parents du même couple pointent vers le même enfant)
     const fg = familyGroups.get(key);
@@ -341,7 +366,7 @@ function drawTree(allLiens) {
     if (!children.length) return;
     // Trier les enfants de gauche à droite
     children.sort((a,b) => a.cx - b.cx);
-    const midY = srcY + GAP_Y * 0.42;
+    const midY = srcY + cGapY * (currentTreeMode === 'compact' ? 0.73 : 0.42);
 
     if (children.length === 1) {
       const cx = children[0].cx;
@@ -364,9 +389,10 @@ function drawTree(allLiens) {
   sortedGens.forEach(gen => {
     (units[gen]||[]).forEach(u => {
       if (u.type !== 'couple') return;
-      const x1 = cardPositions[u.people[0].id].cx + CARD_W/2;
-      const x2 = cardPositions[u.people[1].id].cx - CARD_W/2;
-      const y  = u.y + CARD_H/2;
+      const x1 = cardPositions[u.people[0].id].x + vHalf * 2;
+      const x2 = cardPositions[u.people[1].id].x;
+      const avatarCenter = currentTreeMode === 'compact' ? 3 + 18 : 9 + 18;
+      const y  = u.y + avatarCenter;
       svg += `<line x1="${r(x1)}" y1="${r(y)}" x2="${r(x2)}" y2="${r(y)}" stroke="${coupleColor}" stroke-width="1.5"/>`;
       svg += `<text x="${r((x1+x2)/2)}" y="${r(y+4)}" text-anchor="middle" font-size="10" fill="${coupleColor}" font-family="serif">♥</text>`;
     });
@@ -374,7 +400,7 @@ function drawTree(allLiens) {
 
   // ── 4c. Étiquettes de génération
   sortedGens.forEach((gen, gi) => {
-    const y = 50 + gi*(CARD_H+GAP_Y) + CARD_H/2;
+    const y = 50 + gi*(cH+cGapY) + cH/2;
     svg += `<text x="14" y="${r(y)}" text-anchor="middle" dominant-baseline="middle"
       font-size="8.5" fill="rgba(154,148,140,0.55)" font-family="'DM Sans',sans-serif"
       transform="rotate(-90,14,${r(y)})">${genLabel(gen).toUpperCase()}</text>`;
@@ -395,11 +421,13 @@ function drawTree(allLiens) {
     const maidenLabel = p.genre==='female' ? T('nee_label') : T('ne_label');
     const maiden = p.nom_naiss ? `<div class="p-maiden">${maidenLabel} ${p.nom_naiss}</div>` : '';
 
-    svg += `<foreignObject x="${r(pos.x)}" y="${r(pos.y)}" width="${CARD_W}" height="${CARD_H}" overflow="visible">
+    const compactYear = yrD ? `${yr||'?'}–${yrD}` : (yr||'?');
+    const cardInner = currentTreeMode === 'compact'
+      ? `${av}<div class="p-name" style="font-size:.6rem;">${p.prenom}</div><div class="p-year">${compactYear}</div>`
+      : `${av}<div class="p-name">${p.prenom}<br>${p.nom}</div>${maiden}<div class="p-dates">${dates}</div>`;
+    svg += `<foreignObject x="${r(pos.x)}" y="${r(pos.y)}" width="${cW}" height="${cH}" overflow="visible">
       <div xmlns="http://www.w3.org/1999/xhtml">
-        <div class="p-card ${p.genre}${dec}" onclick="openPerson(${p.id})">${av}
-          <div class="p-name">${p.prenom}<br>${p.nom}</div>${maiden}
-          <div class="p-dates">${dates}</div>
+        <div class="p-card${currentTreeMode === 'compact' ? ' p-card-compact' : ''} ${p.genre}${dec}" onclick="openPerson(${p.id})">${cardInner}
         </div>
       </div>
     </foreignObject>`;
@@ -410,6 +438,7 @@ function drawTree(allLiens) {
   const wrap = document.getElementById('view-tree').querySelector('.tree-wrap');
   enableDrag(wrap);
   enablePinchZoom(wrap);
+  wrap.scrollLeft = rootCenterX - wrap.clientWidth / 2;
 }
 
 let _pinchAbort = null;

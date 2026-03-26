@@ -48,6 +48,12 @@ nav button.active{background:var(--ink);color:var(--bg);}
 .p-name{font-size:.68rem;font-weight:500;line-height:1.3;margin-bottom:2px;color:var(--ink);}
 .p-dates{font-size:.72rem;color:var(--ink3);font-family:'Cormorant Garamond',serif;font-style:italic;}
 .p-maiden{font-size:.58rem;color:var(--ink3);font-style:italic;margin-bottom:1px;}
+.p-card-compact{padding:3px 0;width:100%;}
+.p-card-compact .p-avatar{margin-bottom:2px;}
+.p-card-compact{border:none !important;}
+.p-card-compact.male,.p-card-compact.female{border-top:none !important;}
+.p-card-compact .p-name{margin-bottom:1px;}
+.p-year{font-size:.6rem;color:var(--ink3);font-family:'Cormorant Garamond',serif;font-style:italic;text-align:center;margin-top:1px;}
 
 /* ── LISTE ──────────────────────────────────────────────── */
 .search-wrap{display:flex;gap:10px;margin-bottom:1rem;align-items:center;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:0 12px;}

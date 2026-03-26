@@ -40,7 +40,13 @@
 
 <!-- ── ARBRE ─────────────────────────────────────────────────── -->
 <div id="view-tree" class="view active">
-  <p class="tree-hint" id="tree-hint" style="padding-top:1rem;"></p>
+  <div style="display:flex;align-items:center;gap:.5rem;padding:.6rem 1rem .2rem;flex-wrap:wrap;">
+    <p class="tree-hint" id="tree-hint" style="margin:0;flex:1;"></p>
+    <div style="display:flex;gap:.35rem;flex-shrink:0;">
+      <button id="tree-mode-full" class="filter-btn active" onclick="setTreeMode('full')">Arbre complet</button>
+      <button id="tree-mode-compact" class="filter-btn" onclick="setTreeMode('compact')">Vue compacte</button>
+    </div>
+  </div>
   <div class="tree-wrap" style="width:100%;"><div id="tree-container"></div></div>
 </div>
 

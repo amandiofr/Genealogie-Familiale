@@ -24,6 +24,7 @@ const LANGS = {
     add_person:'+ Ajouter',
     // Tree
     tree_hint:'Cliquez sur une personne pour voir sa fiche',
+    tree_mode_full:'Arbre complet', tree_mode_compact:'Vue compacte',
     // Person modal
     sec_info:'Informations', sec_famille:'Famille', sec_photos:'Photos',
     sec_bio:'Biographie', sec_events:'Événements', sec_anecdotes:'Anecdotes',
@@ -143,6 +144,7 @@ const LANGS = {
     filter_living:'Vivos', filter_deceased:'Falecidos',
     add_person:'+ Adicionar',
     tree_hint:'Clique numa pessoa para ver a sua ficha',
+    tree_mode_full:'Árvore completa', tree_mode_compact:'Vista compacta',
     sec_info:'Informações', sec_famille:'Família', sec_photos:'Fotos',
     sec_bio:'Biografia', sec_events:'Eventos', sec_anecdotes:'Anedotas',
     lbl_naiss:'Nascimento', lbl_age:'Idade', lbl_deces:'Falecimento', lbl_job:'Profissão',
@@ -306,6 +308,11 @@ function applyLang() {
   const sa = document.getElementById('sort-btn-alpha');
   if (sd) sd.textContent = T('sort_date');
   if (sa) sa.textContent = T('sort_alpha');
+  // Tree mode buttons
+  const tmf = document.getElementById('tree-mode-full');
+  const tmc = document.getElementById('tree-mode-compact');
+  if (tmf) tmf.textContent = T('tree_mode_full');
+  if (tmc) tmc.textContent = T('tree_mode_compact');
   // Tree hint
   const th = document.getElementById('tree-hint');
   if (th) th.textContent = T('tree_hint');
