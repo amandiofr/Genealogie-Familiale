@@ -173,7 +173,7 @@ async function loadAnecdotes(){
       <div style="flex:1;">
         <div class="an-title">${a.titre}</div>
         <div class="an-meta">${[a.date_anec,a.auteur?T('lbl_by')+' '+a.auteur:'',a.personnes_noms].filter(Boolean).join(' · ')}</div>
-        <div class="an-excerpt">${a.contenu}</div>
+        <div class="an-excerpt">${a.contenu.replace(/\n/g,'<br>')}</div>
       </div>
     </div>`).join('');
 }

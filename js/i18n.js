@@ -335,7 +335,11 @@ function applyLang() {
     if (el) el.textContent = T(key);
   });
   const activeView = document.querySelector('.view.active');
-  if (activeView?.id === 'view-list') filterList();
+  if (activeView?.id === 'view-list')      filterList();
+  if (activeView?.id === 'view-tree')      renderTree();
+  if (activeView?.id === 'view-events')    loadEvents();
+  if (activeView?.id === 'view-anecdotes') loadAnecdotes();
+  if (activeView?.id === 'view-timeline')  loadTimeline();
 }
 
 // BASE_URL : chemin absolu vers la racine du site (fonctionne quel que soit le sous-répertoire)
