@@ -291,9 +291,10 @@ function setLang(lang) {
 }
 
 function applyLang() {
-  // Logo title
+  // Logo title + onglet navigateur
   const logoEl = document.getElementById('logo-title');
   if (logoEl) logoEl.textContent = T('site_title');
+  document.title = T('site_title');
   // User badge
   const badge = document.getElementById('user-badge');
   if (badge && currentUser) badge.textContent = currentUser.nom + ' (' + T('role_' + currentUser.role) + ')';
