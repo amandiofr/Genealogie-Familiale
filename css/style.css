@@ -9,6 +9,7 @@
   --shadow:0 2px 20px rgba(26,24,20,.06);--shadow-lg:0 8px 40px rgba(26,24,20,.12);
   --r:10px;
 }
+html{overflow-x:hidden;}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;overflow-x:hidden;}
 
 /* ── HEADER ─────────────────────────────────────────────── */
@@ -30,8 +31,8 @@ nav button.active{background:var(--ink);color:var(--bg);}
 
 /* ── ARBRE ──────────────────────────────────────────────── */
 /* ── ARBRE SVG ───────────────────────────────────────────── */
-#view-tree{height:calc(100vh - 56px);overflow:hidden;}
-#view-tree .tree-wrap{overflow:auto;height:100%;cursor:grab;user-select:none;}
+#view-tree{height:calc(100vh - 56px);height:calc(100dvh - 56px);overflow:hidden;display:flex;flex-direction:column;}
+#view-tree .tree-wrap{overflow:auto;flex:1;min-height:0;cursor:grab;user-select:none;padding-bottom:env(safe-area-inset-bottom,0px);}
 #view-tree .tree-wrap:active{cursor:grabbing;}
 .tree-hint{text-align:center;color:var(--ink3);font-size:.75rem;padding:4px 0 16px;letter-spacing:.02em;}
 #tree-svg{display:block;}

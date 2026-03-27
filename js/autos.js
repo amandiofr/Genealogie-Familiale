@@ -16,8 +16,8 @@ async function loadAutos() {
         ? `<div class="fl-av ${a.owner_genre||'male'}" style="width:38px;height:38px;font-size:.75rem;flex-shrink:0;">${(a.owner_prenom[0]||'')+(a.owner_nom[0]||'')}</div>`
         : '';
     const carImg = a.thumb
-      ? `<img src="${imgUrl(a.thumb)}" style="width:80px;height:60px;object-fit:cover;border-radius:6px;flex-shrink:0;" alt="">`
-      : `<div style="width:80px;height:60px;border-radius:6px;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex-shrink:0;">🚗</div>`;
+      ? `<img src="${imgUrl(a.thumb)}" style="width:80px;height:80px;object-fit:cover;border-radius:7px;flex-shrink:0;" alt="">`
+      : `<div style="width:80px;height:80px;border-radius:7px;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex-shrink:0;">🚗</div>`;
     const meta = [a.annee, a.couleur, a.owner_prenom].filter(Boolean).join(' · ');
     html += `
       <div onclick="openAuto(${a.id})" style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:10px;cursor:pointer;transition:box-shadow .15s;" onmouseover="this.style.boxShadow='var(--shadow-lg)'" onmouseout="this.style.boxShadow=''">
