@@ -165,6 +165,17 @@ CREATE TABLE IF NOT EXISTS anecdote_photos (
   FOREIGN KEY (anecdote_id) REFERENCES anecdotes(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;",
 
+'remember_tokens' => "
+CREATE TABLE IF NOT EXISTS remember_tokens (
+  id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  user_id    INT UNSIGNED NOT NULL,
+  token_hash CHAR(64)     NOT NULL,
+  expires_at DATETIME     NOT NULL,
+  created_at DATETIME     DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uniq_token (token_hash),
+  FOREIGN KEY (user_id) REFERENCES utilisateurs(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;",
+
 'notification_emails' => "
 CREATE TABLE IF NOT EXISTS notification_emails (
   id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
