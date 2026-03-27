@@ -20,6 +20,7 @@
     <button data-view="events">Événements</button>
     <button data-view="reunions">Réunions</button>
     <button data-view="anecdotes">Anecdotes</button>
+    <button data-view="autos">Autos</button>
     <button data-view="timeline">Timeline</button>
     <button data-view="admin" id="nav-admin" style="display:none">Admin</button>
   </nav>
@@ -115,6 +116,17 @@
   </div>
 </div>
 
+<!-- ── AUTOS ───────────────────────────────────────────────── -->
+<div id="view-autos" class="view">
+  <div class="view-inner">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.2rem;">
+      <h2 id="view-autos-heading" style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:400;">Autos de famille</h2>
+      <button class="btn-primary" id="btn-add-auto" style="font-size:.78rem;padding:7px 14px;">+ Ajouter</button>
+    </div>
+    <div id="autos-list"></div>
+  </div>
+</div>
+
 <!-- ── TIMELINE ──────────────────────────────────────────────── -->
 <div id="view-timeline" class="view">
   <div class="view-inner">
@@ -207,6 +219,11 @@
   <div class="modal" id="modal-form-anecdote" onclick="event.stopPropagation()" style="max-width:560px;"></div>
 </div>
 
+<!-- ── MODAL FORM AUTO ───────────────────────────────────────── -->
+<div class="overlay" id="modal-form-auto-overlay" onclick="closeOverlay('modal-form-auto-overlay')">
+  <div class="modal" id="modal-form-auto" onclick="event.stopPropagation()" style="max-width:560px;"></div>
+</div>
+
 <!-- ── MODAL FORM USER ───────────────────────────────────────── -->
 <div class="overlay" id="modal-user-overlay" onclick="closeOverlay('modal-user-overlay')">
   <div class="modal" id="modal-user" onclick="event.stopPropagation()" style="max-width:420px;"></div>
@@ -224,13 +241,14 @@
 <div class="toast" id="toast"></div>
 
 
-<script src="js/i18n.js?v=3"></script>
-<script src="js/init.js?v=3"></script>
-<script src="js/arbre.js?v=3"></script>
-<script src="js/list.js?v=3"></script>
-<script src="js/events.js?v=3"></script>
-<script src="js/reunions.js?v=3"></script>
-<script src="js/timeline.js?v=3"></script>
-<script src="js/admin.js?v=3"></script>
+<script src="js/i18n.js?v=4"></script>
+<script src="js/init.js?v=4"></script>
+<script src="js/arbre.js?v=4"></script>
+<script src="js/list.js?v=4"></script>
+<script src="js/events.js?v=4"></script>
+<script src="js/reunions.js?v=4"></script>
+<script src="js/timeline.js?v=4"></script>
+<script src="js/autos.js?v=4"></script>
+<script src="js/admin.js?v=4"></script>
 </body>
 </html>

@@ -13,6 +13,7 @@ async function init() {
       document.getElementById('btn-add-event').style.display='none';
       document.getElementById('btn-add-reunion').style.display='none';
       document.getElementById('btn-add-anecdote').style.display='none';
+      document.getElementById('btn-add-auto').style.display='none';
     }
   } catch { window.location.href='login.html'; return; }
 
@@ -35,6 +36,7 @@ async function init() {
   document.getElementById('btn-add-event').onclick    = () => showEventForm(null);
   document.getElementById('btn-add-reunion').onclick  = () => showReunionForm(null);
   document.getElementById('btn-add-anecdote').onclick = () => showAnecdoteForm(null);
+  document.getElementById('btn-add-auto').onclick     = () => showAutoForm(null);
 
   await loadPeople();
   updateAuthorPicker();
@@ -42,7 +44,7 @@ async function init() {
 
   // Deep linking via URL hash
   const hash = window.location.hash.slice(1);
-  const validViews = ['tree', 'list', 'events', 'reunions', 'anecdotes', 'timeline', 'admin'];
+  const validViews = ['tree', 'list', 'events', 'reunions', 'anecdotes', 'autos', 'timeline', 'admin'];
   if (hash && validViews.includes(hash)) {
     if (hash !== 'admin' || currentUser.role === 'admin') {
       const btn = document.querySelector(`nav button[data-view="${hash}"]`);
@@ -79,6 +81,7 @@ function showView(name, btn) {
   if (name==='events')    { loadEvents(); }
   if (name==='reunions')  { loadReunions(); }
   if (name==='anecdotes') { loadAnecdotes(); }
+  if (name==='autos')     { loadAutos(); }
   if (name==='timeline')  { loadTimeline(); }
   if (name==='admin')     { loadUsers(); loadNotifEmails(); }
 }

@@ -137,6 +137,14 @@ const LANGS = {
     notif_confirm_delete:'Supprimer cette adresse de notification ?',
     btn_notif_add:'+ Ajouter',
     author_placeholder:'Prénom',
+    // Autos
+    nav_autos:'Autos', h_autos:'Autos de famille', add_auto:'+ Ajouter',
+    empty_autos:'Aucune voiture', empty_autos_sub:'Ajoutez la première voiture de la famille',
+    form_title_new_auto:'Nouvelle voiture',
+    form_marque:'Marque', form_modele:'Modèle', form_annee:'Année', form_couleur:'Couleur',
+    form_owner:'Propriétaire', form_owner_none:'— Aucun —',
+    toast_auto_added:'Voiture ajoutée', toast_auto_edited:'Voiture modifiée', toast_auto_deleted:'Voiture supprimée',
+    confirm_delete_auto:'Supprimer cette voiture ?',
   },
   pt: {
     nav_tree:'Árvore', nav_list:'Membros', nav_events:'Eventos',
@@ -254,6 +262,14 @@ const LANGS = {
     notif_confirm_delete:'Eliminar este endereço de notificação?',
     btn_notif_add:'+ Adicionar',
     author_placeholder:'Nome',
+    // Autos
+    nav_autos:'Autos', h_autos:'Carros da família', add_auto:'+ Adicionar',
+    empty_autos:'Nenhum carro', empty_autos_sub:'Adicione o primeiro carro da família',
+    form_title_new_auto:'Novo carro',
+    form_marque:'Marca', form_modele:'Modelo', form_annee:'Ano', form_couleur:'Cor',
+    form_owner:'Proprietário', form_owner_none:'— Nenhum —',
+    toast_auto_added:'Carro adicionado', toast_auto_edited:'Carro modificado', toast_auto_deleted:'Carro eliminado',
+    confirm_delete_auto:'Eliminar este carro?',
   }
 };
 
@@ -299,7 +315,7 @@ function applyLang() {
   const badge = document.getElementById('user-badge');
   if (badge && currentUser) badge.textContent = currentUser.nom + ' (' + T('role_' + currentUser.role) + ')';
   // Nav buttons
-  const navMap = {tree:'nav_tree',list:'nav_list',events:'nav_events',reunions:'nav_reunions',anecdotes:'nav_anecdotes',timeline:'nav_timeline',admin:'nav_admin'};
+  const navMap = {tree:'nav_tree',list:'nav_list',events:'nav_events',reunions:'nav_reunions',anecdotes:'nav_anecdotes',autos:'nav_autos',timeline:'nav_timeline',admin:'nav_admin'};
   document.querySelectorAll('nav button[data-view]').forEach(b => { b.textContent = T(navMap[b.dataset.view]||b.dataset.view); });
   // Logout
   const logoutBtn = document.getElementById('btn-logout');
@@ -322,6 +338,8 @@ function applyLang() {
   if (btnR) btnR.textContent = T('add_reunion');
   const btnA = document.getElementById('btn-add-anecdote');
   if (btnA) btnA.textContent = T('add_anecdote');
+  const btnAu = document.getElementById('btn-add-auto');
+  if (btnAu) btnAu.textContent = T('add_auto');
   // Sort buttons
   const sd = document.getElementById('sort-btn-date');
   const sa = document.getElementById('sort-btn-alpha');
@@ -343,6 +361,7 @@ function applyLang() {
     'view-events-heading':    'h_events',
     'view-reunions-heading':  'h_reunions',
     'view-anecdotes-heading': 'h_anecdotes',
+    'view-autos-heading':     'h_autos',
     'view-timeline-heading':  'h_timeline',
     'view-admin-heading':    'h_admin',
   };
@@ -377,6 +396,7 @@ function applyLang() {
   if (activeView?.id === 'view-tree')      renderTree();
   if (activeView?.id === 'view-events')    loadEvents();
   if (activeView?.id === 'view-anecdotes') loadAnecdotes();
+  if (activeView?.id === 'view-autos')     loadAutos();
   if (activeView?.id === 'view-timeline')  loadTimeline();
 }
 

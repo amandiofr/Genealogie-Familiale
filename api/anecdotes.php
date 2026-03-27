@@ -13,7 +13,10 @@ if ($method === 'GET' && !$id) {
     $rows = $db->query("
         SELECT a.*,
           GROUP_CONCAT(CONCAT(p.prenom,' ',p.nom) SEPARATOR ', ') AS personnes_noms,
-          (SELECT chemin_thumb FROM anecdote_photos WHERE id=a.photo_id AND anecdote_id=a.id LIMIT 1) AS thumb
+          COALESCE(
+            (SELECT chemin_thumb FROM anecdote_photos WHERE id=a.photo_id AND anecdote_id=a.id LIMIT 1),
+            (SELECT chemin_thumb FROM anecdote_photos WHERE anecdote_id=a.id ORDER BY ordre LIMIT 1)
+          ) AS thumb
         FROM anecdotes a
         LEFT JOIN anecdote_personnes ap ON ap.anecdote_id=a.id
         LEFT JOIN personnes p ON p.id=ap.personne_id

@@ -46,8 +46,9 @@ async function openReunion(id){
   if((e.photos||[]).length){
     html+=`<div class="modal-section"><div class="sec-title">${T('sec_photos')}</div><div class="photos-strip">`;
     _lbGallery = e.photos.map(p=>imgUrl(p.chemin));
+    const _reEffId = e.photo_id || e.photos[0]?.id;
     e.photos.forEach((ph,i)=>{
-      const isMain = ph.id == e.photo_id;
+      const isMain = ph.id == _reEffId;
       const mainBadge = isMain ? `<div style="position:absolute;bottom:3px;left:3px;background:var(--accent);color:#fff;font-size:.55rem;padding:2px 5px;border-radius:4px;letter-spacing:.03em;">${T('event_favourite')}</div>` : '';
       const setBtn = (!isMain && currentUser.role!=='lecteur') ? `<div onclick="event.stopPropagation();setReunionAvatar(${id},${ph.id})" style="position:absolute;top:3px;right:3px;background:rgba(26,24,20,.55);color:#fff;font-size:.6rem;padding:2px 6px;border-radius:4px;cursor:pointer;" title="${T('event_favourite')}">★</div>` : '';
       const delBtn = (currentUser.role!=='lecteur') ? `<div onclick="event.stopPropagation();deleteReunionPhoto(${id},${ph.id})" style="position:absolute;bottom:3px;right:3px;background:rgba(180,40,40,.7);color:#fff;font-size:.6rem;padding:2px 6px;border-radius:4px;cursor:pointer;" title="${T('btn_delete_photo')}">🗑</div>` : '';
