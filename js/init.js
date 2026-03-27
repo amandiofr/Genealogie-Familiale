@@ -37,6 +37,7 @@ async function init() {
   document.getElementById('btn-add-anecdote').onclick = () => showAnecdoteForm(null);
 
   await loadPeople();
+  updateAuthorPicker();
   try { renderTree(); } catch(e) { console.error('renderTree() failed:', e); }
 
   // Deep linking via URL hash
@@ -55,6 +56,7 @@ async function init() {
 // ══════════════════════════════════════════════════════════════
 async function api(method, url, body) {
   const opts = { method, headers:{} };
+  if (authorName) opts.headers['X-Author-Name'] = authorName;
   if (body instanceof FormData) { opts.body = body; }
   else if (body) { opts.headers['Content-Type']='application/json'; opts.body=JSON.stringify(body); }
   const r = await fetch(url, opts);

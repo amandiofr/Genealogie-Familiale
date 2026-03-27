@@ -66,7 +66,7 @@ const LANGS = {
     empty_anecdotes:'Aucune anecdote', empty_anecdotes_sub:'Écrivez la première histoire familiale',
     empty_search:'Aucun résultat',
     // Roles
-    role_lecteur:'Lecteur', role_editeur:'Éditeur', role_admin:'Administrateur',
+    role_lecteur:'Lecteur', role_editeur:'Éditeur', role_admin:'Admin',
     // Avatar événement
     event_avatar_set:'Avatar de l\'événement mis à jour',
     event_favourite:'favori',
@@ -136,6 +136,7 @@ const LANGS = {
     notif_deleted:'Adresse supprimée',
     notif_confirm_delete:'Supprimer cette adresse de notification ?',
     btn_notif_add:'+ Ajouter',
+    author_placeholder:'Prénom',
   },
   pt: {
     nav_tree:'Árvore', nav_list:'Membros', nav_events:'Eventos',
@@ -187,7 +188,7 @@ const LANGS = {
     tl_label_life:'Nascimentos & Óbitos', tl_label_mariage:'Casamentos', tl_label_other:'Outros eventos',
     empty_anecdotes:'Nenhuma anedota', empty_anecdotes_sub:'Escreva a primeira história familiar',
     empty_search:'Sem resultados',
-    role_lecteur:'Leitor', role_editeur:'Editor', role_admin:'Administrador',
+    role_lecteur:'Leitor', role_editeur:'Editor', role_admin:'Admin',
     event_avatar_set:'Avatar do evento atualizado',
     event_favourite:'favorito',
     btn_delete_photo:'Eliminar foto',
@@ -252,6 +253,7 @@ const LANGS = {
     notif_deleted:'Endereço eliminado',
     notif_confirm_delete:'Eliminar este endereço de notificação?',
     btn_notif_add:'+ Adicionar',
+    author_placeholder:'Nome',
   }
 };
 
@@ -332,6 +334,8 @@ function applyLang() {
   // Tree hint
   const th = document.getElementById('tree-hint');
   if (th) th.textContent = T('tree_hint');
+  // Author picker placeholder
+  updateAuthorPicker();
   // Page section headings (h2 titles of each view)
   const headings = {
     'view-list-heading':      'h_membres',
@@ -380,6 +384,34 @@ const BASE_URL = window.location.pathname.replace(/\/[^\/]*$/, '/');
 function imgUrl(path) { return path ? BASE_URL + path : ''; }
 
 let people = [], currentFilter = 'all', currentUser = null;
+let authorName = localStorage.getItem('authorName') || '';
+
+function setAuthorName(val) {
+  authorName = val;
+  localStorage.setItem('authorName', authorName);
+  _resizeAuthorPicker();
+}
+
+function updateAuthorPicker() {
+  const sel = document.getElementById('author-picker');
+  if (!sel) return;
+  const names = [...new Set(people.map(p => p.prenom))].sort((a,b) => a.localeCompare(b,'fr'));
+  sel.innerHTML = `<option value="" disabled${!authorName ? ' selected' : ''}>${T('author_placeholder')}</option>`
+    + names.map(n => `<option value="${n}"${n === authorName ? ' selected' : ''}>${n}</option>`).join('');
+  _resizeAuthorPicker();
+}
+
+function _resizeAuthorPicker() {
+  const sel = document.getElementById('author-picker');
+  if (!sel) return;
+  const text = sel.options[sel.selectedIndex]?.text || 'Mon prénom';
+  const span = document.createElement('span');
+  span.style.cssText = 'position:absolute;visibility:hidden;white-space:nowrap;font-family:"DM Sans",sans-serif;font-size:.8rem;';
+  span.textContent = text;
+  document.body.appendChild(span);
+  sel.style.width = (span.offsetWidth + 38) + 'px'; // +38 pour flèche + padding
+  document.body.removeChild(span);
+}
 const GEN_LABELS = () => [T('gen_0'),T('gen_1'),T('gen_2'),T('gen_3'),T('gen_4'),T('gen_5'),T('gen_6')];
 const EVT_ICONS  = {mariage:'💍',naissance:'👶',deces:'🕊',rencontre:'🤝',voyage:'✈️',reunion:'🏠',fete:'🎉',autre:'📌'};
 

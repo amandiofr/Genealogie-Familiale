@@ -172,42 +172,6 @@ function drawTree(allLiens) {
     units[gen] = ordered;
   });
 
-  // ── LOG automatique dans la console (F12) ──────────────────────────────────
-  console.group('🌿 Arbre généalogique — diagnostic');
-  sortedGens.forEach(gen => {
-    console.group('Génération ' + gen + ' (' + (units[gen]||[]).length + ' unités)');
-    (units[gen]||[]).forEach((u, i) => {
-      const names = u.people.map(p => p.prenom + ' ' + p.nom + ' [id=' + p.id + ']').join(' + ');
-      const parentIds = new Set();
-      u.people.forEach(p => {
-        parentLinks.filter(l => l.personne_b == p.id).forEach(l => parentIds.add(l.personne_a));
-      });
-      const parentStr = parentIds.size ? '← parents ids: ' + [...parentIds].join(',') : '← sans parent connu';
-      console.log('[' + i + '] ' + u.type + ' | ' + names + ' | ' + parentStr);
-    });
-    // Détecter les fratries non contiguës
-    const seen = new Map();
-    let genOk = true;
-    (units[gen]||[]).forEach((u, i) => {
-      const pIds = new Set();
-      u.people.forEach(p => parentLinks.filter(l=>l.personne_b==p.id).forEach(l=>pIds.add(l.personne_a)));
-      if (pIds.size === 0) return;
-      const key = [...pIds].sort().join('-');
-      if (!seen.has(key)) { seen.set(key, {first:i, last:i}); }
-      else {
-        const s = seen.get(key);
-        if (i !== s.last + 1) {
-          console.warn('❌ Fratrie mélangée: parents[' + key + '] positions ' + s.first + '..' + s.last + ' puis ' + i);
-          genOk = false;
-        }
-        s.last = i;
-      }
-    });
-    if (genOk) console.log('✅ Fratries contiguës');
-    console.groupEnd();
-  });
-  console.groupEnd();
-  // ────────────────────────────────────────────────────────────────────────────
 
   // ── 3. Positionnement : séquentiel gauche à droite, sans superposition
   const MARGIN = 60;

@@ -228,7 +228,7 @@ async function showAnecdoteForm(id){
       <div class="fg"><label>${T('form_contenu')} *</label><textarea id="fa-contenu" style="min-height:160px;" placeholder="Racontez cette histoire…">${a?.contenu||''}</textarea></div>
       <div class="form-grid">
         <div class="fg"><label>${T('form_date_approx')}</label><input id="fa-date" value="${a?.date_anec||''}" placeholder="Ex : 1972, Été 1985…"></div>
-        <div class="fg"><label>${T('form_written_by')}</label><input id="fa-auteur" value="${a?.auteur||''}" placeholder="Votre prénom"></div>
+        <div class="fg"><label>${T('form_written_by')}</label><input id="fa-auteur" value="${a?.auteur ?? authorName ?? ''}" placeholder="Votre prénom"></div>
         <div class="fg full"><label>${T('form_mentions')}</label><select id="fa-personnes" multiple size="5" style="height:110px;">${peopleOptions}</select></div>
       </div>
       ${id ? `<div class="fg full" style="margin-top:.8rem;">

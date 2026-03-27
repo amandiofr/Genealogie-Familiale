@@ -25,6 +25,10 @@
   </nav>
   <div class="header-right">
     <span class="user-badge" id="user-badge"></span>
+    <select id="author-picker" onchange="setAuthorName(this.value)"
+      style="padding:4px 8px;border:1px solid var(--border);border-radius:6px;font-family:'DM Sans',sans-serif;font-size:.8rem;color:var(--ink);background:var(--bg);outline:none;cursor:pointer;">
+      <option value="" disabled selected>Prénom</option>
+    </select>
     <div id="lang-picker" style="position:relative;">
       <button id="lang-btn" onclick="toggleLangMenu()" style="background:none;border:1px solid var(--border);border-radius:6px;padding:4px 9px;font-size:.8rem;color:var(--ink2);font-family:'DM Sans',sans-serif;cursor:pointer;display:flex;align-items:center;gap:5px;white-space:nowrap;" aria-haspopup="true" aria-expanded="false">
         <span id="lang-flag"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzIDIiPjxyZWN0IHdpZHRoPSIxIiBoZWlnaHQ9IjIiIGZpbGw9IiMwMDIzOTUiLz48cmVjdCB4PSIxIiB3aWR0aD0iMSIgaGVpZ2h0PSIyIiBmaWxsPSIjZmZmIi8+PHJlY3QgeD0iMiIgd2lkdGg9IjEiIGhlaWdodD0iMiIgZmlsbD0iI0VEMjkzOSIvPjwvc3ZnPg==" width="18" height="12" style="border-radius:2px;vertical-align:middle;flex-shrink:0;" alt=""></span><span id="lang-code">FR</span><span style="font-size:.6rem;opacity:.6;">▾</span>
