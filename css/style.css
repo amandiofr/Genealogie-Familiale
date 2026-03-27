@@ -31,7 +31,8 @@ nav button.active{background:var(--ink);color:var(--bg);}
 
 /* ── ARBRE ──────────────────────────────────────────────── */
 /* ── ARBRE SVG ───────────────────────────────────────────── */
-#view-tree{height:calc(100vh - 56px);height:calc(100dvh - 56px);overflow:hidden;display:flex;flex-direction:column;}
+#view-tree{height:calc(100vh - 56px);height:calc(100dvh - 56px);overflow:hidden;}
+#view-tree.active{display:flex;flex-direction:column;}
 #view-tree .tree-wrap{overflow:auto;flex:1;min-height:0;cursor:grab;user-select:none;padding-bottom:env(safe-area-inset-bottom,0px);}
 #view-tree .tree-wrap:active{cursor:grabbing;}
 .tree-hint{text-align:center;color:var(--ink3);font-size:.75rem;padding:4px 0 16px;letter-spacing:.02em;}
