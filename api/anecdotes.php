@@ -44,6 +44,7 @@ if ($method === 'POST' && !$id && $sub !== 'photos') {
         $ins=$db->prepare('INSERT IGNORE INTO anecdote_personnes (anecdote_id,personne_id) VALUES (?,?)');
         foreach ($b['personnes'] as $pid) $ins->execute([$aid,$pid]);
     }
+    log_modification('anecdote', 'ajout', $b['titre'], $user['nom']);
     json_out(['id'=>$aid]);
 }
 
@@ -56,14 +57,17 @@ if ($method === 'PUT' && $id && !$sub) {
         $ins=$db->prepare('INSERT IGNORE INTO anecdote_personnes (anecdote_id,personne_id) VALUES (?,?)');
         foreach ($b['personnes'] as $pid) $ins->execute([$id,$pid]);
     }
+    log_modification('anecdote', 'modification', $b['titre'], $user['nom']);
     json_out(['ok'=>true]);
 }
 
 if ($method === 'DELETE' && $id && !$sub) {
     require_role('admin','editeur');
+    $an=$db->prepare('SELECT titre FROM anecdotes WHERE id=?'); $an->execute([$id]); $an=$an->fetch();
     $photos=$db->prepare('SELECT chemin,chemin_thumb FROM anecdote_photos WHERE anecdote_id=?'); $photos->execute([$id]);
     foreach ($photos->fetchAll() as $ph) { del_file($ph['chemin']); del_file($ph['chemin_thumb']); }
     $db->prepare('DELETE FROM anecdotes WHERE id=?')->execute([$id]);
+    if ($an) log_modification('anecdote', 'suppression', $an['titre'], $user['nom']);
     json_out(['ok'=>true]);
 }
 

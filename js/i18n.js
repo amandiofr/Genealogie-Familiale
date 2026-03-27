@@ -128,6 +128,14 @@ const LANGS = {
     error_no_photo:'Aucune photo sélectionnée',
     error_select_file:'Sélectionnez un fichier',
     toast_photos_added:'Photos ajoutées',
+    // Notifications
+    admin_notif:'Notifications par e-mail',
+    admin_notif_desc:'Liste des adresses à prévenir lors de modifications. Un e-mail au maximum par jour, envoyé 1 heure après la dernière modification.',
+    notif_empty:'Aucune adresse configurée',
+    notif_added:'Adresse ajoutée',
+    notif_deleted:'Adresse supprimée',
+    notif_confirm_delete:'Supprimer cette adresse de notification ?',
+    btn_notif_add:'+ Ajouter',
   },
   pt: {
     nav_tree:'Árvore', nav_list:'Membros', nav_events:'Eventos',
@@ -236,6 +244,14 @@ const LANGS = {
     error_no_photo:'Nenhuma foto selecionada',
     error_select_file:'Selecione um ficheiro',
     toast_photos_added:'Fotos adicionadas',
+    // Notifications
+    admin_notif:'Notificações por e-mail',
+    admin_notif_desc:'Lista de endereços a notificar quando forem feitas alterações. Máximo um e-mail por dia, enviado 1 hora após a última alteração.',
+    notif_empty:'Nenhum endereço configurado',
+    notif_added:'Endereço adicionado',
+    notif_deleted:'Endereço eliminado',
+    notif_confirm_delete:'Eliminar este endereço de notificação?',
+    btn_notif_add:'+ Adicionar',
   }
 };
 
@@ -335,7 +351,10 @@ function applyLang() {
     'lbl-admin-export':   'admin_export',
     'lbl-admin-import':   'admin_import',
     'lbl-admin-password': 'admin_password',
+    'lbl-admin-notif':    'admin_notif',
+    'lbl-admin-notif-desc': 'admin_notif_desc',
     'btn-admin-new-user': 'admin_new_user',
+    'btn-notif-add':      'btn_notif_add',
     'lbl-import-ged':     'import_ged',
     'lbl-import-json':    'import_json',
     'lbl-pwd-old':        'pwd_old',

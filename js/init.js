@@ -78,7 +78,7 @@ function showView(name, btn) {
   if (name==='reunions')  { loadReunions(); }
   if (name==='anecdotes') { loadAnecdotes(); }
   if (name==='timeline')  { loadTimeline(); }
-  if (name==='admin')     { loadUsers(); }
+  if (name==='admin')     { loadUsers(); loadNotifEmails(); }
 }
 
 // ══════════════════════════════════════════════════════════════

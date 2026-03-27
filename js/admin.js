@@ -49,6 +49,46 @@ async function changePassword(){
 }
 
 // ══════════════════════════════════════════════════════════════
+//  NOTIFICATIONS PAR E-MAIL
+// ══════════════════════════════════════════════════════════════
+async function loadNotifEmails() {
+  try {
+    const list = await api('GET', 'api/notifications.php');
+    const el = document.getElementById('notif-emails-list');
+    if (!list.length) {
+      el.innerHTML = `<p style="font-size:.8rem;color:var(--ink3);font-style:italic;">${T('notif_empty')}</p>`;
+      return;
+    }
+    el.innerHTML = list.map(e => `
+      <div class="user-row">
+        <div style="flex:1;font-size:.85rem;">${e.email}</div>
+        <button class="btn-sm" onclick="deleteNotifEmail(${e.id})">🗑</button>
+      </div>`).join('');
+  } catch(e) { /* tables pas encore créées → silencieux */ }
+}
+
+async function addNotifEmail() {
+  const input = document.getElementById('notif-new-email');
+  const email = input.value.trim();
+  if (!email) return;
+  try {
+    await api('POST', 'api/notifications.php', { email });
+    input.value = '';
+    loadNotifEmails();
+    toast(T('notif_added'));
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function deleteNotifEmail(id) {
+  if (!confirm(T('notif_confirm_delete'))) return;
+  try {
+    await api('DELETE', `api/notifications.php?id=${id}`);
+    loadNotifEmails();
+    toast(T('notif_deleted'));
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+// ══════════════════════════════════════════════════════════════
 //  IMPORT
 // ══════════════════════════════════════════════════════════════
 async function importFile(type){

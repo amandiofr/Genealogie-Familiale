@@ -236,6 +236,52 @@ function drawTree(allLiens) {
   });
 
   // ── 4+5. Passes itératives (max 5 fois) jusqu'à convergence
+  function passFratries(topDown = false) {
+    const indices = Array.from({length: sortedGens.length - 1}, (_, i) => topDown ? i + 1 : sortedGens.length - 1 - i);
+    for (const gi of indices) {
+      const us       = units[sortedGens[gi]] || [];
+      const parentUs = units[sortedGens[gi - 1]] || [];
+      const done     = new Set();
+
+      for (let i = 0; i < us.length; i++) {
+        const u = us[i];
+        const parentU = parentUs.find(pu =>
+          pu.people.some(par =>
+            u.people.some(child =>
+              parentLinks.some(l => l.personne_a == par.id && l.personne_b == child.id)
+            )
+          )
+        );
+        if (!parentU) continue;
+        const key = parentU.people.map(p => p.id).join('-');
+        if (done.has(key)) continue;
+        done.add(key);
+
+        const fratrie = us.filter(cu =>
+          cu.people.some(child =>
+            parentU.people.some(par =>
+              parentLinks.some(l => l.personne_a == par.id && l.personne_b == child.id)
+            )
+          )
+        );
+
+        const fratrieLeft  = Math.min(...fratrie.map(cu => cu.midX - unitWidth(cu) / 2));
+        const fratrieRight = Math.max(...fratrie.map(cu => cu.midX + unitWidth(cu) / 2));
+        const delta = parentU.midX - (fratrieLeft + fratrieRight) / 2;
+        if (delta <= 0) continue;
+
+        fratrie.forEach(cu => setUnitX(cu, cu.midX - unitWidth(cu) / 2 + delta));
+
+        const afterIdx = Math.max(...fratrie.map(cu => us.indexOf(cu))) + 1;
+        for (let j = afterIdx; j < us.length; j++) {
+          const needed = us[j - 1].midX + unitWidth(us[j - 1]) / 2 + cGapX;
+          if (us[j].midX - unitWidth(us[j]) / 2 < needed) setUnitX(us[j], needed);
+          else break;
+        }
+      }
+    }
+  }
+
   for (let iter = 0; iter < 5; iter++) {
     let moved = false;
 
@@ -275,49 +321,7 @@ function drawTree(allLiens) {
     }
 
     // Passe 5 : aligner chaque fratrie sur le milieu de ses parents (jamais à gauche)
-    for (let gi = sortedGens.length - 1; gi >= 1; gi--) {
-      const us       = units[sortedGens[gi]] || [];
-      const parentUs = units[sortedGens[gi - 1]] || [];
-      const done     = new Set();
-
-      for (let i = 0; i < us.length; i++) {
-        const u = us[i];
-        const parentU = parentUs.find(pu =>
-          pu.people.some(par =>
-            u.people.some(child =>
-              parentLinks.some(l => l.personne_a == par.id && l.personne_b == child.id)
-            )
-          )
-        );
-        if (!parentU) continue;
-        const key = parentU.people.map(p => p.id).join('-');
-        if (done.has(key)) continue;
-        done.add(key);
-
-        const fratrie = us.filter(cu =>
-          cu.people.some(child =>
-            parentU.people.some(par =>
-              parentLinks.some(l => l.personne_a == par.id && l.personne_b == child.id)
-            )
-          )
-        );
-
-        const fratrieLeft  = Math.min(...fratrie.map(cu => cu.midX - unitWidth(cu) / 2));
-        const fratrieRight = Math.max(...fratrie.map(cu => cu.midX + unitWidth(cu) / 2));
-        const delta = parentU.midX - (fratrieLeft + fratrieRight) / 2;
-        if (delta <= 0) continue;
-
-        fratrie.forEach(cu => setUnitX(cu, cu.midX - unitWidth(cu) / 2 + delta));
-        moved = true;
-
-        const afterIdx = Math.max(...fratrie.map(cu => us.indexOf(cu))) + 1;
-        for (let j = afterIdx; j < us.length; j++) {
-          const needed = us[j - 1].midX + unitWidth(us[j - 1]) / 2 + cGapX;
-          if (us[j].midX - unitWidth(us[j]) / 2 < needed) { setUnitX(us[j], needed); moved = true; }
-          else break;
-        }
-      }
-    }
+    passFratries();
 
     if (!moved) break;
   }

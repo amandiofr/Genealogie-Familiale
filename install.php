@@ -165,6 +165,31 @@ CREATE TABLE IF NOT EXISTS anecdote_photos (
   FOREIGN KEY (anecdote_id) REFERENCES anecdotes(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;",
 
+'notification_emails' => "
+CREATE TABLE IF NOT EXISTS notification_emails (
+  id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  email      VARCHAR(200) NOT NULL UNIQUE,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;",
+
+'modification_log' => "
+CREATE TABLE IF NOT EXISTS modification_log (
+  id          INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  type        VARCHAR(50)  NOT NULL,
+  action      ENUM('ajout','modification','suppression') NOT NULL,
+  description VARCHAR(500) NOT NULL,
+  auteur      VARCHAR(200) DEFAULT NULL,
+  created_at  DATETIME DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;",
+
+'notification_state' => "
+CREATE TABLE IF NOT EXISTS notification_state (
+  id         INT UNSIGNED NOT NULL DEFAULT 1,
+  send_after DATETIME     DEFAULT NULL,
+  last_sent  DATETIME     DEFAULT NULL,
+  PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;",
+
 ];
 
 $errors = [];

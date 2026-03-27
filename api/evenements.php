@@ -65,6 +65,7 @@ if ($method === 'POST' && !$id && $sub !== 'photos') {
         $ins = $db->prepare('INSERT IGNORE INTO evenement_personnes (evenement_id,personne_id,role) VALUES (?,?,?)');
         foreach ($b['personnes'] as $p) $ins->execute([$eid, $p['id'], $p['role'] ?? null]);
     }
+    log_modification('evenement', 'ajout', $b['titre'], $user['nom']);
     json_out(['id' => $eid]);
 }
 
@@ -80,16 +81,20 @@ if ($method === 'PUT' && $id && !$sub) {
         $ins = $db->prepare('INSERT IGNORE INTO evenement_personnes (evenement_id,personne_id,role) VALUES (?,?,?)');
         foreach ($b['personnes'] as $p) $ins->execute([$id, $p['id'], $p['role'] ?? null]);
     }
+    log_modification('evenement', 'modification', $b['titre'], $user['nom']);
     json_out(['ok' => true]);
 }
 
 // ── DELETE ───────────────────────────────────────────────────────────────────
 if ($method === 'DELETE' && $id && !$sub) {
     require_role('admin','editeur');
+    $ev = $db->prepare('SELECT titre FROM evenements WHERE id=?');
+    $ev->execute([$id]); $ev = $ev->fetch();
     $photos = $db->prepare('SELECT chemin,chemin_thumb FROM evenement_photos WHERE evenement_id=?');
     $photos->execute([$id]);
     foreach ($photos->fetchAll() as $ph) { del_file($ph['chemin']); del_file($ph['chemin_thumb']); }
     $db->prepare('DELETE FROM evenements WHERE id=?')->execute([$id]);
+    if ($ev) log_modification('evenement', 'suppression', $ev['titre'], $user['nom']);
     json_out(['ok' => true]);
 }
 

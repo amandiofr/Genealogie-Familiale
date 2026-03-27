@@ -84,7 +84,9 @@ if ($method === 'POST' && !$id) {
         $b['profession'] ?: null,
         $b['biographie'] ?: null,
     ]);
-    json_out(['id' => $db->lastInsertId()]);
+    $newId = $db->lastInsertId();
+    log_modification('personne', 'ajout', "{$b['prenom']} {$b['nom']}", $user['nom']);
+    json_out(['id' => $newId]);
 }
 
 // ── PUT modifier ─────────────────────────────────────────────────────────────
@@ -109,13 +111,17 @@ if ($method === 'PUT' && $id && !$sub) {
         $b['biographie'] ?: null,
         $id,
     ]);
+    log_modification('personne', 'modification', "{$b['prenom']} {$b['nom']}", $user['nom']);
     json_out(['ok' => true]);
 }
 
 // ── DELETE supprimer ─────────────────────────────────────────────────────────
 if ($method === 'DELETE' && $id && !$sub) {
     require_role('admin');
+    $p = $db->prepare('SELECT prenom, nom FROM personnes WHERE id=?');
+    $p->execute([$id]); $p = $p->fetch();
     $db->prepare('DELETE FROM personnes WHERE id=?')->execute([$id]);
+    if ($p) log_modification('personne', 'suppression', "{$p['prenom']} {$p['nom']}", $user['nom']);
     json_out(['ok' => true]);
 }
 
