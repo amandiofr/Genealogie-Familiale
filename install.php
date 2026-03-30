@@ -266,6 +266,17 @@ try {
         $errors[] = 'Migration photo_id : ' . $e->getMessage();
     }
 
+    // Migration : autologin_token sur utilisateurs
+    try {
+        $cols = $db->query("SHOW COLUMNS FROM utilisateurs LIKE 'autologin_token'")->fetchAll();
+        if (empty($cols)) {
+            $db->exec("ALTER TABLE utilisateurs ADD COLUMN autologin_token CHAR(64) DEFAULT NULL");
+            $done[] = '→ Migration : colonne autologin_token ajoutée à utilisateurs';
+        }
+    } catch (PDOException $e) {
+        $errors[] = 'Migration autologin_token : ' . $e->getMessage();
+    }
+
     // Compte admin par défaut
     $count = $db->query('SELECT COUNT(*) FROM utilisateurs')->fetchColumn();
     if ($count == 0) {

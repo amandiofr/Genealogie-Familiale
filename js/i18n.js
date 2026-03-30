@@ -137,6 +137,7 @@ const LANGS = {
     notif_confirm_delete:'Supprimer cette adresse de notification ?',
     btn_notif_add:'+ Ajouter',
     author_placeholder:'Prénom',
+    autologin_copy:'Générer un lien de connexion', autologin_copied:'Lien copié dans le presse-papiers',
     // Autos
     nav_autos:'Autos', h_autos:'Autos de famille', add_auto:'+ Ajouter',
     empty_autos:'Aucune voiture', empty_autos_sub:'Ajoutez la première voiture de la famille',
@@ -262,6 +263,7 @@ const LANGS = {
     notif_confirm_delete:'Eliminar este endereço de notificação?',
     btn_notif_add:'+ Adicionar',
     author_placeholder:'Nome',
+    autologin_copy:'Gerar link de acesso', autologin_copied:'Link copiado para a área de transferência',
     // Autos
     nav_autos:'Autos', h_autos:'Carros da família', add_auto:'+ Adicionar',
     empty_autos:'Nenhum carro', empty_autos_sub:'Adicione o primeiro carro da família',

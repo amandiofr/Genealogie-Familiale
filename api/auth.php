@@ -110,6 +110,45 @@ if ($action === 'me' && method_is('GET')) {
     json_error('Non authentifié', 401);
 }
 
+// ── GET /api/auth.php?action=autologin&token=xxxx ────────────────────────────
+if ($action === 'autologin' && method_is('GET')) {
+    $token = $_GET['token'] ?? '';
+    if (!$token) json_error('Token manquant', 400);
+    $hash = hash('sha256', $token);
+    $st = pdo()->prepare('SELECT id, nom, email, role FROM utilisateurs WHERE autologin_token = ?');
+    $st->execute([$hash]);
+    $user = $st->fetch();
+    if (!$user) json_error('Lien invalide ou révoqué', 401);
+    $userData = ['id' => $user['id'], 'nom' => $user['nom'], 'email' => $user['email'], 'role' => $user['role']];
+    $_SESSION['user'] = $userData;
+    issue_token($user['id'], $lifetime);
+    json_out(['user' => $userData]);
+}
+
+// ── POST /api/auth.php?action=gen_autologin ───────────────────────────────────
+if ($action === 'gen_autologin' && method_is('POST')) {
+    $currentUser = require_auth();
+    if ($currentUser['role'] !== 'admin') json_error('Accès refusé', 403);
+    $b   = body();
+    $uid = (int)($b['user_id'] ?? 0);
+    if (!$uid) json_error('user_id requis');
+    $token = bin2hex(random_bytes(32));
+    $hash  = hash('sha256', $token);
+    pdo()->prepare('UPDATE utilisateurs SET autologin_token=? WHERE id=?')->execute([$hash, $uid]);
+    json_out(['token' => $token]);
+}
+
+// ── POST /api/auth.php?action=revoke_autologin ────────────────────────────────
+if ($action === 'revoke_autologin' && method_is('POST')) {
+    $currentUser = require_auth();
+    if ($currentUser['role'] !== 'admin') json_error('Accès refusé', 403);
+    $b   = body();
+    $uid = (int)($b['user_id'] ?? 0);
+    if (!$uid) json_error('user_id requis');
+    pdo()->prepare('UPDATE utilisateurs SET autologin_token=NULL WHERE id=?')->execute([$uid]);
+    json_out(['ok' => true]);
+}
+
 // ── PUT /api/auth.php?action=password ─────────────────────────────────────────
 if ($action === 'password' && method_is('PUT')) {
     $user = require_auth();

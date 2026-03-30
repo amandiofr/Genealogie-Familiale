@@ -7,6 +7,7 @@ async function loadUsers(){
     <div class="user-row">
       <div style="flex:1;"><div style="font-size:.88rem;font-weight:500;">${u.nom}</div><div style="font-size:.72rem;color:var(--ink3);">${u.email}</div></div>
       <span class="role-badge ${u.role}">${T('role_' + u.role)}</span>
+      <button class="btn-sm" title="${T('autologin_copy')}" onclick="genAutologinLink(${u.id})">🔗</button>
       <button class="btn-sm" onclick="deleteUser(${u.id},'${u.role}')">🗑</button>
     </div>`).join('');
 }
@@ -34,6 +35,15 @@ async function createUser(){
   const body={nom:document.getElementById('nu-nom').value.trim(),email:document.getElementById('nu-email').value.trim(),password:document.getElementById('nu-pass').value,role:document.getElementById('nu-role').value};
   try{await api('POST','api/utilisateurs.php',body);closeOverlay('modal-user-overlay');loadUsers();toast(T('toast_user_created'));}
   catch(e){toast(e.message,'error');}
+}
+
+async function genAutologinLink(userId) {
+  try {
+    const d = await api('POST', 'api/auth.php?action=gen_autologin', { user_id: userId });
+    const url = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '/') + 'login.html?autologin=' + d.token;
+    await navigator.clipboard.writeText(url);
+    toast(T('autologin_copied'));
+  } catch(e) { toast(e.message, 'error'); }
 }
 
 async function deleteUser(id,role){
