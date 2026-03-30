@@ -14,8 +14,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);min-
 
 /* ── HEADER ─────────────────────────────────────────────── */
 header{background:var(--bg);border-bottom:1px solid var(--border);padding:.4rem 1.5rem;position:sticky;top:0;z-index:100;display:flex;align-items:center;gap:.6rem;min-height:56px;flex-wrap:wrap;}
-.logo{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:400;color:var(--ink);display:flex;align-items:center;gap:7px;white-space:nowrap;margin-right:.5rem;}
-nav{display:flex;gap:2px;flex:1;flex-wrap:wrap;}
+.logo{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:400;color:var(--ink);display:flex;align-items:center;gap:7px;white-space:nowrap;margin-right:.8rem;}
+nav{display:flex;gap:2px;flex:1;flex-wrap:wrap;align-items:center;}
+.nav-buttons{display:flex;gap:2px;flex-wrap:nowrap;}
 nav button{background:none;border:none;cursor:pointer;padding:5px 10px;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:.78rem;color:var(--ink2);transition:all .15s;white-space:nowrap;}
 nav button:hover{background:var(--bg2);color:var(--ink);}
 nav button.active{background:var(--ink);color:var(--bg);}
