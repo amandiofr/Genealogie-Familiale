@@ -8,8 +8,27 @@ function inCurrentTree(personId) {
   return !_currentMembers || _currentMembers.has(Number(personId));
 }
 
+let _allTreeMembers = null; // cache: Set of all IDs that belong to at least one tree
+let _allTreeSpouses = null; // cache: Set of spouse IDs of tree members
+function _inAnyTree(personId) {
+  if (!_arbres.length) return false;
+  if (!_allTreeMembers) {
+    _allTreeMembers = new Set(_arbres.flatMap(a => a.membres.map(Number)));
+    _allTreeSpouses = new Set();
+    for (const l of _allLiens) {
+      if (l.type === 'conjoint' || l.type === 'fiancailles') {
+        const a = Number(l.personne_a), b = Number(l.personne_b);
+        if (_allTreeMembers.has(a)) _allTreeSpouses.add(b);
+        if (_allTreeMembers.has(b)) _allTreeSpouses.add(a);
+      }
+    }
+  }
+  return _allTreeMembers.has(Number(personId)) || _allTreeSpouses.has(Number(personId));
+}
+
 async function loadArbres() {
   try { _arbres = await api('GET', 'api/arbres.php'); } catch { _arbres = []; }
+  _allTreeMembers = null; _allTreeSpouses = null;
   // Charger les liens pour pouvoir inclure les conjoints dans le filtre
   try { const r = await fetch('api/liens.php'); if (r.ok) _allLiens = await r.json(); } catch {}
   const saved = localStorage.getItem('genealogie_arbre');

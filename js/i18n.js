@@ -56,6 +56,7 @@ const LANGS = {
     form_deces:'Date de décès', form_lieu_deces:'Lieu de décès',
     form_generation:'Génération', form_job:'Profession', form_bio:'Biographie / Notes',
     form_cancel:'Annuler', form_save:'💾 Enregistrer',
+    form_lien_type:'Type de lien', form_lien_with:'Avec qui', form_lien_none:'— aucun —',
     // Empty states
     sort_date:'Date de naissance', sort_alpha:'Alphabétique',
     nb_personnes_label:'personne(s)',
@@ -122,7 +123,7 @@ const LANGS = {
     evt_rencontre:'Rencontre', evt_voyage:'Voyage', evt_reunion:'Réunion',
     evt_fete:'Fête', evt_autre:'Autre',
     // Errors & validation
-    error_name_required:'Prénom et nom requis',
+    error_name_required:'Prénom requis',
     error_title_required:'Titre requis',
     error_title_content_required:'Titre et contenu requis',
     error_no_photo:'Aucune photo sélectionnée',
@@ -190,6 +191,7 @@ const LANGS = {
     form_deces:'Data de falecimento', form_lieu_deces:'Local de falecimento',
     form_generation:'Geração', form_job:'Profissão', form_bio:'Biografia / Notas',
     form_cancel:'Cancelar', form_save:'💾 Guardar',
+    form_lien_type:'Tipo de ligação', form_lien_with:'Com quem', form_lien_none:'— nenhum —',
     sort_date:'Data de nascimento', sort_alpha:'Alfabético',
     nb_personnes_label:'pessoa(s)',
     empty_events:'Nenhum evento', empty_events_sub:'Adicione o primeiro evento familiar',
@@ -249,7 +251,7 @@ const LANGS = {
     evt_rencontre:'Encontro', evt_voyage:'Viagem', evt_reunion:'Reunião',
     evt_fete:'Festa', evt_autre:'Outro',
     // Errors & validation
-    error_name_required:'Primeiro nome e apelido obrigatórios',
+    error_name_required:'Primeiro nome obrigatório',
     error_title_required:'Título obrigatório',
     error_title_content_required:'Título e conteúdo obrigatórios',
     error_no_photo:'Nenhuma foto selecionada',

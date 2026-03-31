@@ -3,6 +3,15 @@
 // ══════════════════════════════════════════════════════════════
 let currentSort = 'date';
 
+function _refreshActiveView() {
+  const active = document.querySelector('.view.active')?.id?.replace('view-', '');
+  if (active === 'events')    loadEvents();
+  else if (active === 'reunions')  loadReunions();
+  else if (active === 'anecdotes') loadAnecdotes();
+  else if (active === 'autos')     loadAutos();
+  else if (active === 'timeline')  loadTimeline();
+}
+
 function renderList() {
   filterList();
 }
@@ -22,7 +31,7 @@ function setSort(s,btn) {
 function filterList() {
   const q=(document.getElementById('search').value||'').toLowerCase().trim();
   let filtered=people.filter(p=>{
-    if(!inCurrentTree(p.id)) return false;
+    if(!inCurrentTree(p.id) && _inAnyTree(p.id)) return false;
     if(currentFilter==='male'&&p.genre!=='male') return false;
     if(currentFilter==='female'&&p.genre!=='female') return false;
     if(currentFilter==='living'&&(!p.vivant||p.deces)) return false;
@@ -175,7 +184,7 @@ function showPersonForm(id) {
     <div class="modal-bd">
       <div class="form-grid">
         <div class="fg"><label>${T('form_prenom')} *</label><input id="fp-prenom" value="${p?.prenom||''}"></div>
-        <div class="fg"><label>${T('form_nom')} *</label><input id="fp-nom" value="${p?.nom||''}"></div>
+        <div class="fg"><label>${T('form_nom')}</label><input id="fp-nom" value="${p?.nom||''}"></div>
         <div class="fg"><label>${T('form_nom_naiss')}</label><input id="fp-maiden" value="${p?.nom_naiss||''}"></div>
         <div class="fg"><label>${T('form_genre')}</label><select id="fp-genre"><option value="male"${p?.genre==='male'?' selected':''}>${T('form_homme')}</option><option value="female"${p?.genre==='female'?' selected':''}>${T('form_femme')}</option><option value="autre"${p?.genre==='autre'?' selected':''}>${T('form_autre')}</option></select></div>
         <div class="fg"><label>${T('form_naiss')}</label><input type="date" id="fp-naiss" value="${p?.naissance||''}"></div>
@@ -186,6 +195,23 @@ function showPersonForm(id) {
         <div class="fg full"><label>${T('form_job')}</label><input id="fp-job" value="${p?.profession||''}"></div>
         <div class="fg full"><label>${T('form_bio')}</label><textarea id="fp-bio">${p?.biographie||''}</textarea></div>
       </div>
+      ${!id ? `<div class="form-grid" style="margin-top:.5rem;">
+          <div class="fg"><label>${T('form_lien_type')}</label>
+            <select id="fp-lien-type">
+              <option value="">${T('form_lien_none')}</option>
+              <option value="conjoint">💍 ${T('lien_conjoint')}</option>
+              <option value="parent_enfant_a">👶 ${T('lien_parent_a')}</option>
+              <option value="parent_enfant_b">👨‍👩‍👧 ${T('lien_parent_b')}</option>
+              <option value="fiancailles">💑 ${T('lien_fiancailles')}</option>
+            </select>
+          </div>
+          <div class="fg"><label>${T('form_lien_with')}</label>
+            <select id="fp-lien-other">
+              <option value="">${T('form_lien_none')}</option>
+              ${people.slice().sort((a,b)=>a.prenom.localeCompare(b.prenom,undefined,{sensitivity:'base'})).map(x=>`<option value="${x.id}">${fullName(x)}</option>`).join('')}
+            </select>
+          </div>
+        </div>` : ''}
       <div class="form-actions">
         <button class="btn-primary" onclick="savePerson(${id||''})">${T('form_save')}</button>
         <button class="btn-secondary" onclick="closeOverlay('modal-person-edit-overlay')">${T('form_cancel')}</button>
@@ -208,11 +234,26 @@ async function savePerson(id) {
     profession:document.getElementById('fp-job').value.trim()||null,
     biographie:document.getElementById('fp-bio').value.trim()||null,
   };
-  if(!body.prenom||!body.nom){toast(T('error_name_required'),'error');return;}
+  if(!body.prenom){toast(T('error_name_required'),'error');return;}
   try{
+    let newId = id;
     if(id) await api('PUT',`api/personnes.php?id=${id}`,body);
-    else   await api('POST','api/personnes.php',body);
-    await loadPeople(); renderTree(); renderList();
+    else { const r = await api('POST','api/personnes.php',body); newId = r.id; }
+
+    // Lien familial (nouveau membre seulement)
+    if(!id) {
+      const lienType  = document.getElementById('fp-lien-type')?.value;
+      const lienOther = document.getElementById('fp-lien-other')?.value;
+      if(lienType && lienOther && newId) {
+        let type = lienType, persA = newId, persB = lienOther;
+        if(lienType === 'parent_enfant_a') { type = 'parent_enfant'; persA = newId;    persB = lienOther; }
+        if(lienType === 'parent_enfant_b') { type = 'parent_enfant'; persA = lienOther; persB = newId; }
+        await api('POST', `api/personnes.php?id=${persA}&sub=liens`, { personne_b: persB, type });
+      }
+    }
+
+    await loadPeople(); await loadArbres(); renderTree(); renderList();
+    _refreshActiveView();
     closeOverlay('modal-person-edit-overlay');
     toast(id?T('toast_edited'):T('toast_added'));
   }catch(e){toast(e.message,'error');}
@@ -317,8 +358,9 @@ async function uploadPhotos(personId){
 // ══════════════════════════════════════════════════════════════
 function showLienForm(personId) {
   const p = people.find(x => x.id == personId);
-  const others = people.filter(x => x.id != personId)
-    .sort((a,b) => a.nom.localeCompare(b.nom))
+  const others = people.slice()
+    .sort((a,b) => a.prenom.localeCompare(b.prenom, undefined, {sensitivity:'base'}) || (a.nom||'').localeCompare(b.nom||'', undefined, {sensitivity:'base'}))
+    .filter(x => x.id != personId)
     .map(x => `<option value="${x.id}">${fullName(x)}</option>`).join('');
 
   document.getElementById('modal-person-edit').innerHTML = `
@@ -369,6 +411,8 @@ async function saveLien(personId) {
     await api('POST', `api/personnes.php?id=${persA}&sub=liens`, {
       personne_b: persB, type, date_debut: debut, date_fin: fin, notes
     });
+    await loadPeople(); await loadArbres(); renderTree(); renderList();
+    _refreshActiveView();
     closeOverlay('modal-person-edit-overlay');
     toast('Lien ajouté');
     openPerson(personId);

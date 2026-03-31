@@ -82,7 +82,8 @@ if ($method === 'GET' && $id) {
 if ($method === 'POST' && !$id) {
     require_role('admin', 'editeur');
     $b = body();
-    if (empty($b['prenom']) || empty($b['nom'])) json_error('Prénom et nom requis');
+    if (empty($b['prenom'])) json_error('Prénom requis');
+    if (!isset($b['nom'])) $b['nom'] = '';
 
     $st = $db->prepare("
         INSERT INTO personnes (prenom,nom,nom_naiss,genre,naissance,lieu_naiss,deces,lieu_deces,vivant,generation,profession,biographie)
@@ -110,6 +111,7 @@ if ($method === 'POST' && !$id) {
 if ($method === 'PUT' && $id && !$sub) {
     require_role('admin', 'editeur');
     $b = body();
+    if (!isset($b['nom'])) $b['nom'] = '';
     $db->prepare("
         UPDATE personnes SET prenom=?,nom=?,nom_naiss=?,genre=?,naissance=?,lieu_naiss=?,
                deces=?,lieu_deces=?,vivant=?,generation=?,profession=?,biographie=?
