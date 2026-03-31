@@ -87,7 +87,7 @@ const LANGS = {
     confirm_delete_user:'Supprimer ce compte ?',
     // Famille rôles
     role_conjoint:'Conjoint(e)', role_pere:'Père', role_mere:'Mère',
-    role_fils:'Fils', role_fille:'Fille',
+    role_fils:'Fils', role_fille:'Fille', lbl_enfants:'Enfants',
     // Gen labels
     gen_0:'Ancêtres fondateurs', gen_1:'Arrière-grands-parents',
     gen_2:'Grands-parents', gen_3:'Parents', gen_4:'Votre génération',
@@ -214,7 +214,7 @@ const LANGS = {
     confirm_delete_anec:'Eliminar esta anedota?',
     confirm_delete_user:'Eliminar esta conta?',
     role_conjoint:'Cônjuge', role_pere:'Pai', role_mere:'Mãe',
-    role_fils:'Filho', role_fille:'Filha',
+    role_fils:'Filho', role_fille:'Filha', lbl_enfants:'Filhos',
     gen_0:'Antepassados fundadores', gen_1:'Bisavós',
     gen_2:'Avós', gen_3:'Pais', gen_4:'A sua geração',
     gen_5:'Filhos', gen_6:'Netos',

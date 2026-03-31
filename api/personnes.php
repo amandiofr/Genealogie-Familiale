@@ -42,6 +42,23 @@ if ($method === 'GET' && $id) {
     ");
     $li->execute([$id, $id, $id]); $p['liens'] = $li->fetchAll();
 
+    // Frères et sœurs (enfants des mêmes parents)
+    $sib = $db->prepare("
+        SELECT DISTINCT pe.id, pe.prenom, pe.nom, pe.genre, pe.naissance, pe.deces, pe.vivant,
+               ph2.chemin_thumb
+        FROM liens l
+        JOIN personnes pe ON pe.id = l.personne_b
+        LEFT JOIN photos ph2 ON ph2.id = pe.photo_id
+        WHERE l.type = 'parent_enfant'
+          AND l.personne_a IN (
+              SELECT personne_a FROM liens
+              WHERE personne_b = ? AND type = 'parent_enfant'
+          )
+          AND pe.id != ?
+        ORDER BY pe.naissance IS NULL, pe.naissance ASC
+    ");
+    $sib->execute([$id, $id]); $p['freres_soeurs'] = $sib->fetchAll();
+
     // Événements
     $ev = $db->prepare("
         SELECT e.* FROM evenements e
