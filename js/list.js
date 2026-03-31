@@ -76,7 +76,13 @@ async function openPerson(id) {
   const fiancailles= (p.liens||[]).filter(l=>l.type==='fiancailles');
   const parents    = (p.liens||[]).filter(l=>l.type==='parent_enfant'&&Number(l.personne_b)===id);
   const enfants    = (p.liens||[]).filter(l=>l.type==='parent_enfant'&&Number(l.personne_a)===id);
-  const allFamily  = [...conjoints.map(l=>({...l,role:'💍'})),...fiancailles.map(l=>({...l,role:'💑'})),...parents.map(l=>({...l,role:'👨‍👩‍👧'})),...enfants.map(l=>({...l,role:l.genre==='male'?'👦':'👧'}))];
+  const sortedParents = parents.slice().sort((a,b)=>(a.genre==='male'?0:1)-(b.genre==='male'?0:1));
+  const sortedEnfants = enfants.slice().sort((a,b)=>{
+    if(!a.naissance&&!b.naissance) return 0;
+    if(!a.naissance) return 1; if(!b.naissance) return -1;
+    return a.naissance.localeCompare(b.naissance);
+  });
+  const allFamily  = [...conjoints.map(l=>({...l,role:'💍'})),...fiancailles.map(l=>({...l,role:'💑'})),...sortedParents.map(l=>({...l,role:'👨‍👩‍👧'})),...sortedEnfants.map(l=>({...l,role:l.genre==='male'?'👦':'👧'}))];
   if(allFamily.length){
     html+=`<div class="modal-section"><div class="sec-title">${T('sec_famille')}</div>`;
     allFamily.forEach(l=>{
@@ -133,7 +139,9 @@ async function openPerson(id) {
   }
   html+=`</div>`;
 
-  document.getElementById('modal-person-view').innerHTML=html;
+  const _mv = document.getElementById('modal-person-view');
+  _mv.innerHTML = html;
+  _mv.scrollTop = 0;
   document.getElementById('modal-person-view-overlay').classList.add('open');
 }
 
