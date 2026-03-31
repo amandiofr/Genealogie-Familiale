@@ -14,12 +14,17 @@ if ($method === 'GET' && !$id) {
     $rows = $db->query("
         SELECT e.*,
           (SELECT COUNT(*) FROM evenement_personnes WHERE evenement_id=e.id) AS nb_personnes,
+          (SELECT GROUP_CONCAT(DISTINCT personne_id) FROM evenement_personnes WHERE evenement_id=e.id) AS personne_ids,
           COALESCE(
             (SELECT chemin_thumb FROM evenement_photos WHERE id=e.photo_id AND evenement_id=e.id LIMIT 1),
             (SELECT chemin_thumb FROM evenement_photos WHERE evenement_id=e.id ORDER BY ordre LIMIT 1)
           ) AS thumb
         FROM evenements e ORDER BY e.date_debut ASC, e.created_at ASC
     ")->fetchAll();
+    foreach ($rows as &$row) {
+        $row['personne_ids'] = $row['personne_ids']
+            ? array_map('intval', explode(',', $row['personne_ids'])) : [];
+    }
     json_out($rows);
 }
 

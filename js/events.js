@@ -2,7 +2,8 @@
 //  EVENTS
 // ══════════════════════════════════════════════════════════════
 async function loadEvents(){
-  const evts=await api('GET','api/evenements.php');
+  const all=await api('GET','api/evenements.php');
+  const evts=all.filter(e=>!_currentMembers||!e.personne_ids.length||e.personne_ids.some(id=>_currentMembers.has(id)));
   const el=document.getElementById('events-grid');
   if(!evts.length){el.innerHTML=`<div class="empty"><div class="empty-icon">📅</div><div class="empty-title">${T('empty_events')}</div><div class="empty-sub">${T('empty_events_sub')}</div></div>`;return;}
   // Tri chronologique (événements sans date en dernier)

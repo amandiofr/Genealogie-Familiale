@@ -10,19 +10,7 @@ const COUPLE_GAP = 16; // espace entre les deux cartes d'un couple
 const GAP_Y    = 80;   // espace vertical entre générations
 const CONN_R   = 4;    // rayon des coins arrondis sur les connecteurs
 
-let currentTreeMode = localStorage.getItem('treeMode') || 'compact';
-
-function setTreeMode(mode) {
-  currentTreeMode = mode;
-  localStorage.setItem('treeMode', mode);
-  document.getElementById('tree-mode-full').classList.toggle('active', mode === 'full');
-  document.getElementById('tree-mode-compact').classList.toggle('active', mode === 'compact');
-  renderTree();
-}
-
 function renderTree() {
-  document.getElementById('tree-mode-full')?.classList.toggle('active', currentTreeMode === 'full');
-  document.getElementById('tree-mode-compact')?.classList.toggle('active', currentTreeMode === 'compact');
   // ── Charger les liens depuis l'API (on a besoin des conjoints + parent/enfant)
   // Les liens sont déjà dans people via la fiche complète — mais la liste /personnes.php
   // ne retourne pas les liens. On les reconstruit à partir de ce qu'on a en mémoire
@@ -31,35 +19,40 @@ function renderTree() {
 }
 
 async function buildTreeSVG() {
-  // Charger tous les liens en une fois
-  let allLiens = [];
   try {
-    // On charge la fiche de chaque personne pour avoir ses liens — trop lent.
-    // À la place, on fait un appel dédié si disponible, sinon on utilise
-    // les données déjà en mémoire depuis les fiches ouvertes.
-    // Pour l'arbre, on reconstruit les liens depuis une API légère.
     const r = await fetch('api/liens.php');
-    if (r.ok) allLiens = await r.json();
+    if (r.ok) _allLiens = await r.json();
   } catch {}
+  _expandCurrentMembersWithSpouses();
+  drawTree(_allLiens);
+}
 
-  drawTree(allLiens);
+function _expandCurrentMembersWithSpouses() {
+  if (!_currentMembers) return;
+  _allLiens.filter(l => l.type === 'conjoint').forEach(l => {
+    if (_currentMembers.has(Number(l.personne_a))) _currentMembers.add(Number(l.personne_b));
+    if (_currentMembers.has(Number(l.personne_b))) _currentMembers.add(Number(l.personne_a));
+  });
 }
 
 function drawTree(allLiens) {
+  // _currentMembers already includes spouses (expanded in _expandCurrentMembersWithSpouses)
+  const treePeople = _currentMembers
+    ? people.filter(p => _currentMembers.has(Number(p.id)))
+    : people;
   const container = document.getElementById('tree-container');
-  const cW         = currentTreeMode === 'compact' ? 46  : CARD_W;
-  const cH         = currentTreeMode === 'compact' ? 82  : CARD_H;
-  const cGapX      = currentTreeMode === 'compact' ? 12  : GAP_X;
-  const cGapY      = currentTreeMode === 'compact' ? 50  : GAP_Y;
-  const cCoupleGap = currentTreeMode === 'compact' ? 10  : COUPLE_GAP;
-  // Demi-largeur visuelle réelle de la carte (CSS width:118px en mode complet, mais foreignObject = 124px)
-  const vHalf      = currentTreeMode === 'compact' ? cW / 2 : 59;
+  const cW         = 46;
+  const cH         = 82;
+  const cGapX      = 12;
+  const cGapY      = 50;
+  const cCoupleGap = 10;
+  const vHalf      = cW / 2;
   const conjointLinks = allLiens.filter(l => l.type === 'conjoint');
   const parentLinks   = allLiens.filter(l => l.type === 'parent_enfant');
 
   // ── 1. Grouper par génération
   const gens = {};
-  people.forEach(p => { (gens[p.generation]??=[]).push(p); });
+  treePeople.forEach(p => { (gens[p.generation]??=[]).push(p); });
   const sortedGens = Object.keys(gens).map(Number).sort((a,b)=>a-b);
   if (!sortedGens.length) { container.innerHTML=''; return; }
 
@@ -292,7 +285,7 @@ function drawTree(allLiens) {
 
   const totalHeight = sortedGens.length * (cH + cGapY) + 80;
   let maxRight = 0;
-  people.forEach(p => {
+  treePeople.forEach(p => {
     if (cardPositions[p.id]) maxRight = Math.max(maxRight, cardPositions[p.id].x + cW);
   });
 
@@ -334,7 +327,7 @@ function drawTree(allLiens) {
     if (!children.length) return;
     // Trier les enfants de gauche à droite
     children.sort((a,b) => a.cx - b.cx);
-    const midY = srcY + cGapY * (currentTreeMode === 'compact' ? 0.73 : 0.42);
+    const midY = srcY + cGapY * 0.73;
 
     if (children.length === 1) {
       const cx = children[0].cx;
@@ -359,7 +352,7 @@ function drawTree(allLiens) {
       if (u.type !== 'couple') return;
       const x1 = cardPositions[u.people[0].id].x + vHalf * 2;
       const x2 = cardPositions[u.people[1].id].x;
-      const avatarCenter = currentTreeMode === 'compact' ? 3 + 18 : 9 + 18;
+      const avatarCenter = 3 + 18;
       const y  = u.y + avatarCenter;
       svg += `<line x1="${r(x1)}" y1="${r(y)}" x2="${r(x2)}" y2="${r(y)}" stroke="${coupleColor}" stroke-width="1.5"/>`;
       svg += `<text x="${r((x1+x2)/2)}" y="${r(y+4)}" text-anchor="middle" font-size="10" fill="${coupleColor}" font-family="serif">♥</text>`;
@@ -375,7 +368,7 @@ function drawTree(allLiens) {
   });
 
   // ── 4d. Cartes personnes
-  people.forEach(p => {
+  treePeople.forEach(p => {
     const pos = cardPositions[p.id];
     if (!pos) return;
     const dec  = (p.deces||!p.vivant) ? ' deceased':'';
@@ -390,12 +383,10 @@ function drawTree(allLiens) {
     const maiden = p.nom_naiss ? `<div class="p-maiden">${maidenLabel} ${p.nom_naiss}</div>` : '';
 
     const compactYear = yrD ? `${yr||'?'}–${yrD}` : (yr||'?');
-    const cardInner = currentTreeMode === 'compact'
-      ? `${av}<div class="p-name" style="font-size:.6rem;">${p.prenom}</div><div class="p-year">${compactYear}</div>`
-      : `${av}<div class="p-name">${p.prenom}<br>${p.nom}</div>${maiden}<div class="p-dates">${dates}</div>`;
+    const cardInner = `${av}<div class="p-name" style="font-size:.6rem;">${p.prenom}</div><div class="p-year">${compactYear}</div>`;
     svg += `<foreignObject x="${r(pos.x)}" y="${r(pos.y)}" width="${cW}" height="${cH}" overflow="visible">
       <div xmlns="http://www.w3.org/1999/xhtml">
-        <div class="p-card${currentTreeMode === 'compact' ? ' p-card-compact' : ''} ${p.genre}${dec}" onclick="openPerson(${p.id})">${cardInner}
+        <div class="p-card p-card-compact ${p.genre}${dec}" onclick="openPerson(${p.id})">${cardInner}
         </div>
       </div>
     </foreignObject>`;

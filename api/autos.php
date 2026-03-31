@@ -12,7 +12,7 @@ $subid  = (int)($_GET['subid'] ?? 0);
 if ($method === 'GET' && !$id) {
     $rows = $db->query("
         SELECT a.*,
-          p.prenom AS owner_prenom, p.nom AS owner_nom, p.genre AS owner_genre,
+          p.id AS owner_id, p.prenom AS owner_prenom, p.nom AS owner_nom, p.genre AS owner_genre,
           (SELECT chemin_thumb FROM photos WHERE id=p.photo_id LIMIT 1) AS owner_thumb,
           COALESCE(
             (SELECT chemin_thumb FROM auto_photos WHERE id=a.photo_id AND auto_id=a.id LIMIT 1),

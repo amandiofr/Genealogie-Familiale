@@ -139,6 +139,7 @@ const LANGS = {
     author_placeholder:'Prénom',
     autologin_copy:'Générer un lien de connexion', autologin_copied:'Lien copié dans le presse-papiers',
     // Autos
+    lbl_et:'et',
     nav_autos:'Autos', h_autos:'Autos de famille', add_auto:'+ Ajouter',
     empty_autos:'Aucune voiture', empty_autos_sub:'Ajoutez la première voiture de la famille',
     form_title_new_auto:'Nouvelle voiture',
@@ -265,6 +266,7 @@ const LANGS = {
     author_placeholder:'Nome',
     autologin_copy:'Gerar link de acesso', autologin_copied:'Link copiado para a área de transferência',
     // Autos
+    lbl_et:'e',
     nav_autos:'Autos', h_autos:'Carros da família', add_auto:'+ Adicionar',
     empty_autos:'Nenhum carro', empty_autos_sub:'Adicione o primeiro carro da família',
     form_title_new_auto:'Novo carro',
@@ -321,7 +323,7 @@ function applyLang() {
   document.querySelectorAll('nav button[data-view]').forEach(b => { b.textContent = T(navMap[b.dataset.view]||b.dataset.view); });
   // Logout
   const logoutBtn = document.getElementById('btn-logout');
-  if (logoutBtn) logoutBtn.textContent = T('logout');
+  if (logoutBtn) logoutBtn.title = T('logout');
   // Search placeholder
   const si = document.getElementById('search');
   if (si) si.placeholder = T('search_placeholder');
@@ -369,7 +371,9 @@ function applyLang() {
   };
   Object.entries(headings).forEach(([id, key]) => {
     const el = document.getElementById(id);
-    if (el) el.textContent = T(key);
+    if (!el) return;
+    if (id === 'view-list-heading') { filterList(); return; }
+    el.textContent = T(key);
   });
   // Admin labels
   const adminIds = {
@@ -400,6 +404,7 @@ function applyLang() {
   if (activeView?.id === 'view-anecdotes') loadAnecdotes();
   if (activeView?.id === 'view-autos')     loadAutos();
   if (activeView?.id === 'view-timeline')  loadTimeline();
+  if (typeof _renderArbreCombo === 'function') _renderArbreCombo();
 }
 
 // BASE_URL : chemin absolu vers la racine du site (fonctionne quel que soit le sous-répertoire)

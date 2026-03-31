@@ -22,6 +22,7 @@ function setSort(s,btn) {
 function filterList() {
   const q=(document.getElementById('search').value||'').toLowerCase().trim();
   let filtered=people.filter(p=>{
+    if(!inCurrentTree(p.id)) return false;
     if(currentFilter==='male'&&p.genre!=='male') return false;
     if(currentFilter==='female'&&p.genre!=='female') return false;
     if(currentFilter==='living'&&(!p.vivant||p.deces)) return false;
@@ -38,6 +39,8 @@ function filterList() {
     if(!b.naissance) return -1;
     return a.naissance<b.naissance?-1:a.naissance>b.naissance?1:0;
   });
+  const heading=document.getElementById('view-list-heading');
+  if(heading) heading.textContent=`${filtered.length} ${T('h_membres')}`;
   const el=document.getElementById('person-list');
   if(!filtered.length){el.innerHTML=`<div class="empty"><div class="empty-icon">🔍</div><div class="empty-title">${T('empty_search')}</div></div>`;return;}
   el.innerHTML=filtered.map(p=>{
@@ -137,10 +140,10 @@ async function openPerson(id) {
 
   // Actions
   if(currentUser.role!=='lecteur'){
-    html+=`<div style="display:flex;gap:8px;margin-top:1rem;">
-      <button class="btn-secondary" style="flex:1;font-size:.78rem;" onclick="showPersonForm(${id});closeOverlay('modal-person-view-overlay')">${T('btn_edit')}</button>
-      <button class="btn-secondary" style="font-size:.78rem;" onclick="showPhotoUpload(${id})">${T('btn_photos')}</button>
-      <button class="btn-danger" style="font-size:.78rem;" onclick="deletePerson(${id})">🗑</button>
+    html+=`<div style="display:flex;gap:8px;margin-top:1rem;flex-wrap:wrap;">
+      <button class="btn-secondary" style="flex:1;min-width:0;font-size:.78rem;padding:6px 14px;" onclick="showPersonForm(${id});closeOverlay('modal-person-view-overlay')">${T('btn_edit')}</button>
+      <button class="btn-secondary" style="flex:1;min-width:0;font-size:.78rem;padding:6px 14px;" onclick="showPhotoUpload(${id})">${T('btn_photos')}</button>
+      <button class="btn-danger" style="font-size:.78rem;padding:6px 11px;" onclick="deletePerson(${id})">🗑</button>
     </div>`;
   }
   html+=`</div>`;

@@ -14,13 +14,14 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);min-
 
 /* ── HEADER ─────────────────────────────────────────────── */
 header{background:var(--bg);border-bottom:1px solid var(--border);padding:.4rem 1.5rem;position:sticky;top:0;z-index:100;display:flex;align-items:center;gap:.6rem;min-height:56px;flex-wrap:wrap;}
-.logo{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:400;color:var(--ink);display:flex;align-items:center;gap:7px;white-space:nowrap;margin-right:.8rem;}
-nav{display:flex;gap:2px;flex:1;flex-wrap:wrap;align-items:center;}
+.logo{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:400;color:var(--ink);display:flex;align-items:center;gap:7px;white-space:nowrap;}
+nav{display:flex;gap:6px;flex:1;flex-wrap:wrap;align-items:center;}
 .nav-buttons{display:flex;gap:2px;flex-wrap:wrap;}
 nav button{background:none;border:none;cursor:pointer;padding:5px 10px;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:.78rem;color:var(--ink2);transition:all .15s;white-space:nowrap;}
 nav button:hover{background:var(--bg2);color:var(--ink);}
 nav button.active{background:var(--ink);color:var(--bg);}
-.header-right{display:flex;align-items:center;gap:8px;margin-left:auto;}
+.header-right{display:flex;align-items:center;gap:8px;margin-left:auto;flex-wrap:wrap;}
+@media (pointer:coarse){.user-badge{display:none;}}
 .user-badge{font-size:.75rem;color:var(--ink3);white-space:nowrap;}
 .btn-sm{background:none;border:1px solid var(--border);border-radius:6px;padding:5px 10px;font-size:.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--ink2);transition:all .15s;}
 .btn-sm:hover{background:var(--bg2);}
@@ -56,7 +57,7 @@ nav button.active{background:var(--ink);color:var(--bg);}
 .p-card-compact{border:none !important;}
 .p-card-compact.male,.p-card-compact.female{border-top:none !important;}
 .p-card-compact .p-name{margin-bottom:1px;}
-.p-year{font-size:.6rem;color:var(--ink3);font-family:'Cormorant Garamond',serif;font-style:italic;text-align:center;margin-top:1px;}
+.p-year{font-size:.7rem;color:var(--ink3);font-family:'Cormorant Garamond',serif;font-style:italic;text-align:center;margin-top:1px;}
 
 /* ── LISTE ──────────────────────────────────────────────── */
 .search-wrap{display:flex;gap:10px;margin-bottom:1rem;align-items:center;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:0 12px;}

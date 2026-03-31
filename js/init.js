@@ -1,4 +1,52 @@
 // ══════════════════════════════════════════════════════════════
+//  ARBRES — filtre global
+// ══════════════════════════════════════════════════════════════
+let _arbres = [], _currentArbreId = null, _currentMembers = null;
+let _allLiens = [];
+
+function inCurrentTree(personId) {
+  return !_currentMembers || _currentMembers.has(Number(personId));
+}
+
+async function loadArbres() {
+  try { _arbres = await api('GET', 'api/arbres.php'); } catch { _arbres = []; }
+  // Charger les liens pour pouvoir inclure les conjoints dans le filtre
+  try { const r = await fetch('api/liens.php'); if (r.ok) _allLiens = await r.json(); } catch {}
+  const saved = localStorage.getItem('genealogie_arbre');
+  _currentArbreId = (_arbres.find(a => a.id === saved) ? saved : null) || _arbres[0]?.id || null;
+  _applyArbre();
+  _renderArbreCombo();
+}
+
+function _applyArbre() {
+  if (!_currentArbreId || !_arbres.length) { _currentMembers = null; return; }
+  const arbre = _arbres.find(a => a.id === _currentArbreId);
+  _currentMembers = arbre ? new Set(arbre.membres.map(Number)) : null;
+  if (typeof _expandCurrentMembersWithSpouses === 'function') _expandCurrentMembersWithSpouses();
+}
+
+function _renderArbreCombo() {
+  const sel = document.getElementById('arbre-select');
+  if (!sel) return;
+  sel.innerHTML = _arbres.map(a => {
+    const nom = a.prenom_b ? `${a.prenom_a} ${T('lbl_et')} ${a.prenom_b}` : a.prenom_a;
+    return `<option value="${encodeHTML(a.id)}">${encodeHTML(nom)}</option>`;
+  }).join('');
+  sel.value = _currentArbreId;
+}
+
+function encodeHTML(s) { return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+
+function setCurrentArbre(id) {
+  _currentArbreId = id;
+  localStorage.setItem('genealogie_arbre', id);
+  _applyArbre();
+  renderTree();
+  const activeView = document.querySelector('.view.active')?.id?.replace('view-', '');
+  if (activeView && activeView !== 'tree') showView(activeView, null);
+}
+
+// ══════════════════════════════════════════════════════════════
 //  INIT
 // ══════════════════════════════════════════════════════════════
 async function init() {
@@ -17,15 +65,6 @@ async function init() {
     }
   } catch { window.location.href='login.html'; return; }
 
-  // Restaurer la langue sauvegardée
-  currentLang = localStorage.getItem('lang') || 'fr';
-  const _m = LANG_META[currentLang] || LANG_META['fr'];
-  const _f = document.getElementById('lang-flag');
-  const _c = document.getElementById('lang-code');
-  if (_f) _f.innerHTML = _m.flag;
-  if (_c) _c.textContent = _m.code;
-  applyLang();
-
   // nav — attaché avant tout appel potentiellement plantant
   document.getElementById('nav').addEventListener('click', e => {
     const btn = e.target.closest('button[data-view]');
@@ -39,6 +78,16 @@ async function init() {
   document.getElementById('btn-add-auto').onclick     = () => showAutoForm(null);
 
   await loadPeople();
+  await loadArbres();
+
+  // Restaurer la langue sauvegardée (après loadArbres pour que _renderArbreCombo ait les données)
+  currentLang = localStorage.getItem('lang') || 'fr';
+  const _m = LANG_META[currentLang] || LANG_META['fr'];
+  const _f = document.getElementById('lang-flag');
+  const _c = document.getElementById('lang-code');
+  if (_f) _f.innerHTML = _m.flag;
+  if (_c) _c.textContent = _m.code;
+  applyLang();
   updateAuthorPicker();
   try { renderTree(); } catch(e) { console.error('renderTree() failed:', e); }
 
