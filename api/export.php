@@ -34,18 +34,42 @@ if ($action === 'json' && $method === 'GET') {
     exit;
 }
 
-// ── EXPORT CSV ────────────────────────────────────────────────────────────────
+// ── EXPORT CSV (ZIP multi-fichiers) ───────────────────────────────────────────
 if ($action === 'csv' && $method === 'GET') {
-    header('Content-Type: text/csv; charset=utf-8');
-    header('Content-Disposition: attachment; filename="famille_' . date('Y-m-d') . '.csv"');
-    echo "\xEF\xBB\xBF"; // BOM UTF-8 pour Excel
-    $out  = fopen('php://output', 'w');
-    $cols = ['id','prenom','nom','nom_naiss','genre','naissance','lieu_naiss','deces','lieu_deces','vivant','generation','profession','biographie'];
-    fputcsv($out, $cols, ';');
-    foreach ($db->query('SELECT * FROM personnes')->fetchAll() as $row) {
-        fputcsv($out, array_map(fn($c) => $row[$c] ?? '', $cols), ';');
+    $tables = [
+        'personnes' => ['id','prenom','nom','nom_naiss','genre','naissance','lieu_naiss','deces','lieu_deces','vivant','generation','profession','biographie'],
+        'liens'     => ['id','personne_a','personne_b','type','date_debut','date_fin','notes'],
+        'evenements'=> ['id','titre','type','date_debut','date_fin','lieu','description'],
+        'evenement_personnes' => ['evenement_id','personne_id','role'],
+        'reunions'  => ['id','titre','date_debut','date_fin','lieu','description'],
+        'reunion_personnes'   => ['reunion_id','personne_id','role'],
+        'anecdotes' => ['id','titre','contenu','date_anec','auteur'],
+        'anecdote_personnes'  => ['anecdote_id','personne_id'],
+    ];
+
+    $zip = new ZipArchive();
+    $tmp = tempnam(sys_get_temp_dir(), 'fam_csv_');
+    $zip->open($tmp, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+
+    foreach ($tables as $table => $cols) {
+        $buf = fopen('php://temp', 'r+');
+        fprintf($buf, "\xEF\xBB\xBF"); // BOM UTF-8
+        fputcsv($buf, $cols, ';');
+        foreach ($db->query("SELECT * FROM $table")->fetchAll() as $row) {
+            fputcsv($buf, array_map(fn($c) => $row[$c] ?? '', $cols), ';');
+        }
+        rewind($buf);
+        $zip->addFromString("$table.csv", stream_get_contents($buf));
+        fclose($buf);
     }
-    fclose($out);
+
+    $zip->close();
+    $filename = 'famille_' . date('Y-m-d') . '.zip';
+    header('Content-Type: application/zip');
+    header("Content-Disposition: attachment; filename=\"$filename\"");
+    header('Content-Length: ' . filesize($tmp));
+    readfile($tmp);
+    unlink($tmp);
     exit;
 }
 
@@ -101,10 +125,75 @@ function ged_to_iso(?string $str): ?string {
     return null;
 }
 
+function ged_line(string $level_tag, string $value): array {
+    // Split long values across CONT lines (max 255 chars per line including level+tag)
+    $lines = [];
+    $parts = explode("\n", $value);
+    $first = true;
+    foreach ($parts as $part) {
+        foreach (str_split($part ?: ' ', 248) as $chunk) {
+            $lines[] = $first ? "$level_tag $chunk" : "2 CONT $chunk";
+            $first = false;
+        }
+    }
+    return $lines;
+}
+
 function build_gedcom(PDO $db): string {
-    $personnes = $db->query('SELECT * FROM personnes')->fetchAll();
-    $conjoints = $db->query("SELECT * FROM liens WHERE type='conjoint'")->fetchAll();
-    $parEnf    = $db->query("SELECT * FROM liens WHERE type='parent_enfant'")->fetchAll();
+    $personnes  = $db->query('SELECT * FROM personnes')->fetchAll();
+    $coupleTypes= "type IN ('conjoint','fiancailles')";
+    $couples    = $db->query("SELECT * FROM liens WHERE $coupleTypes")->fetchAll();
+    $parEnf     = $db->query("SELECT * FROM liens WHERE type='parent_enfant'")->fetchAll();
+
+    // Index personnes by id
+    $byId = [];
+    foreach ($personnes as $p) $byId[$p['id']] = $p;
+
+    // Build family list
+    // Each family = one couple-lien OR one single parent with children but no couple
+    $families = []; // ['id'=>Fx, 'husb'=>id|null, 'wife'=>id|null, 'lien'=>row|null, 'children'=>[]]
+    $famIdx   = 1;
+    $inCouple = []; // personId => famIdx
+
+    foreach ($couples as $lien) {
+        $pa = $byId[$lien['personne_a']] ?? null;
+        $pb = $byId[$lien['personne_b']] ?? null;
+        if (!$pa || !$pb) continue;
+        $aFemale = $pa['genre'] === 'female';
+        $husbId  = $aFemale ? $lien['personne_b'] : $lien['personne_a'];
+        $wifeId  = $aFemale ? $lien['personne_a'] : $lien['personne_b'];
+        $children = array_unique(array_column(
+            array_filter($parEnf, fn($l) => $l['personne_a'] == $husbId || $l['personne_a'] == $wifeId),
+            'personne_b'
+        ));
+        $families[$famIdx] = ['husb'=>$husbId, 'wife'=>$wifeId, 'lien'=>$lien, 'children'=>$children];
+        $inCouple[$husbId] = $famIdx;
+        $inCouple[$wifeId] = $famIdx;
+        $famIdx++;
+    }
+
+    // Single parents: have children via parent_enfant but not in any couple
+    $parentIds = array_unique(array_column($parEnf, 'personne_a'));
+    foreach ($parentIds as $pid) {
+        if (isset($inCouple[$pid])) continue;
+        $children = array_column(array_filter($parEnf, fn($l) => $l['personne_a'] == $pid), 'personne_b');
+        $p = $byId[$pid] ?? null;
+        if (!$p) continue;
+        $husbId = $p['genre'] === 'female' ? null : $pid;
+        $wifeId = $p['genre'] === 'female' ? $pid  : null;
+        $families[$famIdx] = ['husb'=>$husbId, 'wife'=>$wifeId, 'lien'=>null, 'children'=>$children];
+        $inCouple[$pid] = $famIdx;
+        $famIdx++;
+    }
+
+    // Map personId => [FAMS famIdx list] and [FAMC famIdx]
+    $fams  = []; // as spouse
+    $famc  = []; // as child
+    foreach ($families as $fid => $fam) {
+        if ($fam['husb']) $fams[$fam['husb']][] = $fid;
+        if ($fam['wife']) $fams[$fam['wife']][] = $fid;
+        foreach ($fam['children'] as $cid) $famc[$cid] = $fid;
+    }
 
     $L = [];
     $L[] = '0 HEAD';
@@ -119,27 +208,47 @@ function build_gedcom(PDO $db): string {
     foreach ($personnes as $p) {
         $L[] = "0 @I{$p['id']}@ INDI";
         $L[] = "1 NAME {$p['prenom']} /{$p['nom']}/";
-        if ($p['nom_naiss']) $L[] = "2 SURN {$p['nom_naiss']}";
+        $L[] = "2 GIVN {$p['prenom']}";
+        $L[] = "2 SURN {$p['nom']}";
+        if ($p['nom_naiss']) {
+            $L[] = "1 NAME {$p['prenom']} /{$p['nom_naiss']}/";
+            $L[] = '2 TYPE birth';
+            $L[] = "2 SURN {$p['nom_naiss']}";
+        }
         $L[] = '1 SEX ' . ($p['genre']==='female' ? 'F' : ($p['genre']==='male' ? 'M' : 'U'));
-        if ($p['naissance']) { $L[]='1 BIRT'; $L[]='2 DATE '.iso_to_ged($p['naissance']); if($p['lieu_naiss']) $L[]='2 PLAC '.$p['lieu_naiss']; }
-        if (!$p['vivant'])   { $L[]='1 DEAT Y'; if($p['deces']) $L[]='2 DATE '.iso_to_ged($p['deces']); if($p['lieu_deces']) $L[]='2 PLAC '.$p['lieu_deces']; }
-        if ($p['profession']) $L[] = '1 OCCU '.$p['profession'];
-        if ($p['biographie']) { foreach (str_split($p['biographie'], 248) as $i=>$chunk) $L[] = ($i===0?'1 NOTE ':'2 CONT ').$chunk; }
+        if ($p['naissance']) {
+            $L[] = '1 BIRT';
+            $L[] = '2 DATE ' . iso_to_ged($p['naissance']);
+            if ($p['lieu_naiss']) $L[] = '2 PLAC ' . $p['lieu_naiss'];
+        }
+        if (!$p['vivant']) {
+            $L[] = '1 DEAT Y';
+            if ($p['deces'])      $L[] = '2 DATE ' . iso_to_ged($p['deces']);
+            if ($p['lieu_deces']) $L[] = '2 PLAC ' . $p['lieu_deces'];
+        }
+        if ($p['profession']) $L[] = '1 OCCU ' . $p['profession'];
+        if ($p['biographie'])
+            array_push($L, ...ged_line('1 NOTE', $p['biographie']));
+        foreach ($fams[$p['id']] ?? [] as $fid) $L[] = "1 FAMS @F{$fid}@";
+        if (isset($famc[$p['id']]))              $L[] = "1 FAMC @F{$famc[$p['id']]}@";
     }
 
-    $famIdx = 1;
-    foreach ($conjoints as $lien) {
-        $pa = array_filter($personnes, fn($x)=>$x['id']==$lien['personne_a']); $pa=reset($pa);
-        $pb = array_filter($personnes, fn($x)=>$x['id']==$lien['personne_b']); $pb=reset($pb);
-        $husbId = ($pa['genre']==='female') ? $pb['id'] : $pa['id'];
-        $wifeId = ($pa['genre']==='female') ? $pa['id'] : $pb['id'];
-        $children = array_unique(array_column(array_filter($parEnf, fn($l)=>$l['personne_a']==$husbId||$l['personne_a']==$wifeId), 'personne_b'));
-        $L[] = "0 @F{$famIdx}@ FAM";
-        $L[] = "1 HUSB @I{$husbId}@";
-        $L[] = "1 WIFE @I{$wifeId}@";
-        if ($lien['date_debut']) { $L[]='1 MARR'; $L[]='2 DATE '.iso_to_ged($lien['date_debut']); if($lien['notes']) $L[]='2 PLAC '.$lien['notes']; }
-        foreach ($children as $cid) $L[] = "1 CHIL @I{$cid}@";
-        $famIdx++;
+    foreach ($families as $fid => $fam) {
+        $L[] = "0 @F{$fid}@ FAM";
+        if ($fam['husb']) $L[] = "1 HUSB @I{$fam['husb']}@";
+        if ($fam['wife']) $L[] = "1 WIFE @I{$fam['wife']}@";
+        if ($fam['lien']) {
+            $tag = $fam['lien']['type'] === 'fiancailles' ? 'ENGA' : 'MARR';
+            if ($fam['lien']['date_debut'] || $fam['lien']['notes']) {
+                $L[] = "1 $tag";
+                if ($fam['lien']['date_debut']) $L[] = '2 DATE ' . iso_to_ged($fam['lien']['date_debut']);
+                if ($fam['lien']['date_fin'])   $L[] = '2 DATE ' . iso_to_ged($fam['lien']['date_fin']); // divorce/séparation
+                if ($fam['lien']['notes'])      $L[] = '2 NOTE ' . $fam['lien']['notes'];
+            } else {
+                $L[] = "1 $tag Y";
+            }
+        }
+        foreach ($fam['children'] as $cid) $L[] = "1 CHIL @I{$cid}@";
     }
 
     $L[] = '0 TRLR';

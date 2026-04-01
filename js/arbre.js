@@ -468,6 +468,43 @@ function enablePinchZoom(wrap) {
 
 function r(n) { return Math.round(n*10)/10; }
 
+// ══════════════════════════════════════════════════════════════
+//  EXPORT PDF (via impression navigateur)
+// ══════════════════════════════════════════════════════════════
+function exportTreePDF() {
+  const svg = document.querySelector('#tree-container svg');
+  if (!svg) return;
+
+  // Inliner les styles CSS nécessaires pour l'impression
+  const styles = Array.from(document.styleSheets)
+    .flatMap(s => { try { return Array.from(s.cssRules); } catch { return []; } })
+    .map(r => r.cssText)
+    .join('\n');
+
+  const svgClone = svg.cloneNode(true);
+  const w = svg.getAttribute('width') || svg.viewBox.baseVal.width;
+  const h = svg.getAttribute('height') || svg.viewBox.baseVal.height;
+
+  const html = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>${document.title}</title>
+<style>
+${styles}
+@page { size: ${w}px ${h}px; margin: 0; }
+body { margin: 0; background: #faf9f6; }
+svg { display: block; }
+</style>
+</head>
+<body>${svgClone.outerHTML}</body>
+</html>`;
+
+  const win = window.open('', '_blank');
+  win.document.write(html);
+  win.document.close();
+  win.onload = () => { win.print(); };
+}
 
 function enableDrag(el) {
   let startX, startY, scrollLeft, scrollTop, dragging = false;
