@@ -399,16 +399,15 @@ function drawTree(allLiens) {
   enablePinchZoom(wrap);
   requestAnimationFrame(() => {
     const wrapW = wrap.clientWidth;
-    const needed = Math.max(totalWidth, wrapW);
-    const extraLeft = needed > totalWidth ? Math.floor((needed - totalWidth) / 2) : 0;
-    if (extraLeft > 0) {
-      const svgEl = container.querySelector('svg');
-      if (svgEl) {
-        svgEl.setAttribute('width', needed);
-        svgEl.setAttribute('viewBox', `-${extraLeft} 0 ${needed} ${totalHeight}`);
-      }
+    if (totalWidth < wrapW) {
+      container.style.minWidth = '';
+      container.style.display = 'flex';
+      container.style.justifyContent = 'center';
+    } else {
+      container.style.display = '';
+      container.style.justifyContent = '';
+      wrap.scrollLeft = rootCenterX - wrapW / 2;
     }
-    wrap.scrollLeft = (rootCenterX + extraLeft) - wrapW / 2;
   });
 }
 
