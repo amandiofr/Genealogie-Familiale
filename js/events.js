@@ -92,12 +92,12 @@ async function showEventForm(id){
     </div>
     <div class="modal-bd">
       <div class="form-grid">
-        <div class="fg full"><label>${T('form_titre')} *</label><input id="fe-titre" value="${e?.titre||''}" placeholder="Ex : Mariage de Thomas et Claire"></div>
+        <div class="fg full"><label>${T('form_titre')} *</label><input id="fe-titre" value="${e?.titre||''}" placeholder="${T('ph_titre_event')}"></div>
         <div class="fg"><label>${T('form_type')} *</label><select id="fe-type">${typeOptions}</select></div>
         <div class="fg"><label>${T('form_date_debut')}</label><input type="date" id="fe-date-debut" value="${e?.date_debut||''}"></div>
         <div class="fg"><label>${T('form_date_fin')}</label><input type="date" id="fe-date-fin" value="${e?.date_fin||''}"></div>
-        <div class="fg full"><label>${T('form_lieu')}</label><input id="fe-lieu" value="${e?.lieu||''}" placeholder="Paris, France"></div>
-        <div class="fg full"><label>${T('sec_description')}</label><textarea id="fe-desc" placeholder="Racontez cet événement…">${e?.description||''}</textarea></div>
+        <div class="fg full"><label>${T('form_lieu')}</label><input id="fe-lieu" value="${e?.lieu||''}" placeholder="${T('ph_lieu')}"></div>
+        <div class="fg full"><label>${T('sec_description')}</label><textarea id="fe-desc" placeholder="${T('ph_desc_event')}">${e?.description||''}</textarea></div>
         <div class="fg full"><label>${T('form_participants')}</label><select id="fe-personnes" multiple size="6" style="height:130px;">${peopleOptions}</select></div>
       </div>
       ${id ? `<div class="fg full" style="margin-top:.8rem;">
@@ -105,7 +105,7 @@ async function showEventForm(id){
         <div class="upload-zone">
           <input type="file" accept="image/*" multiple onchange="previewEventPhotos(this)">
           <div class="upload-icon">📷</div>
-          <div class="upload-label">${T('lbl_upload_hint')}<br><span style="font-size:.7rem;color:var(--ink3);">JPEG, PNG, WebP — max 20 Mo</span></div>
+          <div class="upload-label">${T(_isTouch?'lbl_upload_hint_touch':'lbl_upload_hint')}<br><span style="font-size:.7rem;color:var(--ink3);">${T('lbl_upload_max')}</span></div>
         </div>
         <div class="upload-preview" id="evt-upload-preview"></div>
       </div>` : ''}
@@ -227,11 +227,11 @@ async function showAnecdoteForm(id){
       <button class="modal-close" onclick="closeOverlay('modal-form-anecdote-overlay')">✕</button>
     </div>
     <div class="modal-bd">
-      <div class="fg"><label>${T('form_titre')} *</label><input id="fa-titre" value="${a?.titre||''}" placeholder="Ex : L'été où grand-père a construit la cabane"></div>
-      <div class="fg"><label>${T('form_contenu')} *</label><textarea id="fa-contenu" style="min-height:160px;" placeholder="Racontez cette histoire…">${a?.contenu||''}</textarea></div>
+      <div class="fg"><label>${T('form_titre')} *</label><input id="fa-titre" value="${a?.titre||''}" placeholder="${T('ph_titre_anec')}"></div>
+      <div class="fg"><label>${T('form_contenu')} *</label><textarea id="fa-contenu" style="min-height:160px;" placeholder="${T('ph_contenu_anec')}">${a?.contenu||''}</textarea></div>
       <div class="form-grid">
-        <div class="fg"><label>${T('form_date_approx')}</label><input id="fa-date" value="${a?.date_anec||''}" placeholder="Ex : 1972, Été 1985…"></div>
-        <div class="fg"><label>${T('form_written_by')}</label><input id="fa-auteur" value="${a?.auteur ?? authorName ?? ''}" placeholder="Votre prénom"></div>
+        <div class="fg"><label>${T('form_date_approx')}</label><input id="fa-date" value="${a?.date_anec||''}" placeholder="${T('ph_date_anec')}"></div>
+        <div class="fg"><label>${T('form_written_by')}</label><input id="fa-auteur" value="${a?.auteur ?? authorName ?? ''}" placeholder="${T('author_placeholder')}"></div>
         <div class="fg full"><label>${T('form_mentions')}</label><select id="fa-personnes" multiple size="5" style="height:110px;">${peopleOptions}</select></div>
       </div>
       ${id ? `<div class="fg full" style="margin-top:.8rem;">
@@ -239,7 +239,7 @@ async function showAnecdoteForm(id){
         <div class="upload-zone">
           <input type="file" accept="image/*" multiple onchange="previewAnecdotePhotos(this)">
           <div class="upload-icon">📷</div>
-          <div class="upload-label">${T('lbl_upload_hint')}<br><span style="font-size:.7rem;color:var(--ink3);">JPEG, PNG, WebP — max 20 Mo</span></div>
+          <div class="upload-label">${T(_isTouch?'lbl_upload_hint_touch':'lbl_upload_hint')}<br><span style="font-size:.7rem;color:var(--ink3);">${T('lbl_upload_max')}</span></div>
         </div>
         <div class="upload-preview" id="anec-upload-preview"></div>
       </div>` : ''}

@@ -98,19 +98,19 @@ async function showAutoForm(id) {
     </div>
     <div class="modal-bd">
       <div class="form-grid">
-        <div class="fg"><label>${T('form_marque')} *</label><input id="fau-marque" value="${a?.marque||''}" placeholder="Ex : Citroën"></div>
-        <div class="fg"><label>${T('form_modele')}</label><input id="fau-modele" value="${a?.modele||''}" placeholder="Ex : DS 21"></div>
+        <div class="fg"><label>${T('form_marque')} *</label><input id="fau-marque" value="${a?.marque||''}" placeholder="${T('ph_marque')}"></div>
+        <div class="fg"><label>${T('form_modele')}</label><input id="fau-modele" value="${a?.modele||''}" placeholder="${T('ph_modele')}"></div>
         <div class="fg"><label>${T('form_annee')}</label><input id="fau-annee" type="number" min="1885" max="2100" value="${a?.annee||''}" placeholder="1972"></div>
-        <div class="fg"><label>${T('form_couleur')}</label><input id="fau-couleur" value="${a?.couleur||''}" placeholder="Bleu nuit"></div>
+        <div class="fg"><label>${T('form_couleur')}</label><input id="fau-couleur" value="${a?.couleur||''}" placeholder="${T('ph_couleur')}"></div>
         <div class="fg full"><label>${T('form_owner')}</label><select id="fau-owner">${ownerOptions}</select></div>
-        <div class="fg full"><label>${T('sec_description')}</label><textarea id="fau-desc" placeholder="Anecdotes, histoire de la voiture…">${a?.description||''}</textarea></div>
+        <div class="fg full"><label>${T('sec_description')}</label><textarea id="fau-desc" placeholder="${T('ph_desc_auto')}">${a?.description||''}</textarea></div>
       </div>
       ${id ? `<div class="fg full" style="margin-top:.8rem;">
         <label>${T('lbl_add_photos')}</label>
         <div class="upload-zone">
           <input type="file" accept="image/*" multiple onchange="previewAutoPhotos(this)">
           <div class="upload-icon">📷</div>
-          <div class="upload-label">${T('lbl_upload_hint')}<br><span style="font-size:.7rem;color:var(--ink3);">JPEG, PNG, WebP — max 20 Mo</span></div>
+          <div class="upload-label">${T(_isTouch?'lbl_upload_hint_touch':'lbl_upload_hint')}<br><span style="font-size:.7rem;color:var(--ink3);">${T('lbl_upload_max')}</span></div>
         </div>
         <div class="upload-preview" id="auto-upload-preview"></div>
       </div>` : ''}

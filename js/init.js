@@ -1,6 +1,7 @@
 // ══════════════════════════════════════════════════════════════
 //  ARBRES — filtre global
 // ══════════════════════════════════════════════════════════════
+const _isTouch = window.matchMedia('(pointer:coarse)').matches;
 let _arbres = [], _currentArbreId = null, _currentMembers = null;
 let _allLiens = [];
 

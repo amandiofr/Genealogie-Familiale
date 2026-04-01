@@ -313,21 +313,21 @@ async function deletePerson(id){
 function showPhotoUpload(personId){
   document.getElementById('modal-person-edit').innerHTML=`
     <div class="modal-hd" style="padding:1.2rem 1.4rem .8rem;">
-      <div style="flex:1;font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:500;">Ajouter des photos</div>
+      <div style="flex:1;font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:500;">${T('lbl_add_photos')}</div>
       <button class="modal-close" onclick="closeOverlay('modal-person-edit-overlay')">✕</button>
     </div>
     <div class="modal-bd">
-      <div class="fg"><label>Légende (optionnelle)</label><input id="ph-legende" placeholder="Ex : Été 1985 à Marseille"></div>
-      <div class="fg"><label>Date approximative</label><input id="ph-date" placeholder="Ex : 1985, 1985-07…"></div>
+      <div class="fg"><label>${T('lbl_legende')}</label><input id="ph-legende" placeholder="${T('lbl_legende_ph')}"></div>
+      <div class="fg"><label>${T('form_date_approx')}</label><input id="ph-date" placeholder="Ex : 1985, 1985-07…"></div>
       <div class="upload-zone" id="upload-zone">
         <input type="file" accept="image/*" multiple onchange="previewPhotos(this)">
         <div class="upload-icon">📷</div>
-        <div class="upload-label">Cliquez ou déposez vos photos ici<br><span style="font-size:.7rem;color:var(--ink3);">JPEG, PNG, WebP — max 20 Mo chacune</span></div>
+        <div class="upload-label">${T(_isTouch?'lbl_upload_hint_touch':'lbl_upload_hint')}<br><span style="font-size:.7rem;color:var(--ink3);">${T('lbl_upload_max')}</span></div>
       </div>
       <div class="upload-preview" id="upload-preview"></div>
       <div class="form-actions" style="margin-top:1rem;">
-        <button class="btn-primary" onclick="uploadPhotos(${personId})">📤 Envoyer</button>
-        <button class="btn-secondary" onclick="closeOverlay('modal-person-edit-overlay')">Annuler</button>
+        <button class="btn-primary" onclick="uploadPhotos(${personId})">${T('lbl_upload_send')}</button>
+        <button class="btn-secondary" onclick="closeOverlay('modal-person-edit-overlay')">${T('form_cancel')}</button>
       </div>
     </div>`;
   document.getElementById('modal-person-edit-overlay').classList.add('open');
@@ -342,7 +342,7 @@ function previewPhotos(input){
 }
 
 async function uploadPhotos(personId){
-  if(!pendingFiles.length){toast('Aucune photo sélectionnée','error');return;}
+  if(!pendingFiles.length){toast(T('error_no_photo'),'error');return;}
   const legende=document.getElementById('ph-legende').value;
   const date=document.getElementById('ph-date').value;
   for(const f of pendingFiles){
@@ -368,15 +368,15 @@ function showLienForm(personId) {
 
   document.getElementById('modal-person-edit').innerHTML = `
     <div class="modal-hd" style="padding:1.2rem 1.4rem .8rem;">
-      <div style="flex:1;font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:500;">Ajouter un lien familial</div>
+      <div style="flex:1;font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:500;">${T('form_title_add_link')}</div>
       <button class="modal-close" onclick="closeOverlay('modal-person-edit-overlay')">✕</button>
     </div>
     <div class="modal-bd">
       <div class="fg" style="margin-bottom:.5rem;">
-        <label>Personne concernée</label>
+        <label>${T('lbl_personne_concernee')}</label>
         <div style="padding:8px 10px;background:var(--bg2);border-radius:7px;font-size:.88rem;font-weight:500;">${p.prenom} ${p.nom}</div>
       </div>
-      <div class="fg"><label>Type de lien</label>
+      <div class="fg"><label>${T('form_lien_type')}</label>
         <select id="lf-type">
           <option value="conjoint">💍 ${T('lien_conjoint')}</option>
           <option value="parent_enfant_a">👶 ${T('lien_parent_a')}</option>
@@ -384,15 +384,15 @@ function showLienForm(personId) {
           <option value="fiancailles">💑 ${T('lien_fiancailles')}</option>
         </select>
       </div>
-      <div class="fg"><label>Avec qui</label><select id="lf-other">${others}</select></div>
+      <div class="fg"><label>${T('form_lien_with')}</label><select id="lf-other">${others}</select></div>
       <div class="form-grid">
-        <div class="fg"><label>Date début</label><input type="date" id="lf-debut"></div>
-        <div class="fg"><label>Date fin</label><input type="date" id="lf-fin"></div>
+        <div class="fg"><label>${T('lbl_date_debut')}</label><input type="date" id="lf-debut"></div>
+        <div class="fg"><label>${T('lbl_date_fin')}</label><input type="date" id="lf-fin"></div>
       </div>
-      <div class="fg"><label>Notes</label><input id="lf-notes" placeholder="Ex : Mariés à Lyon…"></div>
+      <div class="fg"><label>${T('lbl_notes')}</label><input id="lf-notes" placeholder="${T('ph_notes_lien')}"></div>
       <div class="form-actions">
-        <button class="btn-primary" onclick="saveLien(${personId})">💾 Enregistrer</button>
-        <button class="btn-secondary" onclick="closeOverlay('modal-person-edit-overlay')">Annuler</button>
+        <button class="btn-primary" onclick="saveLien(${personId})">${T('form_save')}</button>
+        <button class="btn-secondary" onclick="closeOverlay('modal-person-edit-overlay')">${T('form_cancel')}</button>
       </div>
     </div>`;
   closeOverlay('modal-person-view-overlay');
@@ -417,7 +417,7 @@ async function saveLien(personId) {
     await loadPeople(); await loadArbres(); renderTree(); renderList();
     _refreshActiveView();
     closeOverlay('modal-person-edit-overlay');
-    toast('Lien ajouté');
+    toast(T('toast_lien_added'));
     openPerson(personId);
   } catch(e) { toast(e.message, 'error'); }
 }

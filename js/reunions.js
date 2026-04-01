@@ -83,11 +83,11 @@ async function showReunionForm(id){
     </div>
     <div class="modal-bd">
       <div class="form-grid">
-        <div class="fg full"><label>${T('form_titre')} *</label><input id="rn-titre" value="${e?.titre||''}" placeholder="Ex : Réunion de famille 2024"></div>
+        <div class="fg full"><label>${T('form_titre')} *</label><input id="rn-titre" value="${e?.titre||''}" placeholder="${T('ph_titre_reunion')}"></div>
         <div class="fg"><label>${T('form_date_debut')}</label><input type="date" id="rn-date-debut" value="${e?.date_debut||''}"></div>
         <div class="fg"><label>${T('form_date_fin')}</label><input type="date" id="rn-date-fin" value="${e?.date_fin||''}"></div>
-        <div class="fg full"><label>${T('form_lieu')}</label><input id="rn-lieu" value="${e?.lieu||''}" placeholder="Paris, France"></div>
-        <div class="fg full"><label>${T('sec_description')}</label><textarea id="rn-desc" placeholder="Racontez cette réunion…">${e?.description||''}</textarea></div>
+        <div class="fg full"><label>${T('form_lieu')}</label><input id="rn-lieu" value="${e?.lieu||''}" placeholder="${T('ph_lieu')}"></div>
+        <div class="fg full"><label>${T('sec_description')}</label><textarea id="rn-desc" placeholder="${T('ph_desc_reunion')}">${e?.description||''}</textarea></div>
         <div class="fg full"><label>${T('form_participants')}</label><select id="rn-personnes" multiple size="6" style="height:130px;">${peopleOptions}</select></div>
       </div>
       ${id ? `<div class="fg full" style="margin-top:.8rem;">
@@ -95,7 +95,7 @@ async function showReunionForm(id){
         <div class="upload-zone">
           <input type="file" accept="image/*" multiple onchange="previewReunionPhotos(this)">
           <div class="upload-icon">📷</div>
-          <div class="upload-label">${T('lbl_upload_hint')}<br><span style="font-size:.7rem;color:var(--ink3);">JPEG, PNG, WebP — max 20 Mo</span></div>
+          <div class="upload-label">${T(_isTouch?'lbl_upload_hint_touch':'lbl_upload_hint')}<br><span style="font-size:.7rem;color:var(--ink3);">${T('lbl_upload_max')}</span></div>
         </div>
         <div class="upload-preview" id="rn-upload-preview"></div>
       </div>` : ''}

@@ -19,9 +19,9 @@ function showAddUser(){
       <button class="modal-close" onclick="closeOverlay('modal-user-overlay')">✕</button>
     </div>
     <div class="modal-bd">
-      <div class="fg"><label>${T('form_nom')}</label><input id="nu-nom" placeholder="Prénom Nom"></div>
+      <div class="fg"><label>${T('form_nom')}</label><input id="nu-nom" placeholder="${T('ph_prenom_nom')}"></div>
       <div class="fg"><label>${T('form_email')}</label><input type="email" id="nu-email" placeholder="email@exemple.fr"></div>
-      <div class="fg"><label>${T('form_password')}</label><input type="password" id="nu-pass" placeholder="Min. 8 caractères"></div>
+      <div class="fg"><label>${T('form_password')}</label><input type="password" id="nu-pass" placeholder="${T('ph_password')}"></div>
       <div class="fg"><label>${T('form_role')}</label><select id="nu-role"><option value="lecteur">${T('role_lecteur_desc')}</option><option value="editeur">${T('role_editeur_desc')}</option><option value="admin">${T('role_admin_desc')}</option></select></div>
       <div class="form-actions">
         <button class="btn-primary" onclick="createUser()">${T('btn_create_account')}</button>
