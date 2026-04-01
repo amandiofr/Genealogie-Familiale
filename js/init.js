@@ -9,11 +9,14 @@ function inCurrentTree(personId) {
   return !_currentMembers || _currentMembers.has(Number(personId));
 }
 
+let _directMembersSet = null;
 function inCurrentTreeDirect(personId) {
   if (!_currentArbreId || !_arbres.length) return true;
-  const arbre = _arbres.find(a => a.id === _currentArbreId);
-  if (!arbre) return true;
-  return arbre.membres.map(Number).includes(Number(personId));
+  if (!_directMembersSet) {
+    const arbre = _arbres.find(a => a.id === _currentArbreId);
+    _directMembersSet = arbre ? new Set(arbre.membres.map(Number)) : null;
+  }
+  return !_directMembersSet || _directMembersSet.has(Number(personId));
 }
 
 let _allTreeMembers = null; // cache: Set of all IDs that belong to at least one tree
@@ -36,7 +39,7 @@ function _inAnyTree(personId) {
 
 async function loadArbres() {
   try { _arbres = await api('GET', 'api/arbres.php'); } catch { _arbres = []; }
-  _allTreeMembers = null; _allTreeSpouses = null;
+  _allTreeMembers = null; _allTreeSpouses = null; _directMembersSet = null;
   // Charger les liens pour pouvoir inclure les conjoints dans le filtre
   try { const r = await fetch('api/liens.php'); if (r.ok) _allLiens = await r.json(); } catch {}
   const saved = localStorage.getItem('genealogie_arbre');
@@ -46,6 +49,7 @@ async function loadArbres() {
 }
 
 function _applyArbre() {
+  _directMembersSet = null;
   if (!_currentArbreId || !_arbres.length) { _currentMembers = null; return; }
   const arbre = _arbres.find(a => a.id === _currentArbreId);
   _currentMembers = arbre ? new Set(arbre.membres.map(Number)) : null;
