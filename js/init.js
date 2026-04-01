@@ -115,7 +115,7 @@ async function init() {
   if (_c) _c.textContent = _m.code;
   applyLang();
   updateAuthorPicker();
-  try { renderTree(); } catch(e) { console.error('renderTree() failed:', e); }
+  renderTree();
 
   // Deep linking via URL hash
   const hash = window.location.hash.slice(1);

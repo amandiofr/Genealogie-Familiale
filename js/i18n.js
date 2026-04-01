@@ -8,11 +8,11 @@ const LANGS = {
   fr: {
     // Nav
     nav_tree:'Arbre', nav_list:'Membres', nav_events:'Événements',
-    nav_reunions:'Réunions', nav_anecdotes:'Anecdotes', nav_timeline:'Chronologie', nav_stats:'Statistiques', nav_admin:'Admin',
+    nav_reunions:'Réunions', nav_anecdotes:'Anecdotes', nav_timeline:'Chronologie', nav_admin:'Admin',
     // Site title & page headers
     site_title:'Notre Famille',
     h_membres:'Membres', h_events:'Événements', h_reunions:'Réunions familiales', h_anecdotes:'Anecdotes', h_timeline:'Frise chronologique',
-    h_stats:'Statistiques', h_admin:'Administration',
+    h_admin:'Administration',
     h_repartition:'Répartition par génération',
     h_longevite:'Longévité la plus élevée',
     // Header
@@ -82,6 +82,7 @@ const LANGS = {
     toast_user_deleted:'Compte supprimé', toast_pwd:'Mot de passe modifié',
     // Confirmations
     confirm_delete_person:'Supprimer définitivement cette personne ?',
+    confirm_delete_lien:'Supprimer ce lien familial ?', toast_lien_deleted:'Lien supprimé',
     confirm_delete_event:'Supprimer cet événement ?',
     confirm_delete_reunion:'Supprimer cette réunion ?',
     confirm_delete_anec:'Supprimer cette anecdote ?',
@@ -151,11 +152,11 @@ const LANGS = {
   },
   pt: {
     nav_tree:'Árvore', nav_list:'Membros', nav_events:'Eventos',
-    nav_reunions:'Reuniões', nav_anecdotes:'Anedotas', nav_timeline:'Cronologia', nav_stats:'Estatísticas', nav_admin:'Admin',
+    nav_reunions:'Reuniões', nav_anecdotes:'Anedotas', nav_timeline:'Cronologia', nav_admin:'Admin',
     // Site title & page headers
     site_title:'Nossa Família',
     h_membres:'Membros', h_events:'Eventos', h_reunions:'Reuniões familiares', h_anecdotes:'Anedotas', h_timeline:'Linha do tempo',
-    h_stats:'Estatísticas', h_admin:'Administração',
+    h_admin:'Administração',
     h_repartition:'Distribuição por geração',
     h_longevite:'Maior longevidade',
     logout:'Sair',
@@ -212,6 +213,7 @@ const LANGS = {
     toast_anec_deleted:'Anedota eliminada', toast_user_created:'Conta criada',
     toast_user_deleted:'Conta eliminada', toast_pwd:'Palavra-passe alterada',
     confirm_delete_person:'Eliminar definitivamente esta pessoa?',
+    confirm_delete_lien:'Eliminar esta ligação familiar?', toast_lien_deleted:'Ligação eliminada',
     confirm_delete_event:'Eliminar este evento?',
     confirm_delete_reunion:'Eliminar esta reunião?',
     confirm_delete_anec:'Eliminar esta anedota?',

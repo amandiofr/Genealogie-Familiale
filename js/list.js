@@ -98,14 +98,17 @@ async function openPerson(id) {
   const groupA = [...conjoints.map(l=>({...l,role:'💍'})),...fiancailles.map(l=>({...l,role:'💑'})),...sortedParents.map(l=>({...l,role:'👨‍👩‍👧'})),...freressoeurs];
   const groupB = sortedEnfants.map(l=>({...l,role:l.genre==='male'?'👦':'👧'}));
   const allFamily = [...groupA,...groupB];
-  const renderFL = l => {
+  const renderFL = (l, isDirect=true) => {
     const lid=Number(l.personne_a)===id?l.personne_b:l.personne_a;
     const fav=l.chemin_thumb?`<div class="fl-av ${l.genre}"><img src="${imgUrl(l.chemin_thumb)}" alt=""></div>`:`<div class="fl-av ${l.genre}">${(l.prenom[0]||'')+(l.nom[0]||'')}</div>`;
-    return `<div class="family-link" onclick="openPerson(${lid})">${fav}<div><div class="fl-name">${l.prenom} ${l.nom}</div><div class="fl-role">${l.role}</div></div><span style="margin-left:auto;color:var(--ink3);font-size:.8rem;">›</span></div>`;
+    const delBtn = isDirect && currentUser.role!=='lecteur'
+      ? `<button onclick="event.stopPropagation();deleteLien(${id},${l.id})" style="margin-left:4px;background:none;border:none;color:var(--ink3);cursor:pointer;font-size:.7rem;padding:0 2px;line-height:1;" title="${T('confirm_delete_lien')}">✕</button>`
+      : '';
+    return `<div class="family-link" onclick="openPerson(${lid})">${fav}<div><div class="fl-name">${l.prenom} ${l.nom}</div><div class="fl-role">${l.role}</div></div><span style="margin-left:auto;color:var(--ink3);font-size:.8rem;">›</span>${delBtn}</div>`;
   };
   if(allFamily.length){
     html+=`<div class="modal-section"><div class="sec-title">${T('sec_famille')}</div>`;
-    groupA.forEach(l=>{ html+=renderFL(l); });
+    groupA.forEach(l=>{ html+=renderFL(l, !freressoeurs.includes(l)); });
     if(groupA.length && groupB.length) html+=`<div style="display:flex;align-items:center;gap:8px;margin:6px 0;"><span style="flex:1;border-top:1px solid var(--border2);"></span><span style="font-size:.63rem;text-transform:uppercase;letter-spacing:.1em;color:var(--ink3);font-weight:500;">${T('lbl_enfants')}</span><span style="flex:1;border-top:1px solid var(--border2);"></span></div>`;
     groupB.forEach(l=>{ html+=renderFL(l); });
     // Bouton ajouter un lien
@@ -415,6 +418,17 @@ async function saveLien(personId) {
     _refreshActiveView();
     closeOverlay('modal-person-edit-overlay');
     toast('Lien ajouté');
+    openPerson(personId);
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function deleteLien(personId, lienId) {
+  if (!confirm(T('confirm_delete_lien'))) return;
+  try {
+    await api('DELETE', `api/personnes.php?id=${personId}&sub=liens&subid=${lienId}`);
+    await loadPeople(); await loadArbres(); renderTree(); renderList();
+    _refreshActiveView();
+    toast(T('toast_lien_deleted'));
     openPerson(personId);
   } catch(e) { toast(e.message, 'error'); }
 }
