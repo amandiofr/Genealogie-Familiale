@@ -2,34 +2,13 @@
 //  TIMELINE
 // ══════════════════════════════════════════════════════════════
 async function loadTimeline() {
-  const [evts, allLiens] = await Promise.all([
-    api('GET', 'api/evenements.php'),
-    api('GET', 'api/liens.php')
-  ]);
-
-  // Membres nés dans la famille = ceux qui apparaissent comme enfant (personne_b) dans un lien parent_enfant
-  const bornInFamily = new Set(
-    allLiens.filter(l => l.type === 'parent_enfant').map(l => +l.personne_b)
-  );
-
-  // Conjoints extérieurs : dans un couple, si UN SEUL est né dans la famille,
-  // l'autre a épousé en dehors → l'exclure.
-  // Si aucun des deux n'est né dans la famille → génération racine, garder les deux.
-  const marriedInIds = new Set();
-  allLiens
-    .filter(l => l.type === 'conjoint')
-    .forEach(l => {
-      const aFamily = bornInFamily.has(+l.personne_a);
-      const bFamily = bornInFamily.has(+l.personne_b);
-      if (aFamily && !bFamily) marriedInIds.add(+l.personne_b);
-      if (bFamily && !aFamily) marriedInIds.add(+l.personne_a);
-    });
+  const evts = await api('GET', 'api/evenements.php');
 
   const entries = [];
 
-  // Naissances et décès depuis les membres
+  // Naissances et décès depuis les membres directs de l'arbre courant (sans conjoints)
   people.forEach(p => {
-    if (marriedInIds.has(+p.id)) return;
+    if (!inCurrentTreeDirect(p.id)) return;
     entries.push({
       group: 'life',
       date: p.naissance || null,
@@ -48,8 +27,14 @@ async function loadTimeline() {
     });
   });
 
-  // Événements répartis par groupe
-  evts.forEach(e => {
+  // Événements de l'arbre courant (membres directs uniquement, sans conjoints)
+  const _directMembers = (() => {
+    if (!_currentArbreId || !_arbres.length) return null;
+    const arbre = _arbres.find(a => a.id === _currentArbreId);
+    return arbre ? new Set(arbre.membres.map(Number)) : null;
+  })();
+  const filteredEvts = evts.filter(e => !_directMembers || e.personne_ids.some(id => _directMembers.has(id)));
+  filteredEvts.forEach(e => {
     const group = (e.type === 'naissance' || e.type === 'deces') ? 'life'
                 : e.type === 'mariage' ? 'mariage' : 'other';
     entries.push({

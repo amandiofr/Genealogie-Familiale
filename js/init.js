@@ -8,6 +8,13 @@ function inCurrentTree(personId) {
   return !_currentMembers || _currentMembers.has(Number(personId));
 }
 
+function inCurrentTreeDirect(personId) {
+  if (!_currentArbreId || !_arbres.length) return true;
+  const arbre = _arbres.find(a => a.id === _currentArbreId);
+  if (!arbre) return true;
+  return arbre.membres.map(Number).includes(Number(personId));
+}
+
 let _allTreeMembers = null; // cache: Set of all IDs that belong to at least one tree
 let _allTreeSpouses = null; // cache: Set of spouse IDs of tree members
 function _inAnyTree(personId) {

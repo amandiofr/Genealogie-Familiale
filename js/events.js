@@ -174,7 +174,7 @@ async function loadAnecdotes(){
       ${a.thumb?`<img src="${imgUrl(a.thumb)}" style="width:48px;height:48px;object-fit:cover;border-radius:6px;flex-shrink:0;" alt="">`:`<span style="font-size:1.5rem;flex-shrink:0;margin-top:2px;">📖</span>`}
       <div style="flex:1;">
         <div class="an-title">${a.titre}</div>
-        <div class="an-meta">${[a.date_anec,a.auteur?T('lbl_by')+' '+a.auteur:'',a.personnes_noms].filter(Boolean).join(' · ')}</div>
+        <div class="an-meta">${[a.date_anec,a.auteur?T('lbl_by')+' '+a.auteur:'',a.personnes_noms?T('lbl_with')+' '+a.personnes_noms:''].filter(Boolean).join(' · ')}</div>
         <div class="an-excerpt">${a.contenu.replace(/\n/g,'<br>')}</div>
       </div>
     </div>`).join('');

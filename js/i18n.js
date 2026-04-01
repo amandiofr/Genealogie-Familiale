@@ -117,7 +117,7 @@ const LANGS = {
     lbl_avatar:'avatar', title_set_avatar:'Définir comme avatar',
     lbl_add_photos:'Ajouter des photos',
     lbl_upload_hint:'Cliquez ou déposez vos photos',
-    lbl_by:'Par', btn_create_account:'Créer le compte',
+    lbl_by:'Par', lbl_with:'Avec', btn_create_account:'Créer le compte',
     // Event type labels
     evt_mariage:'Mariage', evt_naissance:'Naissance', evt_deces:'Décès',
     evt_rencontre:'Rencontre', evt_voyage:'Voyage', evt_reunion:'Réunion',
@@ -245,7 +245,7 @@ const LANGS = {
     lbl_avatar:'avatar', title_set_avatar:'Definir como avatar',
     lbl_add_photos:'Adicionar fotos',
     lbl_upload_hint:'Clique ou solte as suas fotos',
-    lbl_by:'Por', btn_create_account:'Criar conta',
+    lbl_by:'Por', lbl_with:'Com', btn_create_account:'Criar conta',
     // Event type labels
     evt_mariage:'Casamento', evt_naissance:'Nascimento', evt_deces:'Falecimento',
     evt_rencontre:'Encontro', evt_voyage:'Viagem', evt_reunion:'Reunião',

@@ -12,7 +12,7 @@ $subid  = (int)($_GET['subid'] ?? 0);
 if ($method === 'GET' && !$id) {
     $rows = $db->query("
         SELECT a.*,
-          GROUP_CONCAT(CONCAT(p.prenom,' ',p.nom) SEPARATOR ', ') AS personnes_noms,
+          GROUP_CONCAT(p.prenom SEPARATOR ', ') AS personnes_noms,
           COALESCE(
             (SELECT chemin_thumb FROM anecdote_photos WHERE id=a.photo_id AND anecdote_id=a.id LIMIT 1),
             (SELECT chemin_thumb FROM anecdote_photos WHERE anecdote_id=a.id ORDER BY ordre LIMIT 1)
