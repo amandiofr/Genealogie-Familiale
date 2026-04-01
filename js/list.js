@@ -94,21 +94,25 @@ async function openPerson(id) {
     if(!a.naissance) return 1; if(!b.naissance) return -1;
     return a.naissance.localeCompare(b.naissance);
   });
-  const freressoeurs = (p.freres_soeurs||[]).map(l=>({...l,personne_a:l.id,personne_b:l.id,role:l.genre==='male'?'🧑':'👧'}));
+  const freressoeurs = (p.freres_soeurs||[]).map(l=>({...l,personne_a:l.id,personne_b:l.id,role:l.genre==='male'?'🧑':'👧',_computed:true}));
   const groupA = [...conjoints.map(l=>({...l,role:'💍'})),...fiancailles.map(l=>({...l,role:'💑'})),...sortedParents.map(l=>({...l,role:'👨‍👩‍👧'})),...freressoeurs];
   const groupB = sortedEnfants.map(l=>({...l,role:l.genre==='male'?'👦':'👧'}));
   const allFamily = [...groupA,...groupB];
-  const renderFL = (l, isDirect=true) => {
+  const renderFL = (l) => {
+    const isDirect = !l._computed && !!l.lien_id;
     const lid=Number(l.personne_a)===id?l.personne_b:l.personne_a;
     const fav=l.chemin_thumb?`<div class="fl-av ${l.genre}"><img src="${imgUrl(l.chemin_thumb)}" alt=""></div>`:`<div class="fl-av ${l.genre}">${(l.prenom[0]||'')+(l.nom[0]||'')}</div>`;
-    const delBtn = isDirect && currentUser.role!=='lecteur'
-      ? `<button onclick="event.stopPropagation();deleteLien(${id},${l.id})" style="margin-left:4px;background:none;border:none;color:var(--ink3);cursor:pointer;font-size:.7rem;padding:0 2px;line-height:1;" title="${T('confirm_delete_lien')}">✕</button>`
+    const editBtn = isDirect && currentUser.role!=='lecteur'
+      ? `<button onclick="event.stopPropagation();showLienEditForm(${id},${l.lien_id},'${l.type}','${l.date_debut||''}','${l.date_fin||''}',${JSON.stringify(l.notes||'')})" style="background:none;border:none;color:var(--ink3);cursor:pointer;font-size:.7rem;padding:0 2px;line-height:1;">✏️</button>`
       : '';
-    return `<div class="family-link" onclick="openPerson(${lid})">${fav}<div><div class="fl-name">${l.prenom} ${l.nom}</div><div class="fl-role">${l.role}</div></div><span style="margin-left:auto;color:var(--ink3);font-size:.8rem;">›</span>${delBtn}</div>`;
+    const delBtn = isDirect && currentUser.role!=='lecteur'
+      ? `<button onclick="event.stopPropagation();deleteLien(${id},${l.lien_id})" style="margin-left:2px;background:none;border:none;color:var(--ink3);cursor:pointer;font-size:.7rem;padding:0 2px;line-height:1;" title="${T('confirm_delete_lien')}">✕</button>`
+      : '';
+    return `<div class="family-link" onclick="openPerson(${lid})">${fav}<div><div class="fl-name">${l.prenom} ${l.nom}</div><div class="fl-role">${l.role}</div></div><span style="margin-left:auto;color:var(--ink3);font-size:.8rem;">›</span>${editBtn}${delBtn}</div>`;
   };
   if(allFamily.length){
     html+=`<div class="modal-section"><div class="sec-title">${T('sec_famille')}</div>`;
-    groupA.forEach(l=>{ html+=renderFL(l, !freressoeurs.includes(l)); });
+    groupA.forEach(l=>{ html+=renderFL(l); });
     if(groupA.length && groupB.length) html+=`<div style="display:flex;align-items:center;gap:8px;margin:6px 0;"><span style="flex:1;border-top:1px solid var(--border2);"></span><span style="font-size:.63rem;text-transform:uppercase;letter-spacing:.1em;color:var(--ink3);font-weight:500;">${T('lbl_enfants')}</span><span style="flex:1;border-top:1px solid var(--border2);"></span></div>`;
     groupB.forEach(l=>{ html+=renderFL(l); });
     // Bouton ajouter un lien
@@ -418,6 +422,51 @@ async function saveLien(personId) {
     _refreshActiveView();
     closeOverlay('modal-person-edit-overlay');
     toast(T('toast_lien_added'));
+    openPerson(personId);
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+function showLienEditForm(personId, lienId, type, dateDebut, dateFin, notes) {
+  document.getElementById('modal-person-edit').innerHTML = `
+    <div class="modal-hd" style="padding:1.2rem 1.4rem .8rem;">
+      <div style="flex:1;font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:500;">${T('form_title_edit_link')}</div>
+      <button class="modal-close" onclick="closeOverlay('modal-person-edit-overlay')">✕</button>
+    </div>
+    <div class="modal-bd">
+      <div class="fg"><label>${T('form_lien_type')}</label>
+        <select id="le-type">
+          <option value="conjoint" ${type==='conjoint'?'selected':''}>💍 ${T('lien_conjoint')}</option>
+          <option value="parent_enfant" ${type==='parent_enfant'?'selected':''}>👶 ${T('lien_parent_a')}</option>
+          <option value="fiancailles" ${type==='fiancailles'?'selected':''}>💑 ${T('lien_fiancailles')}</option>
+        </select>
+      </div>
+      <div class="form-grid">
+        <div class="fg"><label>${T('lbl_date_debut')}</label><input type="date" id="le-debut" value="${dateDebut}"></div>
+        <div class="fg"><label>${T('lbl_date_fin')}</label><input type="date" id="le-fin" value="${dateFin}"></div>
+      </div>
+      <div class="fg"><label>${T('lbl_notes')}</label><input id="le-notes" value="${encodeHTML(notes)}" placeholder="${T('ph_notes_lien')}"></div>
+      <div class="form-actions">
+        <button class="btn-primary" onclick="saveLienEdit(${personId},${lienId})">${T('form_save')}</button>
+        <button class="btn-secondary" onclick="closeOverlay('modal-person-edit-overlay')">${T('form_cancel')}</button>
+      </div>
+    </div>`;
+  closeOverlay('modal-person-view-overlay');
+  document.getElementById('modal-person-edit-overlay').classList.add('open');
+}
+
+async function saveLienEdit(personId, lienId) {
+  const body = {
+    type:       document.getElementById('le-type').value,
+    date_debut: document.getElementById('le-debut').value || null,
+    date_fin:   document.getElementById('le-fin').value   || null,
+    notes:      document.getElementById('le-notes').value.trim() || null,
+  };
+  try {
+    await api('PUT', `api/personnes.php?id=${personId}&sub=liens&subid=${lienId}`, body);
+    await loadPeople(); await loadArbres(); renderTree(); renderList();
+    _refreshActiveView();
+    closeOverlay('modal-person-edit-overlay');
+    toast(T('toast_lien_edited'));
     openPerson(personId);
   } catch(e) { toast(e.message, 'error'); }
 }

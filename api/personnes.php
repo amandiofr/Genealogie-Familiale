@@ -33,7 +33,8 @@ if ($method === 'GET' && $id) {
 
     // Liens avec infos de l'autre personne
     $li = $db->prepare("
-        SELECT l.*, pe.prenom, pe.nom, pe.genre, pe.naissance, pe.deces, pe.vivant,
+        SELECT l.id AS lien_id, l.personne_a, l.personne_b, l.type, l.date_debut, l.date_fin, l.notes,
+               pe.prenom, pe.nom, pe.genre, pe.naissance, pe.deces, pe.vivant,
                ph2.chemin_thumb
         FROM liens l
         JOIN personnes pe ON pe.id = IF(l.personne_a=?, l.personne_b, l.personne_a)
@@ -161,6 +162,13 @@ if ($sub === 'liens') {
         } catch (PDOException) {
             json_error('Lien déjà existant', 409);
         }
+    }
+
+    if ($method === 'PUT' && $subid) {
+        $b = body();
+        $db->prepare('UPDATE liens SET type=?,date_debut=?,date_fin=?,notes=? WHERE id=? AND (personne_a=? OR personne_b=?)')
+           ->execute([$b['type'], $b['date_debut'] ?: null, $b['date_fin'] ?: null, $b['notes'] ?: null, $subid, $id, $id]);
+        json_out(['ok' => true]);
     }
 
     if ($method === 'DELETE' && $subid) {
