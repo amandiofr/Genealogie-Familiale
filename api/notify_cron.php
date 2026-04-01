@@ -37,33 +37,37 @@ if ($state['last_sent'] && $state['last_sent'] > date('Y-m-d H:i:s', time() - 86
 }
 
 // ── Récupérer les modifications en attente ────────────────────────────────────
-$logs = $db->query("SELECT * FROM modification_log ORDER BY created_at ASC")->fetchAll();
+$logs = $db->query("SELECT * FROM modification_log ORDER BY created_at DESC")->fetchAll();
 if (empty($logs)) {
     // Plus rien à envoyer, remettre l'état à zéro
     $db->prepare("UPDATE notification_state SET send_after=NULL WHERE id=1")->execute();
     echo "Aucune modification à notifier.\n"; exit;
 }
 
-// ── Récupérer les destinataires ───────────────────────────────────────────────
-$recipients = $db->query("SELECT email FROM notification_emails")->fetchAll(\PDO::FETCH_COLUMN);
+// ── Récupérer les destinataires avec leur token autologin ────────────────────
+$recipients = $db->query("
+    SELECT ne.email, u.autologin_token
+    FROM notification_emails ne
+    LEFT JOIN utilisateurs u ON u.email = ne.email
+")->fetchAll();
 if (empty($recipients)) {
     echo "Aucun destinataire configuré.\n"; exit;
 }
 
 // ── Construire le corps du mail ───────────────────────────────────────────────
 $typesFr = [
-    'personne'  => 'Personne',
-    'evenement' => 'Événement',
-    'anecdote'  => 'Anecdote',
-    'reunion'   => 'Réunion',
-    'lien'      => 'Lien familial',
+    'personne'  => 'Membres',
+    'evenement' => 'Événements',
+    'anecdote'  => 'Anecdotes',
+    'reunion'   => 'Réunions',
+    'lien'      => 'Membres',
 ];
 $typesPt = [
-    'personne'  => 'Pessoa',
-    'evenement' => 'Evento',
-    'anecdote'  => 'Anedota',
-    'reunion'   => 'Reunião',
-    'lien'      => 'Ligação familiar',
+    'personne'  => 'Membros',
+    'evenement' => 'Eventos',
+    'anecdote'  => 'Anedotas',
+    'reunion'   => 'Reuniões',
+    'lien'      => 'Membros',
 ];
 $actionsFr = ['ajout' => 'Ajout', 'modification' => 'Modification', 'suppression' => 'Suppression'];
 $actionsPt = ['ajout' => 'Adição', 'modification' => 'Modificação', 'suppression' => 'Eliminação'];
@@ -76,8 +80,8 @@ foreach ($logs as $log) {
     $typePt   = $typesPt[$log['type']]   ?? $log['type'];
     $actionFr = $actionsFr[$log['action']] ?? $log['action'];
     $actionPt = $actionsPt[$log['action']] ?? $log['action'];
-    $auteur   = $log['auteur'] ? " (par {$log['auteur']})" : '';
-    $auteurPt = $log['auteur'] ? " (por {$log['auteur']})" : '';
+    $auteur   = $log['auteur'] ? ", par {$log['auteur']}" : '';
+    $auteurPt = $log['auteur'] ? ", por {$log['auteur']}" : '';
 
     $linesFr .= "  • [{$date}] {$typeFr} — {$actionFr} : {$log['description']}{$auteur}\n";
     $linesPt .= "  • [{$date}] {$typePt} — {$actionPt} : {$log['description']}{$auteurPt}\n";
@@ -85,14 +89,8 @@ foreach ($logs as $log) {
 
 $nbModifs = count($logs);
 $bodyText = <<<BODY
-🌿 Notre Famille — Mises à jour / Nossa Família — Atualizações
+🌿 Nossa Família — Atualizações / Notre Famille — Mises à jour
 ══════════════════════════════════════════════════════════
-
-── Français ────────────────────────────────────────────
-
-{$nbModifs} modification(s) ont été apportées à l'arbre généalogique :
-
-{$linesFr}
 
 ── Português ───────────────────────────────────────────
 
@@ -100,13 +98,19 @@ $bodyText = <<<BODY
 
 {$linesPt}
 
+── Français ────────────────────────────────────────────
+
+{$nbModifs} modification(s) ont été apportées à l'arbre généalogique :
+
+{$linesFr}
+
 ══════════════════════════════════════════════════════════
+__LINK_PT____LINK_FR__Receberá esta mensagem porque está subscrito às notificações desta árvore genealógica.
 Vous recevez ce message car vous êtes abonné aux notifications de cet arbre généalogique.
-Receberá esta mensagem porque está subscrito às notificações desta árvore genealógica.
 BODY;
 
 // ── Envoyer le mail à chaque destinataire ─────────────────────────────────────
-$subject = '=?UTF-8?B?' . base64_encode('🌿 Mise à jour — Notre Famille / Atualização — Nossa Família') . '?=';
+$subject = '=?UTF-8?B?' . base64_encode('🌿 Atualização — Nossa Família / Mise à jour — Notre Famille') . '?=';
 $headers  = "MIME-Version: 1.0\r\n";
 $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
 $headers .= "Content-Transfer-Encoding: base64\r\n";
@@ -114,14 +118,24 @@ $headers .= "From: Notre Famille <" . NOTIFY_FROM . ">\r\n";
 $headers .= "X-Mailer: PHP/" . phpversion();
 
 $sent = 0;
-foreach ($recipients as $email) {
-    if (mail($email, $subject, base64_encode($bodyText), $headers)) {
+foreach ($recipients as $r) {
+    $linkPt = $linkFr = '';
+    if (!empty($r['autologin_token'])) {
+        $url    = rtrim(SITE_URL, '/') . '/login.html?autologin=' . urlencode($r['autologin_token']);
+        $linkPt = "\n🔗 Aceder diretamente : {$url}\n";
+        $linkFr = "\n🔗 Accès direct : {$url}\n";
+    }
+    $body = str_replace(
+        ['__LINK_PT__', '__LINK_FR__'],
+        [$linkPt, $linkFr],
+        $bodyText
+    );
+    if (mail($r['email'], $subject, base64_encode($body), $headers)) {
         $sent++;
     }
 }
 
-// ── Mettre à jour l'état et vider le journal ──────────────────────────────────
+// ── Mettre à jour l'état ──────────────────────────────────────────────────────
 $db->prepare("UPDATE notification_state SET send_after=NULL, last_sent=NOW() WHERE id=1")->execute();
-$db->query("DELETE FROM modification_log");
 
 echo "Mail envoyé à {$sent}/" . count($recipients) . " destinataire(s). {$nbModifs} modification(s) notifiée(s).\n";
