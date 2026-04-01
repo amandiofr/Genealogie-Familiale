@@ -3,7 +3,7 @@
 // ══════════════════════════════════════════════════════════════
 async function loadReunions(){
   const all=await api('GET','api/reunions.php');
-  const evts=all.filter(e=>!_currentMembers||!e.personne_ids.length||e.personne_ids.some(id=>_currentMembers.has(id)));
+  const evts=all.filter(e=>!_currentMembers||e.personne_ids.some(id=>_currentMembers.has(id)));
   const el=document.getElementById('reunions-grid');
   if(!evts.length){el.innerHTML=`<div class="empty"><div class="empty-icon">🏡</div><div class="empty-title">${T('empty_reunions')}</div><div class="empty-sub">${T('empty_reunions_sub')}</div></div>`;return;}
   evts.sort((a,b)=>{
