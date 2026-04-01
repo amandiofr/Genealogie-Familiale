@@ -397,7 +397,19 @@ function drawTree(allLiens) {
   const wrap = document.getElementById('view-tree').querySelector('.tree-wrap');
   enableDrag(wrap);
   enablePinchZoom(wrap);
-  wrap.scrollLeft = rootCenterX - wrap.clientWidth / 2;
+  requestAnimationFrame(() => {
+    const wrapW = wrap.clientWidth;
+    const needed = Math.max(totalWidth, wrapW);
+    const extraLeft = needed > totalWidth ? Math.floor((needed - totalWidth) / 2) : 0;
+    if (extraLeft > 0) {
+      const svgEl = container.querySelector('svg');
+      if (svgEl) {
+        svgEl.setAttribute('width', needed);
+        svgEl.setAttribute('viewBox', `-${extraLeft} 0 ${needed} ${totalHeight}`);
+      }
+    }
+    wrap.scrollLeft = (rootCenterX + extraLeft) - wrapW / 2;
+  });
 }
 
 let _pinchAbort = null;
