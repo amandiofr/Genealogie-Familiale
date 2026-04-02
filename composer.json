@@ -1,0 +1,12 @@
+{
+    "name": "genealogie/familiale",
+    "authors": [
+        {
+            "name": "Amandio Lopes",
+            "email": "amandio.lopes@al-enterprise.com"
+        }
+    ],
+    "require-dev": {
+        "phpunit/phpunit": "^12.5"
+    }
+}

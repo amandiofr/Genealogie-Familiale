@@ -1,0 +1,25 @@
+{
+  "name": "genealogie-familiale",
+  "version": "1.0.0",
+  "description": "Stack : **PHP 8+ · MySQL · HTML/CSS/JS vanilla**  \r Aucune dépendance npm, aucune compilation, aucune commande serveur.",
+  "main": "index.js",
+  "scripts": {
+    "test": "vitest",
+    "test:run": "vitest run"
+  },
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/amandiofr/Genealogie-Familiale.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/amandiofr/Genealogie-Familiale/issues"
+  },
+  "homepage": "https://github.com/amandiofr/Genealogie-Familiale#readme",
+  "devDependencies": {
+    "vitest": "^4.1.2"
+  }
+}

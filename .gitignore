@@ -1,47 +1,49 @@
-🔐 Fichiers sensibles
+# Fichiers sensibles
+.env
+.env.local
+.env.*.local
 
-.env .env.local .env.*.local
+# Config locales
+config.local.php
+config.php
 
-⚙️ Config locales
+# Dépendances
+/vendor/
+/node_modules/
 
-config.local.php config.php
+# Logs et cache
+*.log
+/logs/
+/cache/
+/tmp/
 
-📦 Dépendances
+# Fichiers système
+.DS_Store
+Thumbs.db
 
-/vendor/ /node_modules/
+# IDE / éditeurs
+.vscode/
+.idea/
 
-🧪 Logs et cache
+# Git
+*.swp
+*.swo
 
-*.log /logs/ /cache/ /tmp/
-
-🖥️ Fichiers système
-
-.DS_Store Thumbs.db
-
-🧰 IDE / éditeurs
-
-.vscode/ .idea/
-
-🔄 Git
-
-.swp .swo
-
-🧪 Tests / coverage
-
+# Tests / coverage
 /coverage/
 
-🚀 Build / export
+# Build / export
+/dist/
+/build/
 
-/dist/ /build/
+# Clés / certificats
+*.pem
+*.key
+*.crt
 
-🔑 Clés / certificats
-
-.pem .key *.crt
-
-🐘 PHPStorm spécifique
-
+# PHPStorm
 /.phpunit.result.cache
 
-📁 Uploads utilisateurs (ignorer tout sauf .htaccess)
-
-/uploads/* !/uploads/.htaccess
+# Uploads utilisateurs
+/uploads/*
+!/uploads/.htaccess
