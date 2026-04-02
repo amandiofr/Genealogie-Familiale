@@ -159,7 +159,7 @@ async function openPerson(id) {
     html+=`<div style="display:flex;gap:8px;margin-top:1rem;flex-wrap:wrap;">
       <button class="btn-secondary" style="flex:1;min-width:0;font-size:.78rem;padding:6px 14px;" onclick="showPersonForm(${id});closeOverlay('modal-person-view-overlay')">${T('btn_edit')}</button>
       <button class="btn-secondary" style="flex:1;min-width:0;font-size:.78rem;padding:6px 14px;" onclick="showPhotoUpload(${id})">${T('btn_photos')}</button>
-      <button class="btn-danger" style="font-size:.78rem;padding:6px 11px;" onclick="deletePerson(${id})">🗑</button>
+      ${currentUser.role==='admin' ? `<button class="btn-danger" style="font-size:.78rem;padding:6px 11px;" onclick="deletePerson(${id})">🗑</button>` : ''}
     </div>`;
   }
   html+=`</div>`;

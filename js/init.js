@@ -89,6 +89,7 @@ async function init() {
     // Masquer bouton ajouter pour lecteurs
     if (r.user.role === 'lecteur') {
       document.getElementById('btn-add-person').style.display='none';
+      document.getElementById('btn-add-person-tree').style.display='none';
       document.getElementById('btn-add-event').style.display='none';
       document.getElementById('btn-add-reunion').style.display='none';
       document.getElementById('btn-add-anecdote').style.display='none';
@@ -173,6 +174,7 @@ function showView(name) {
   if (navBtn) navBtn.classList.add('active');
   if (name.startsWith('admin-')) document.getElementById('nav-admin').classList.add('active');
   // Charger les données
+  if (name==='tree')             { centerTree(); }
   if (name==='list')             { renderList(); }
   if (name==='events')           { loadEvents(); }
   if (name==='reunions')         { loadReunions(); }

@@ -298,7 +298,7 @@ function drawTree(allLiens) {
 
 
   // ── 4. Construire le SVG
-  let svg = `<svg id="tree-svg" width="${totalWidth}" height="${totalHeight}" viewBox="0 0 ${totalWidth} ${totalHeight}" xmlns="http://www.w3.org/2000/svg">`;
+  let svg = `<svg id="tree-svg" width="${totalWidth}" height="${totalHeight}" viewBox="0 0 ${totalWidth} ${totalHeight}" data-root-cx="${rootCenterX}" xmlns="http://www.w3.org/2000/svg">`;
 
   const lineColor   = 'rgba(100,140,160,0.6)';
   const coupleColor = 'rgba(180,140,90,0.9)';
@@ -397,18 +397,27 @@ function drawTree(allLiens) {
   const wrap = document.getElementById('view-tree').querySelector('.tree-wrap');
   enableDrag(wrap);
   enablePinchZoom(wrap);
-  requestAnimationFrame(() => {
-    const wrapW = wrap.clientWidth;
-    if (totalWidth < wrapW) {
-      container.style.minWidth = '';
-      container.style.display = 'flex';
-      container.style.justifyContent = 'center';
-    } else {
-      container.style.display = '';
-      container.style.justifyContent = '';
-      wrap.scrollLeft = rootCenterX - wrapW / 2;
-    }
-  });
+  requestAnimationFrame(() => centerTree());
+}
+
+function centerTree() {
+  const wrap = document.getElementById('view-tree').querySelector('.tree-wrap');
+  const container = document.getElementById('tree-container');
+  if (!wrap || !container) return;
+  const wrapW = wrap.clientWidth;
+  if (!wrapW) return; // vue encore cachée, sera rappelé à showView
+  const svgEl = container.querySelector('svg');
+  const totalWidth = svgEl ? parseFloat(svgEl.getAttribute('width') || 0) : 0;
+  const rootCenterX = svgEl ? parseFloat(svgEl.getAttribute('data-root-cx') || totalWidth / 2) : 0;
+  if (totalWidth < wrapW) {
+    container.style.minWidth = '';
+    container.style.display = 'flex';
+    container.style.justifyContent = 'center';
+  } else {
+    container.style.display = '';
+    container.style.justifyContent = '';
+    wrap.scrollLeft = rootCenterX - wrapW / 2;
+  }
 }
 
 let _pinchAbort = null;

@@ -396,6 +396,8 @@ function applyLang() {
   // Add buttons
   const btnP = document.getElementById('btn-add-person');
   if (btnP) btnP.textContent = T('add_person');
+  const btnPT = document.getElementById('btn-add-person-tree');
+  if (btnPT) btnPT.textContent = T('add_person');
   const btnE = document.getElementById('btn-add-event');
   if (btnE) btnE.textContent = T('add_event');
   const btnR = document.getElementById('btn-add-reunion');
