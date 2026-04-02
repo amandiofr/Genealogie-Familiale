@@ -115,6 +115,69 @@ async function importFile(type){
 }
 
 // ══════════════════════════════════════════════════════════════
+//  FICHIERS ORPHELINS
+// ══════════════════════════════════════════════════════════════
+async function scanOrphanFiles() {
+  const btn = document.getElementById('btn-scan-orphans');
+  const el  = document.getElementById('orphan-files-result');
+  btn.disabled = true;
+  el.innerHTML = `<p style="font-size:.8rem;color:var(--ink3);">${T('admin_orphans_scanning')}</p>`;
+  try {
+    const d = await api('GET', 'api/admin.php?action=orphan_files');
+    if (!d.orphans.length) {
+      el.innerHTML = `<p style="font-size:.8rem;color:var(--ink3);font-style:italic;">${T('admin_orphans_none')}</p>`;
+      return;
+    }
+    const fmt = n => n < 1024 ? n + ' o' : n < 1048576 ? Math.round(n / 1024) + ' Ko' : (n / 1048576).toFixed(1) + ' Mo';
+    el.innerHTML = `
+      <p style="font-size:.8rem;margin-bottom:.7rem;">${d.orphans.length} fichier(s) — ${fmt(d.total_size)} au total</p>
+      <div id="orphan-list" style="display:flex;flex-direction:column;gap:.4rem;margin-bottom:.8rem;">
+        ${d.orphans.map(f => `
+          <div class="user-row orphan-row" data-path="${f.path}">
+            <img src="${f.path}" loading="lazy" style="width:40px;height:40px;object-fit:cover;border-radius:4px;flex-shrink:0;" onerror="this.style.display='none'">
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:.8rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${f.path.split('/').pop()}</div>
+              <div style="font-size:.72rem;color:var(--ink3);">${fmt(f.size)}</div>
+            </div>
+            <button class="btn-sm orphan-del-btn" data-path="${f.path}" title="Supprimer">🗑</button>
+          </div>`).join('')}
+      </div>
+      <button class="btn-secondary" id="btn-delete-all-orphans" style="font-size:.78rem;color:#c44;border-color:#c44;">
+        ${T('admin_orphans_delete_all')} (${fmt(d.total_size)})
+      </button>`;
+
+    document.getElementById('orphan-list').addEventListener('click', async e => {
+      const btn = e.target.closest('.orphan-del-btn');
+      if (!btn) return;
+      await _deleteOrphan(btn.dataset.path);
+      btn.closest('.orphan-row').remove();
+      if (!document.querySelector('.orphan-row')) el.innerHTML = `<p style="font-size:.8rem;color:var(--ink3);font-style:italic;">Aucun fichier orphelin.</p>`;
+    });
+
+    document.getElementById('btn-delete-all-orphans').addEventListener('click', async () => {
+      if (!confirm(T('admin_orphans_confirm'))) return;
+      const rows = [...document.querySelectorAll('.orphan-row')];
+      for (const row of rows) {
+        try { await _deleteOrphan(row.dataset.path); row.remove(); } catch { /* continue */ }
+      }
+      el.innerHTML = `<p style="font-size:.8rem;color:var(--ink3);font-style:italic;">${T('admin_orphans_none')}</p>`;
+      toast(T('admin_orphans_deleted'));
+    });
+
+  } catch(e) {
+    el.innerHTML = '';
+    toast(e.message, 'error');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function _deleteOrphan(path) {
+  await api('DELETE', 'api/admin.php?action=delete_file', { path });
+  toast('Supprimé : ' + path.split('/').pop());
+}
+
+// ══════════════════════════════════════════════════════════════
 //  MISC
 // ══════════════════════════════════════════════════════════════
 function closeOverlay(id){ document.getElementById(id).classList.remove('open'); }
