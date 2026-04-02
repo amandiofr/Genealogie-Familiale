@@ -4,8 +4,8 @@
   "description": "Stack : **PHP 8+ · MySQL · HTML/CSS/JS vanilla**  \r Aucune dépendance npm, aucune compilation, aucune commande serveur.",
   "main": "index.js",
   "scripts": {
-    "test": "vitest",
-    "test:run": "vitest run"
+    "test": "vitest --config tests/vitest.config.js",
+    "test:run": "vitest run --config tests/vitest.config.js"
   },
   "type": "module",
   "repository": {

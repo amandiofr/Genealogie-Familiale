@@ -10,6 +10,6 @@
         "phpunit/phpunit": "^12.5"
     },
     "scripts": {
-        "test": "phpunit"
+        "test": "phpunit --configuration tests/phpunit.xml"
     }
 }
