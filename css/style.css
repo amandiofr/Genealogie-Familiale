@@ -44,7 +44,7 @@ nav button.active{background:var(--ink);color:var(--bg);}
 .p-card:hover{box-shadow:var(--shadow-lg);border-color:var(--accent2);}
 .p-card.male{border-top:3px solid var(--male-b);}
 .p-card.female{border-top:3px solid var(--female-b);}
-.p-card.deceased{opacity:.6;}
+.p-card.deceased{opacity:1;}
 .p-avatar{width:36px;height:36px;border-radius:50%;margin:0 auto 5px;display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:500;font-family:'Cormorant Garamond',serif;overflow:hidden;}
 .p-avatar img{width:100%;height:100%;object-fit:cover;}
 .p-card.male  .p-avatar{background:var(--male);color:var(--male-t);}
@@ -236,6 +236,9 @@ nav button.active{background:var(--ink);color:var(--bg);}
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 20px;border-radius:8px;font-size:.82rem;z-index:400;opacity:0;transition:opacity .2s;pointer-events:none;}
 .toast.show{opacity:1;}
 
+@media(pointer:coarse){
+  .hide-mobile{display:none;}
+}
 @media(max-width:600px){
   .form-grid{grid-template-columns:1fr;}
   .full{grid-column:1;}
