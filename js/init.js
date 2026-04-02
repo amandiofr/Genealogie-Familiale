@@ -43,14 +43,14 @@ async function loadArbres() {
   // Charger les liens pour pouvoir inclure les conjoints dans le filtre
   try { const r = await fetch('api/liens.php'); if (r.ok) _allLiens = await r.json(); } catch {}
   const saved = localStorage.getItem('genealogie_arbre');
-  _currentArbreId = (_arbres.find(a => a.id === saved) ? saved : null) || _arbres[0]?.id || null;
+  _currentArbreId = (saved === 'all' || _arbres.find(a => a.id === saved)) ? saved : (_arbres[0]?.id || null);
   _applyArbre();
   _renderArbreCombo();
 }
 
 function _applyArbre() {
   _directMembersSet = null;
-  if (!_currentArbreId || !_arbres.length) { _currentMembers = null; return; }
+  if (!_currentArbreId || _currentArbreId === 'all' || !_arbres.length) { _currentMembers = null; return; }
   const arbre = _arbres.find(a => a.id === _currentArbreId);
   _currentMembers = arbre ? new Set(arbre.membres.map(Number)) : null;
   if (typeof _expandCurrentMembersWithSpouses === 'function') _expandCurrentMembersWithSpouses();
@@ -62,8 +62,8 @@ function _renderArbreCombo() {
   sel.innerHTML = _arbres.map(a => {
     const nom = a.prenom_b ? `${a.prenom_a} ${T('lbl_et')} ${a.prenom_b}` : a.prenom_a;
     return `<option value="${encodeHTML(a.id)}">${encodeHTML(nom)}</option>`;
-  }).join('');
-  sel.value = _currentArbreId;
+  }).join('') + `<option value="all">${T('arbre_all')}</option>`;
+  sel.value = _currentArbreId ?? 'all';
 }
 
 function encodeHTML(s) { return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }

@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS personnes (
   lieu_deces   VARCHAR(200) DEFAULT NULL,
   vivant       TINYINT(1)   NOT NULL DEFAULT 1,
   generation   SMALLINT     NOT NULL DEFAULT 0,
+  arbre_ordre  SMALLINT     DEFAULT NULL,
   profession   VARCHAR(200) DEFAULT NULL,
   biographie   TEXT         DEFAULT NULL,
   photo_id     INT UNSIGNED DEFAULT NULL,

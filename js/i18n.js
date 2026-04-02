@@ -169,7 +169,7 @@ const LANGS = {
     author_placeholder:'Prénom',
     autologin_copy:'Générer un lien de connexion', autologin_copied:'Lien copié dans le presse-papiers',
     // Autos
-    lbl_et:'et',
+    lbl_et:'et', arbre_all:'Tous les arbres',
     nav_autos:'Autos', h_autos:'Autos de famille', add_auto:'+ Ajouter',
     empty_autos:'Aucune voiture', empty_autos_sub:'Ajoutez la première voiture de la famille',
     form_title_new_auto:'Nouvelle voiture',
@@ -326,7 +326,7 @@ const LANGS = {
     author_placeholder:'Nome',
     autologin_copy:'Gerar link de acesso', autologin_copied:'Link copiado para a área de transferência',
     // Autos
-    lbl_et:'e',
+    lbl_et:'e', arbre_all:'Todas as árvores',
     nav_autos:'Autos', h_autos:'Carros da família', add_auto:'+ Adicionar',
     empty_autos:'Nenhum carro', empty_autos_sub:'Adicione o primeiro carro da família',
     form_title_new_auto:'Novo carro',

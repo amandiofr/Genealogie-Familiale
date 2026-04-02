@@ -64,6 +64,8 @@ function drawTree(allLiens) {
   // Cela garantit que les enfants d'un même couple sont toujours contigus.
 
   const units = {};
+  // parentId → [childId, ...] dans l'ordre de rendu (pour le drag-reorder)
+  const _siblings = {};
 
   function unitWidth(u) {
     return u.type === 'couple' ? cW * 2 + cCoupleGap : cW;
@@ -117,12 +119,19 @@ function drawTree(allLiens) {
           )
         );
 
-        // Trier par date de naissance (id comme proxy si date absente)
-        children.sort((a, b) =>
-          (a.naissance || '') < (b.naissance || '') ? -1
-          : (a.naissance || '') > (b.naissance || '') ? 1
-          : a.id - b.id
-        );
+        // Trier par arbre_ordre si défini, sinon par date de naissance
+        children.sort((a, b) => {
+          const ao = a.arbre_ordre, bo = b.arbre_ordre;
+          if (ao != null && bo != null) return ao - bo;
+          if (ao != null) return -1;
+          if (bo != null) return 1;
+          return (a.naissance || '') < (b.naissance || '') ? -1
+            : (a.naissance || '') > (b.naissance || '') ? 1
+            : a.id - b.id;
+        });
+        // Mémoriser la fratrie pour le drag-reorder
+        const parentKey = parentUnit.people.map(p => p.id).sort().join('-');
+        _siblings[parentKey] = children.map(c => c.id);
 
         children.forEach(child => {
           if (used.has(child.id)) return;
@@ -329,8 +338,8 @@ function drawTree(allLiens) {
     children.sort((a,b) => a.cx - b.cx);
     const midY = srcY + cGapY * 0.73;
 
-    const minX = children[0].cx;
-    const maxX = children[children.length-1].cx;
+    const minX = Math.min(srcX, children[0].cx);
+    const maxX = Math.max(srcX, children[children.length-1].cx);
     svg += `<line x1="${r(srcX)}" y1="${r(srcY)}" x2="${r(srcX)}" y2="${r(midY)}" stroke="${lineColor}" stroke-width="1.5"/>`;
     svg += `<line x1="${r(minX)}" y1="${r(midY)}" x2="${r(maxX)}" y2="${r(midY)}" stroke="${lineColor}" stroke-width="1.5"/>`;
     children.forEach(c => {
@@ -338,17 +347,24 @@ function drawTree(allLiens) {
     });
   });
 
-  // ── 4b. Traits des couples
-  sortedGens.forEach(gen => {
-    (units[gen]||[]).forEach(u => {
-      if (u.type !== 'couple') return;
-      const x1 = cardPositions[u.people[0].id].x + vHalf * 2;
-      const x2 = cardPositions[u.people[1].id].x;
-      const avatarCenter = 3 + 18;
-      const y  = u.y + avatarCenter;
-      svg += `<line x1="${r(x1)}" y1="${r(y)}" x2="${r(x2)}" y2="${r(y)}" stroke="${coupleColor}" stroke-width="1.5"/>`;
-      svg += `<text x="${r((x1+x2)/2)}" y="${r(y+4)}" text-anchor="middle" font-size="10" fill="${coupleColor}" font-family="serif">♥</text>`;
-    });
+  // ── 4b. Traits des couples — basé sur les liens, pas les unités
+  // (couvre aussi les conjoints en solo qui viennent d'arbres différents)
+  const drawnCouple = new Set();
+  conjointLinks.forEach(l => {
+    const posA = cardPositions[l.personne_a];
+    const posB = cardPositions[l.personne_b];
+    if (!posA || !posB) return;
+    const key = [l.personne_a, l.personne_b].sort().join('-');
+    if (drawnCouple.has(key)) return;
+    drawnCouple.add(key);
+    const avatarCenter = 3 + 18;
+    const left  = posA.x < posB.x ? posA : posB;
+    const right = posA.x < posB.x ? posB : posA;
+    const x1 = left.x + vHalf * 2;
+    const x2 = right.x;
+    const y  = left.y + avatarCenter;
+    svg += `<line x1="${r(x1)}" y1="${r(y)}" x2="${r(x2)}" y2="${r(y)}" stroke="${coupleColor}" stroke-width="1.5"/>`;
+    svg += `<text x="${r((x1+x2)/2)}" y="${r(y+4)}" text-anchor="middle" font-size="10" fill="${coupleColor}" font-family="serif">♥</text>`;
   });
 
   // ── 4c. Étiquettes de génération
@@ -368,9 +384,10 @@ function drawTree(allLiens) {
     const yrD  = p.deces ? p.deces.substring(0,4) : '';
     const neLabel = p.genre==='female' ? T('ne_f') : T('ne_m');
     const dates = yrD ? `${yr||'?'}–${yrD}` : yr ? `${neLabel} ${yr}` : `${neLabel} ?`;
+    const dragAttr = currentUser?.role === 'admin' ? `data-drag-pid="${p.id}" style="cursor:grab"` : '';
     const av = p.chemin_thumb
-      ? `<div class="p-avatar ${p.genre}"><img src="${imgUrl(p.chemin_thumb)}" alt=""></div>`
-      : `<div class="p-avatar ${p.genre}">${initials(p)}</div>`;
+      ? `<div class="p-avatar ${p.genre}" ${dragAttr}><img src="${imgUrl(p.chemin_thumb)}" alt="" style="pointer-events:none"></div>`
+      : `<div class="p-avatar ${p.genre}" ${dragAttr}>${initials(p)}</div>`;
     const maidenLabel = p.genre==='female' ? T('nee_label') : T('ne_label');
     const maiden = p.nom_naiss ? `<div class="p-maiden">${maidenLabel} ${p.nom_naiss}</div>` : '';
 
@@ -389,6 +406,7 @@ function drawTree(allLiens) {
   const wrap = document.getElementById('view-tree').querySelector('.tree-wrap');
   enableDrag(wrap);
   enablePinchZoom(wrap);
+  if (currentUser?.role === 'admin') enableTreeReorder(container, _siblings);
   requestAnimationFrame(() => centerTree());
 }
 
@@ -410,6 +428,91 @@ function centerTree() {
     container.style.justifyContent = '';
     wrap.scrollLeft = rootCenterX - wrapW / 2;
   }
+}
+
+function enableTreeReorder(container, siblings) {
+  // siblings: { 'parentKey': [childId, ...] }
+  // On travaille sur les foreignObject dans le SVG
+  const svg = container.querySelector('svg');
+  if (!svg) return;
+
+  let dragState = null; // { pid, fo, origX, origY, startClientX, siblingKey, siblingIds }
+
+  container.addEventListener('pointerdown', e => {
+    const avatar = e.target.closest('[data-drag-pid]');
+    if (!avatar) return;
+
+    // Trouver la foreignObject parente
+    const fo = avatar.closest('foreignObject');
+    if (!fo) return;
+
+    e.stopPropagation(); // empêcher le drag de scroll
+    e.preventDefault();
+
+    const pid = +avatar.dataset.dragPid;
+    const origX = parseFloat(fo.getAttribute('x'));
+    const origY = parseFloat(fo.getAttribute('y'));
+
+    // Trouver la fratrie de cette personne
+    let siblingKey = null, siblingIds = null;
+    for (const [key, ids] of Object.entries(siblings)) {
+      if (ids.includes(pid)) { siblingKey = key; siblingIds = ids; break; }
+    }
+    if (!siblingIds) return; // racine ou enfant unique, pas de réordonnancement
+
+    fo.style.opacity = '0.6';
+    fo.style.zIndex = '999';
+    avatar.style.cursor = 'grabbing';
+
+    dragState = { pid, fo, origX, origY, startClientX: e.clientX, siblingKey, siblingIds };
+    container.setPointerCapture(e.pointerId);
+  });
+
+  container.addEventListener('pointermove', e => {
+    if (!dragState) return;
+    const dx = e.clientX - dragState.startClientX;
+    dragState.fo.setAttribute('x', dragState.origX + dx);
+  });
+
+  container.addEventListener('pointerup', async e => {
+    if (!dragState) return;
+    const { pid, fo, origX, startClientX, siblingKey, siblingIds } = dragState;
+    dragState = null;
+
+    fo.style.opacity = '';
+    // Position X finale du fo draggé
+    const foX = origX + (e.clientX - startClientX);
+
+    // Map pid → foreignObject pour les frères
+    const foMap = {};
+    svg.querySelectorAll('foreignObject').forEach(f => {
+      const av = f.querySelector('[data-drag-pid]');
+      if (av) foMap[+av.dataset.dragPid] = f;
+    });
+
+    // Construire la map pid→x pour les frères (en utilisant leur position actuelle sauf le draggé)
+    const siblingsX = {};
+    siblingIds.forEach(sid => {
+      siblingsX[sid] = sid === pid ? foX : parseFloat(foMap[sid]?.getAttribute('x') ?? 0);
+    });
+
+    // Recalculer l'ordre par position X
+    const newOrder = [...siblingIds].sort((a, b) => (siblingsX[a] ?? 0) - (siblingsX[b] ?? 0));
+
+    // Si l'ordre n'a pas changé, ne rien faire
+    if (newOrder.join() === siblingIds.join()) { renderTree(); return; }
+
+    // Envoyer à l'API
+    try {
+      await api('PUT', 'api/personnes.php?action=reorder', { order: newOrder });
+      // Mettre à jour l'arbre_ordre local dans people[]
+      newOrder.forEach((id, idx) => {
+        const p = people.find(p => p.id == id);
+        if (p) p.arbre_ordre = idx;
+      });
+    } catch(err) { toast(err.message, 'error'); }
+    renderTree();
+  });
 }
 
 let _pinchAbort = null;

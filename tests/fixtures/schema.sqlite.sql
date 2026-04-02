@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS personnes (
   lieu_deces   TEXT DEFAULT NULL,
   vivant       INTEGER NOT NULL DEFAULT 1,
   generation   INTEGER NOT NULL DEFAULT 0,
+  arbre_ordre  INTEGER DEFAULT NULL,
   profession   TEXT DEFAULT NULL,
   biographie   TEXT DEFAULT NULL,
   photo_id     INTEGER DEFAULT NULL,

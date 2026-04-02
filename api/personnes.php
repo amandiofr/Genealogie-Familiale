@@ -135,6 +135,19 @@ if ($method === 'PUT' && $id && !$sub) {
     json_out(['ok' => true]);
 }
 
+// ── PUT reorder fratrie ──────────────────────────────────────────────────────
+if ($method === 'PUT' && ($_GET['action'] ?? '') === 'reorder') {
+    require_role('admin');
+    $b = body();
+    $order = $b['order'] ?? [];
+    if (!is_array($order) || empty($order)) json_error('order requis');
+    $st = $db->prepare('UPDATE personnes SET arbre_ordre=? WHERE id=?');
+    foreach ($order as $idx => $pid) {
+        $st->execute([$idx, (int)$pid]);
+    }
+    json_out(['ok' => true]);
+}
+
 // ── DELETE supprimer ─────────────────────────────────────────────────────────
 if ($method === 'DELETE' && $id && !$sub) {
     require_role('admin');
