@@ -384,7 +384,7 @@ function drawTree(allLiens) {
     const yrD  = p.deces ? p.deces.substring(0,4) : '';
     const neLabel = p.genre==='female' ? T('ne_f') : T('ne_m');
     const dates = yrD ? `${yr||'?'}–${yrD}` : yr ? `${neLabel} ${yr}` : `${neLabel} ?`;
-    const dragAttr = currentUser?.role === 'admin' ? `data-drag-pid="${p.id}" style="cursor:grab"` : '';
+    const dragAttr = currentUser?.role === 'admin' ? `data-drag-pid="${p.id}"` : '';
     const av = p.chemin_thumb
       ? `<div class="p-avatar ${p.genre}" ${dragAttr}><img src="${imgUrl(p.chemin_thumb)}" alt="" style="pointer-events:none"></div>`
       : `<div class="p-avatar ${p.genre}" ${dragAttr}>${initials(p)}</div>`;
@@ -436,50 +436,49 @@ function enableTreeReorder(container, siblings) {
   const svg = container.querySelector('svg');
   if (!svg) return;
 
-  let dragState = null; // { pid, fo, origX, origY, startClientX, siblingKey, siblingIds }
+  const DRAG_THRESHOLD = 6; // px avant de considérer que c'est un vrai drag
+  let dragState = null; // { pid, fo, avatar, origX, startClientX, siblingKey, siblingIds, dragging }
 
   container.addEventListener('pointerdown', e => {
     const avatar = e.target.closest('[data-drag-pid]');
     if (!avatar) return;
-
-    // Trouver la foreignObject parente
     const fo = avatar.closest('foreignObject');
     if (!fo) return;
 
-    e.stopPropagation(); // empêcher le drag de scroll
-    e.preventDefault();
-
     const pid = +avatar.dataset.dragPid;
-    const origX = parseFloat(fo.getAttribute('x'));
-    const origY = parseFloat(fo.getAttribute('y'));
-
-    // Trouver la fratrie de cette personne
     let siblingKey = null, siblingIds = null;
     for (const [key, ids] of Object.entries(siblings)) {
       if (ids.includes(pid)) { siblingKey = key; siblingIds = ids; break; }
     }
-    if (!siblingIds) return; // racine ou enfant unique, pas de réordonnancement
+    if (!siblingIds) return;
 
-    fo.style.opacity = '0.6';
-    fo.style.zIndex = '999';
-    avatar.style.cursor = 'grabbing';
-
-    dragState = { pid, fo, origX, origY, startClientX: e.clientX, siblingKey, siblingIds };
-    container.setPointerCapture(e.pointerId);
+    dragState = { pid, fo, avatar, origX: parseFloat(fo.getAttribute('x')), startClientX: e.clientX, pointerId: e.pointerId, siblingKey, siblingIds, dragging: false };
   });
 
   container.addEventListener('pointermove', e => {
     if (!dragState) return;
     const dx = e.clientX - dragState.startClientX;
+    if (!dragState.dragging) {
+      if (Math.abs(dx) < DRAG_THRESHOLD) return;
+      // Seuil dépassé : démarrer le drag
+      dragState.dragging = true;
+      container.setPointerCapture(dragState.pointerId);
+      e.stopPropagation();
+      e.preventDefault();
+      dragState.fo.style.opacity = '0.6';
+      dragState.avatar.style.cursor = 'grabbing';
+    }
     dragState.fo.setAttribute('x', dragState.origX + dx);
   });
 
   container.addEventListener('pointerup', async e => {
     if (!dragState) return;
-    const { pid, fo, origX, startClientX, siblingKey, siblingIds } = dragState;
+    const { pid, fo, origX, startClientX, siblingKey, siblingIds, dragging } = dragState;
     dragState = null;
 
     fo.style.opacity = '';
+    fo.setAttribute('x', origX); // reset visuel immédiat
+    if (!dragging) return; // simple clic, laisser le onclick de la carte se déclencher
     // Position X finale du fo draggé
     const foX = origX + (e.clientX - startClientX);
 
