@@ -31,6 +31,7 @@ Thumbs.db
 
 # Tests / coverage
 /coverage/
+tests/fixtures/seed.sql
 
 # Build / export
 /dist/
