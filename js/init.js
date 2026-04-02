@@ -85,7 +85,7 @@ async function init() {
     const r = await api('GET','api/auth.php?action=me');
     currentUser = r.user;
     document.getElementById('user-badge').textContent = r.user.nom + ' (' + T('role_' + r.user.role) + ')';
-    if (r.user.role === 'admin') document.getElementById('nav-admin').style.display = '';
+    if (r.user.role === 'admin') document.getElementById('nav-admin-wrap').style.display = '';
     // Masquer bouton ajouter pour lecteurs
     if (r.user.role === 'lecteur') {
       document.getElementById('btn-add-person').style.display='none';
@@ -98,9 +98,20 @@ async function init() {
 
   // nav — attaché avant tout appel potentiellement plantant
   document.getElementById('nav').addEventListener('click', e => {
+    // Dropdown admin toggle
+    if (e.target.closest('#nav-admin') && !e.target.closest('[data-view]')) {
+      document.getElementById('admin-dropdown').classList.toggle('open');
+      return;
+    }
     const btn = e.target.closest('button[data-view]');
     if (!btn) return;
-    showView(btn.dataset.view, btn);
+    showView(btn.dataset.view);
+  });
+  // Fermer le dropdown en cliquant ailleurs
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.admin-nav-wrap')) {
+      document.getElementById('admin-dropdown')?.classList.remove('open');
+    }
   });
   document.getElementById('btn-add-person').onclick   = () => showPersonForm(null);
   document.getElementById('btn-add-event').onclick    = () => showEventForm(null);
@@ -124,11 +135,11 @@ async function init() {
 
   // Deep linking via URL hash
   const hash = window.location.hash.slice(1);
-  const validViews = ['tree', 'list', 'events', 'reunions', 'anecdotes', 'autos', 'timeline', 'admin'];
+  const adminViews = ['admin-comptes','admin-export','admin-import','admin-notif','admin-password','admin-orphans','admin-logs'];
+  const validViews = ['tree','list','events','reunions','anecdotes','autos','timeline',...adminViews];
   if (hash && validViews.includes(hash)) {
-    if (hash !== 'admin' || currentUser.role === 'admin') {
-      const btn = document.querySelector(`nav button[data-view="${hash}"]`);
-      showView(hash, btn);
+    if (!adminViews.includes(hash) || currentUser.role === 'admin') {
+      showView(hash);
     }
   }
 }
@@ -151,19 +162,26 @@ async function api(method, url, body) {
 // ══════════════════════════════════════════════════════════════
 //  VIEWS
 // ══════════════════════════════════════════════════════════════
-function showView(name, btn) {
+function showView(name) {
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
   document.getElementById('view-'+name).classList.add('active');
-  if (btn) btn.classList.add('active');
+  document.getElementById('admin-dropdown')?.classList.remove('open');
   history.replaceState(null, '', '#' + name);
-  if (name==='list')      { renderList(); }
-  if (name==='events')    { loadEvents(); }
-  if (name==='reunions')  { loadReunions(); }
-  if (name==='anecdotes') { loadAnecdotes(); }
-  if (name==='autos')     { loadAutos(); }
-  if (name==='timeline')  { loadTimeline(); }
-  if (name==='admin')     { loadUsers(); loadNotifEmails(); }
+  // Marquer le bouton nav actif
+  const navBtn = document.querySelector(`nav button[data-view="${name}"]`);
+  if (navBtn) navBtn.classList.add('active');
+  if (name.startsWith('admin-')) document.getElementById('nav-admin').classList.add('active');
+  // Charger les données
+  if (name==='list')             { renderList(); }
+  if (name==='events')           { loadEvents(); }
+  if (name==='reunions')         { loadReunions(); }
+  if (name==='anecdotes')        { loadAnecdotes(); }
+  if (name==='autos')            { loadAutos(); }
+  if (name==='timeline')         { loadTimeline(); }
+  if (name==='admin-comptes')    { loadUsers(); }
+  if (name==='admin-notif')      { loadNotifEmails(); }
+  if (name==='admin-logs')       { loadModificationLog(); }
 }
 
 // ══════════════════════════════════════════════════════════════

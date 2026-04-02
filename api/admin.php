@@ -57,4 +57,13 @@ if ($action === 'delete_file' && method_is('DELETE')) {
     json_out(['deleted' => $path]);
 }
 
+// ── GET logs ─────────────────────────────────────────────────────────────────
+if ($action === 'logs' && method_is('GET')) {
+    $limit  = min((int)($_GET['limit']  ?? 50), 200);
+    $offset = max((int)($_GET['offset'] ?? 0),  0);
+    $st = pdo()->prepare('SELECT * FROM modification_log ORDER BY created_at DESC LIMIT ? OFFSET ?');
+    $st->execute([$limit, $offset]);
+    json_out($st->fetchAll());
+}
+
 json_error('Action inconnue', 400);

@@ -115,6 +115,43 @@ async function importFile(type){
 }
 
 // ══════════════════════════════════════════════════════════════
+//  LOGS DES MODIFICATIONS
+// ══════════════════════════════════════════════════════════════
+async function loadModificationLog(offset = 0) {
+  const el = document.getElementById('mod-log-result');
+  if (offset === 0) el.innerHTML = '<p style="font-size:.8rem;color:var(--ink3);">Chargement…</p>';
+  try {
+    const logs = await api('GET', `api/admin.php?action=logs&limit=50&offset=${offset}`);
+    if (offset === 0 && !logs.length) {
+      el.innerHTML = `<p style="font-size:.8rem;color:var(--ink3);font-style:italic;">${T('admin_logs_empty')}</p>`;
+      return;
+    }
+    const actionColor = { ajout:'#2a7a2a', modification:'#1a6eb5', suppression:'#c44' };
+    const rows = logs.map(l => `
+      <div class="user-row" style="gap:.6rem;align-items:flex-start;">
+        <div style="flex-shrink:0;width:120px;">
+          <div style="font-size:.72rem;color:var(--ink3);">${l.created_at?.replace('T',' ').slice(0,16) ?? ''}</div>
+          <div style="font-size:.72rem;font-weight:500;color:var(--ink2);margin-top:2px;">${l.auteur ?? ''}</div>
+        </div>
+        <span style="flex-shrink:0;font-size:.7rem;padding:2px 7px;border-radius:10px;background:var(--bg2);color:var(--ink2);">${l.type}</span>
+        <span style="flex-shrink:0;font-size:.7rem;padding:2px 7px;border-radius:10px;color:#fff;background:${actionColor[l.action]??'#888'};">${l.action}</span>
+        <div style="flex:1;font-size:.8rem;color:var(--ink);word-break:break-word;">${l.description}</div>
+      </div>`).join('');
+
+    if (offset === 0) {
+      el.innerHTML = `<div id="mod-log-rows" style="display:flex;flex-direction:column;gap:.3rem;">${rows}</div>`;
+    } else {
+      document.getElementById('mod-log-rows').insertAdjacentHTML('beforeend', rows);
+      document.getElementById('mod-log-more')?.remove();
+    }
+    if (logs.length === 50) {
+      el.insertAdjacentHTML('beforeend',
+        `<button id="mod-log-more" class="btn-secondary" onclick="loadModificationLog(${offset + 50})" style="margin-top:.8rem;font-size:.78rem;">${T('admin_logs_load_more')}</button>`);
+    }
+  } catch(e) { el.innerHTML = ''; toast(e.message, 'error'); }
+}
+
+// ══════════════════════════════════════════════════════════════
 //  FICHIERS ORPHELINS
 // ══════════════════════════════════════════════════════════════
 async function scanOrphanFiles() {

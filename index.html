@@ -24,7 +24,18 @@
       <button data-view="anecdotes">Anecdotes</button>
       <button data-view="autos">Autos</button>
       <button data-view="timeline">Timeline</button>
-      <button data-view="admin" id="nav-admin" style="display:none">Admin</button>
+      <div class="admin-nav-wrap" id="nav-admin-wrap" style="display:none">
+        <button id="nav-admin">Admin <span style="font-size:.65em;opacity:.7;">▾</span></button>
+        <div class="admin-dropdown" id="admin-dropdown">
+          <button data-view="admin-comptes"  id="nav-dd-comptes">Comptes</button>
+          <button data-view="admin-export"   id="nav-dd-export">Export</button>
+          <button data-view="admin-import"   id="nav-dd-import">Import</button>
+          <button data-view="admin-notif"    id="nav-dd-notif">Notifications</button>
+          <button data-view="admin-password" id="nav-dd-password">Mot de passe</button>
+          <button data-view="admin-orphans"  id="nav-dd-orphans">Fichiers</button>
+          <button data-view="admin-logs"     id="nav-dd-logs">Logs</button>
+        </div>
+      </div>
     </div>
   </nav>
   <div class="header-right">
@@ -136,18 +147,22 @@
 </div>
 
 <!-- ── ADMIN ──────────────────────────────────────────────────── -->
-<div id="view-admin" class="view">
+<!-- ── ADMIN : Comptes ────────────────────────────────────────── -->
+<div id="view-admin-comptes" class="view">
   <div class="view-inner">
-    <h2 id="view-admin-heading" style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:400;margin-bottom:1.2rem;">Administration</h2>
-    <!-- Utilisateurs -->
+    <h2 id="view-admin-comptes-heading" style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:400;margin-bottom:1.2rem;">Gestion des comptes</h2>
     <div class="form-card">
-      <div class="form-title" id="lbl-admin-comptes">Gestion des comptes</div>
       <div id="users-list" style="margin-bottom:1rem;"></div>
       <button class="btn-primary" onclick="showAddUser()" style="font-size:.78rem;padding:7px 14px;" id="btn-admin-new-user">+ Nouveau compte</button>
     </div>
-    <!-- Export -->
+  </div>
+</div>
+
+<!-- ── ADMIN : Export ─────────────────────────────────────────── -->
+<div id="view-admin-export" class="view">
+  <div class="view-inner">
+    <h2 id="view-admin-export-heading" style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:400;margin-bottom:1.2rem;">Export des données</h2>
     <div class="form-card">
-      <div class="form-title" id="lbl-admin-export">Export des données</div>
       <a class="export-btn" href="api/export.php?action=gedcom">
         <span style="font-size:1.1rem;">🧬</span>
         <div><div class="export-title">Exporter en GEDCOM</div><div class="export-sub">Standard universel — compatible Ancestry, MyHeritage, Geneanet…</div></div>
@@ -164,17 +179,27 @@
         <span style="color:var(--ink3);">↓</span>
       </a>
     </div>
-    <!-- Import -->
+  </div>
+</div>
+
+<!-- ── ADMIN : Import ─────────────────────────────────────────── -->
+<div id="view-admin-import" class="view">
+  <div class="view-inner">
+    <h2 id="view-admin-import-heading" style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:400;margin-bottom:1.2rem;">Importer des données</h2>
     <div class="form-card">
-      <div class="form-title" id="lbl-admin-import">Importer des données</div>
       <div class="fg"><label id="lbl-import-ged">Fichier GEDCOM (.ged)</label><input type="file" accept=".ged" id="import-ged-file"></div>
       <button class="btn-secondary" onclick="importFile('gedcom')" style="font-size:.8rem;" id="btn-import-ged">Importer GEDCOM</button>
       <div style="margin-top:.9rem;" class="fg"><label id="lbl-import-json">Fichier JSON (export précédent)</label><input type="file" accept=".json" id="import-json-file"></div>
       <button class="btn-secondary" onclick="importFile('json')" style="font-size:.8rem;" id="btn-import-json">Importer JSON</button>
     </div>
-    <!-- Notifications -->
+  </div>
+</div>
+
+<!-- ── ADMIN : Notifications ──────────────────────────────────── -->
+<div id="view-admin-notif" class="view">
+  <div class="view-inner">
+    <h2 id="view-admin-notif-heading" style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:400;margin-bottom:1.2rem;">Notifications par e-mail</h2>
     <div class="form-card">
-      <div class="form-title" id="lbl-admin-notif">Notifications par e-mail</div>
       <p style="font-size:.8rem;color:var(--ink3);margin-bottom:.9rem;" id="lbl-admin-notif-desc">Liste des adresses à prévenir lors de modifications. Un e-mail au maximum par jour, envoyé 1 heure après la dernière modification.</p>
       <div id="notif-emails-list" style="margin-bottom:.8rem;"></div>
       <div style="display:flex;gap:.5rem;">
@@ -182,21 +207,41 @@
         <button class="btn-primary" onclick="addNotifEmail()" style="font-size:.78rem;padding:7px 14px;" id="btn-notif-add">+ Ajouter</button>
       </div>
     </div>
-    <!-- Changer mdp -->
+  </div>
+</div>
+
+<!-- ── ADMIN : Mot de passe ───────────────────────────────────── -->
+<div id="view-admin-password" class="view">
+  <div class="view-inner">
+    <h2 id="view-admin-password-heading" style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:400;margin-bottom:1.2rem;">Changer mon mot de passe</h2>
     <div class="form-card">
-      <div class="form-title" id="lbl-admin-password">Changer mon mot de passe</div>
       <div class="form-grid">
         <div class="fg"><label id="lbl-pwd-old">Ancien mot de passe</label><input type="password" id="pwd-old"></div>
         <div class="fg"><label id="lbl-pwd-new">Nouveau mot de passe</label><input type="password" id="pwd-new"></div>
       </div>
       <button class="btn-primary" onclick="changePassword()" style="font-size:.8rem;" id="btn-pwd-save">Modifier</button>
     </div>
-    <!-- Fichiers orphelins -->
+  </div>
+</div>
+
+<!-- ── ADMIN : Fichiers orphelins ─────────────────────────────── -->
+<div id="view-admin-orphans" class="view">
+  <div class="view-inner">
+    <h2 id="view-admin-orphans-heading" style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:400;margin-bottom:1.2rem;">Fichiers non utilisés</h2>
     <div class="form-card">
-      <div class="form-title" id="lbl-admin-orphans">Fichiers non utilisés</div>
       <p style="font-size:.8rem;color:var(--ink3);margin-bottom:.9rem;" id="lbl-admin-orphans-desc">Fichiers présents dans uploads/ mais non référencés en base de données.</p>
       <div id="orphan-files-result"></div>
       <button class="btn-secondary" onclick="scanOrphanFiles()" style="font-size:.8rem;" id="btn-scan-orphans">Scanner</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── ADMIN : Logs ───────────────────────────────────────────── -->
+<div id="view-admin-logs" class="view">
+  <div class="view-inner">
+    <h2 id="view-admin-logs-heading" style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:400;margin-bottom:1.2rem;">Logs des modifications</h2>
+    <div class="form-card">
+      <div id="mod-log-result"></div>
     </div>
   </div>
 </div>
