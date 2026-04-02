@@ -103,10 +103,10 @@ async function openPerson(id) {
     const lid=Number(l.personne_a)===id?l.personne_b:l.personne_a;
     const fav=l.chemin_thumb?`<div class="fl-av ${l.genre}"><img src="${imgUrl(l.chemin_thumb)}" alt=""></div>`:`<div class="fl-av ${l.genre}">${(l.prenom[0]||'')+(l.nom[0]||'')}</div>`;
     const editBtn = isDirect && currentUser.role!=='lecteur'
-      ? `<button onclick="event.stopPropagation();showLienEditForm(${id},${l.lien_id},'${l.type}','${l.date_debut||''}','${l.date_fin||''}',${JSON.stringify(l.notes||'')})" style="background:none;border:none;color:var(--ink3);cursor:pointer;font-size:.7rem;padding:0 2px;line-height:1;">✏️</button>`
+      ? `<button class="fl-edit-btn" data-pid="${id}" data-lid="${l.lien_id}" data-type="${l.type}" data-debut="${l.date_debut||''}" data-fin="${l.date_fin||''}" data-notes="${encodeHTML(l.notes||'')}" style="background:none;border:none;color:var(--ink3);cursor:pointer;font-size:.7rem;padding:0 2px;line-height:1;">✏️</button>`
       : '';
     const delBtn = isDirect && currentUser.role!=='lecteur'
-      ? `<button onclick="event.stopPropagation();deleteLien(${id},${l.lien_id})" style="margin-left:2px;background:none;border:none;color:var(--ink3);cursor:pointer;font-size:.7rem;padding:0 2px;line-height:1;" title="${T('confirm_delete_lien')}">✕</button>`
+      ? `<button class="fl-del-btn" data-pid="${id}" data-lid="${l.lien_id}" style="margin-left:2px;background:none;border:none;color:var(--ink3);cursor:pointer;font-size:.7rem;padding:0 2px;line-height:1;" title="${T('confirm_delete_lien')}">✕</button>`
       : '';
     return `<div class="family-link" onclick="openPerson(${lid})">${fav}<div><div class="fl-name">${l.prenom} ${l.nom}</div><div class="fl-role">${l.role}</div></div><span style="margin-left:auto;color:var(--ink3);font-size:.8rem;">›</span>${editBtn}${delBtn}</div>`;
   };
@@ -167,6 +167,19 @@ async function openPerson(id) {
   const _mv = document.getElementById('modal-person-view');
   _mv.innerHTML = html;
   _mv.scrollTop = 0;
+  _mv.addEventListener('click', function(e) {
+    const eb = e.target.closest('.fl-edit-btn');
+    if (eb) {
+      e.stopPropagation();
+      showLienEditForm(+eb.dataset.pid, +eb.dataset.lid, eb.dataset.type, eb.dataset.debut, eb.dataset.fin, eb.dataset.notes);
+      return;
+    }
+    const db = e.target.closest('.fl-del-btn');
+    if (db) {
+      e.stopPropagation();
+      deleteLien(+db.dataset.pid, +db.dataset.lid);
+    }
+  }, { once: true });
   document.getElementById('modal-person-view-overlay').classList.add('open');
 }
 

@@ -371,7 +371,7 @@ function drawTree(allLiens) {
   treePeople.forEach(p => {
     const pos = cardPositions[p.id];
     if (!pos) return;
-    const dec  = (p.deces||!p.vivant) ? ' deceased':'';
+    const dec  = (p.deces || p.vivant === 0 || p.vivant === '0') ? ' deceased':'';
     const yr   = p.naissance ? p.naissance.substring(0,4) : '';
     const yrD  = p.deces ? p.deces.substring(0,4) : '';
     const neLabel = p.genre==='female' ? T('ne_f') : T('ne_m');
