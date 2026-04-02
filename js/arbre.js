@@ -329,21 +329,13 @@ function drawTree(allLiens) {
     children.sort((a,b) => a.cx - b.cx);
     const midY = srcY + cGapY * 0.73;
 
-    if (children.length === 1) {
-      const cx = children[0].cx;
-      svg += `<path d="M${r(srcX)},${r(srcY)} V${r(midY)} H${r(cx)} V${r(children[0].y)}" fill="none" stroke="${lineColor}" stroke-width="1.5"/>`;
-    } else {
-      const minX = children[0].cx;
-      const maxX = children[children.length-1].cx;
-      // Ligne verticale depuis le couple
-      svg += `<line x1="${r(srcX)}" y1="${r(srcY)}" x2="${r(srcX)}" y2="${r(midY)}" stroke="${lineColor}" stroke-width="1.5"/>`;
-      // Barre horizontale du premier au dernier enfant
-      svg += `<line x1="${r(minX)}" y1="${r(midY)}" x2="${r(maxX)}" y2="${r(midY)}" stroke="${lineColor}" stroke-width="1.5"/>`;
-      // Branches verticales vers chaque enfant
-      children.forEach(c => {
-        svg += `<line x1="${r(c.cx)}" y1="${r(midY)}" x2="${r(c.cx)}" y2="${r(c.y)}" stroke="${lineColor}" stroke-width="1.5"/>`;
-      });
-    }
+    const minX = children[0].cx;
+    const maxX = children[children.length-1].cx;
+    svg += `<line x1="${r(srcX)}" y1="${r(srcY)}" x2="${r(srcX)}" y2="${r(midY)}" stroke="${lineColor}" stroke-width="1.5"/>`;
+    svg += `<line x1="${r(minX)}" y1="${r(midY)}" x2="${r(maxX)}" y2="${r(midY)}" stroke="${lineColor}" stroke-width="1.5"/>`;
+    children.forEach(c => {
+      svg += `<line x1="${r(c.cx)}" y1="${r(midY)}" x2="${r(c.cx)}" y2="${r(c.y)}" stroke="${lineColor}" stroke-width="1.5"/>`;
+    });
   });
 
   // ── 4b. Traits des couples
@@ -475,7 +467,7 @@ function enablePinchZoom(wrap) {
   }, { passive: true, signal });
 }
 
-function r(n) { return Math.round(n*10)/10; }
+function r(n) { return Math.round(n); }
 
 // ══════════════════════════════════════════════════════════════
 //  EXPORT PDF (via impression navigateur)
