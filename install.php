@@ -193,6 +193,31 @@ CREATE TABLE IF NOT EXISTS auto_photos (
   FOREIGN KEY (auto_id) REFERENCES autos(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;",
 
+'recettes' => "
+CREATE TABLE IF NOT EXISTS recettes (
+  id           INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  titre        VARCHAR(300) NOT NULL,
+  description  TEXT         DEFAULT NULL,
+  ingredients  TEXT         DEFAULT NULL,
+  contenu      TEXT         NOT NULL,
+  date_recette VARCHAR(50)  DEFAULT NULL,
+  auteur       VARCHAR(150) DEFAULT NULL,
+  photo_id     INT UNSIGNED DEFAULT NULL,
+  created_at   DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at   DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;",
+
+'recette_photos' => "
+CREATE TABLE IF NOT EXISTS recette_photos (
+  id           INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  recette_id   INT UNSIGNED NOT NULL,
+  chemin       VARCHAR(400) NOT NULL,
+  chemin_thumb VARCHAR(400) DEFAULT NULL,
+  legende      TEXT         DEFAULT NULL,
+  ordre        SMALLINT     DEFAULT 0,
+  FOREIGN KEY (recette_id) REFERENCES recettes(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;",
+
 'remember_tokens' => "
 CREATE TABLE IF NOT EXISTS remember_tokens (
   id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,

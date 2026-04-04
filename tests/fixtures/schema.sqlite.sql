@@ -176,6 +176,29 @@ CREATE TABLE IF NOT EXISTS auto_photos (
   FOREIGN KEY (auto_id) REFERENCES autos(id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS recettes (
+  id           INTEGER PRIMARY KEY AUTOINCREMENT,
+  titre        TEXT NOT NULL,
+  description  TEXT DEFAULT NULL,
+  ingredients  TEXT DEFAULT NULL,
+  contenu      TEXT NOT NULL,
+  date_recette TEXT DEFAULT NULL,
+  auteur       TEXT DEFAULT NULL,
+  photo_id     INTEGER DEFAULT NULL,
+  created_at   TEXT DEFAULT CURRENT_TIMESTAMP,
+  updated_at   TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS recette_photos (
+  id           INTEGER PRIMARY KEY AUTOINCREMENT,
+  recette_id   INTEGER NOT NULL,
+  chemin       TEXT NOT NULL,
+  chemin_thumb TEXT DEFAULT NULL,
+  legende      TEXT DEFAULT NULL,
+  ordre        INTEGER DEFAULT 0,
+  FOREIGN KEY (recette_id) REFERENCES recettes(id) ON DELETE CASCADE
+);
+
 CREATE TABLE IF NOT EXISTS remember_tokens (
   id         INTEGER PRIMARY KEY AUTOINCREMENT,
   user_id    INTEGER NOT NULL,

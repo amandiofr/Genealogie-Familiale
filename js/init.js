@@ -93,6 +93,7 @@ async function init() {
       document.getElementById('btn-add-event').style.display='none';
       document.getElementById('btn-add-reunion').style.display='none';
       document.getElementById('btn-add-anecdote').style.display='none';
+      document.getElementById('btn-add-recette').style.display='none';
       document.getElementById('btn-add-auto').style.display='none';
     }
   } catch { window.location.href='login.html'; return; }
@@ -118,6 +119,7 @@ async function init() {
   document.getElementById('btn-add-event').onclick    = () => showEventForm(null);
   document.getElementById('btn-add-reunion').onclick  = () => showReunionForm(null);
   document.getElementById('btn-add-anecdote').onclick = () => showAnecdoteForm(null);
+  document.getElementById('btn-add-recette').onclick  = () => showRecetteForm(null);
   document.getElementById('btn-add-auto').onclick     = () => showAutoForm(null);
 
   await loadPeople();
@@ -137,7 +139,7 @@ async function init() {
   // Deep linking via URL hash
   const hash = window.location.hash.slice(1);
   const adminViews = ['admin-comptes','admin-export','admin-import','admin-notif','admin-password','admin-orphans','admin-logs'];
-  const validViews = ['tree','list','events','reunions','anecdotes','autos','timeline',...adminViews];
+  const validViews = ['tree','list','events','reunions','anecdotes','recettes','autos','timeline',...adminViews];
   if (hash && validViews.includes(hash)) {
     if (!adminViews.includes(hash) || currentUser.role === 'admin') {
       showView(hash);
@@ -179,6 +181,7 @@ function showView(name) {
   if (name==='events')           { loadEvents(); }
   if (name==='reunions')         { loadReunions(); }
   if (name==='anecdotes')        { loadAnecdotes(); }
+  if (name==='recettes')         { loadRecettes(); }
   if (name==='autos')            { loadAutos(); }
   if (name==='timeline')         { loadTimeline(); }
   if (name==='admin-comptes')    { loadUsers(); }

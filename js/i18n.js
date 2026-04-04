@@ -8,10 +8,10 @@ const LANGS = {
   fr: {
     // Nav
     nav_tree:'Arbre', nav_list:'Membres', nav_events:'Événements',
-    nav_reunions:'Réunions', nav_anecdotes:'Anecdotes', nav_timeline:'Chronologie', nav_admin:'Admin',
+    nav_reunions:'Réunions', nav_anecdotes:'Anecdotes', nav_recettes:'Recettes', nav_timeline:'Chronologie', nav_admin:'Admin',
     // Site title & page headers
     site_title:'Notre Famille',
-    h_membres:'Membres', h_events:'Événements', h_reunions:'Réunions familiales', h_anecdotes:'Anecdotes', h_timeline:'Frise chronologique',
+    h_membres:'Membres', h_events:'Événements', h_reunions:'Réunions familiales', h_anecdotes:'Anecdotes', h_recettes:'Recettes de famille', h_timeline:'Frise chronologique',
     h_admin:'Administration',
     h_repartition:'Répartition par génération',
     h_longevite:'Longévité la plus élevée',
@@ -35,7 +35,7 @@ const LANGS = {
     ne_m:'né en', ne_f:'née en',
     ne_label:'né', nee_label:'née',
     // Events
-    add_event:'+ Ajouter', add_reunion:'+ Ajouter', add_anecdote:'+ Écrire',
+    add_event:'+ Ajouter', add_reunion:'+ Ajouter', add_anecdote:'+ Écrire', add_recette:'+ Ajouter',
     sec_participants:'Participants', sec_description:'Description',
     // Stats
     stat_membres:'Membres', stat_vivants:'Vivants', stat_decedes:'Décédés',
@@ -75,6 +75,7 @@ const LANGS = {
     empty_timeline:'Aucun événement daté', empty_timeline_sub:'Ajoutez des membres ou des événements avec une date',
     tl_label_life:'Naissances & Décès', tl_label_mariage:'Mariages', tl_label_other:'Autres événements',
     empty_anecdotes:'Aucune anecdote', empty_anecdotes_sub:'Écrivez la première histoire familiale',
+    empty_recettes:'Aucune recette', empty_recettes_sub:'Ajoutez la première recette de famille',
     empty_search:'Aucun résultat',
     // Roles
     role_lecteur:'Lecteur', role_editeur:'Éditeur', role_admin:'Admin',
@@ -88,7 +89,9 @@ const LANGS = {
     toast_event_edited:'Événement modifié', toast_event_deleted:'Événement supprimé',
     toast_reunion_added:'Réunion ajoutée', toast_reunion_edited:'Réunion modifiée', toast_reunion_deleted:'Réunion supprimée',
     toast_anec_added:'Anecdote ajoutée', toast_anec_edited:'Anecdote modifiée',
-    toast_anec_deleted:'Anecdote supprimée', toast_user_created:'Compte créé',
+    toast_anec_deleted:'Anecdote supprimée',
+    toast_recette_added:'Recette ajoutée', toast_recette_edited:'Recette modifiée', toast_recette_deleted:'Recette supprimée',
+    toast_user_created:'Compte créé',
     toast_user_deleted:'Compte supprimé', toast_pwd:'Mot de passe modifié',
     // Confirmations
     confirm_delete_person:'Supprimer définitivement cette personne ?',
@@ -106,12 +109,19 @@ const LANGS = {
     ph_titre_anec:'Ex : L\'été où grand-père a construit la cabane',
     ph_contenu_anec:'Racontez cette histoire…',
     ph_date_anec:'Ex : 1972, Été 1985…',
+    lbl_ingredients:'Ingrédients', lbl_preparation:'Préparation',
+    ph_titre_recette:'Ex : Tarte aux pommes de grand-mère',
+    ph_desc_recette:'Brève description, contexte, histoire de cette recette…',
+    ph_ingredients_recette:'1 pâte brisée, 3 pommes, 50g de beurre…',
+    ph_contenu_recette:'Étapes de préparation…',
+    ph_date_recette:'Ex : 1980, Noël 1995…',
     ph_marque:'Ex : Citroën', ph_modele:'Ex : DS 21', ph_couleur:'Bleu nuit',
     ph_desc_auto:'Anecdotes, histoire de la voiture…',
     ph_prenom_nom:'Prénom Nom', ph_password:'Min. 8 caractères',
     confirm_delete_event:'Supprimer cet événement ?',
     confirm_delete_reunion:'Supprimer cette réunion ?',
     confirm_delete_anec:'Supprimer cette anecdote ?',
+    confirm_delete_recette:'Supprimer cette recette ?',
     confirm_delete_user:'Supprimer ce compte ?',
     // Famille rôles
     role_conjoint:'Conjoint(e)', role_pere:'Père', role_mere:'Mère',
@@ -124,6 +134,7 @@ const LANGS = {
     form_title_new_person:'Nouvelle personne', form_title_edit:'Modifier',
     form_title_new_event:'Nouvel événement', form_title_new_reunion:'Nouvelle réunion',
     form_title_new_anec:'Nouvelle anecdote',
+    form_title_new_recette:'Nouvelle recette',
     form_title_new_user:'Nouveau compte',
     // Form field labels
     lbl_date:'Date', form_titre:'Titre', form_type:'Type',
@@ -180,10 +191,10 @@ const LANGS = {
   },
   pt: {
     nav_tree:'Árvore', nav_list:'Membros', nav_events:'Eventos',
-    nav_reunions:'Reuniões', nav_anecdotes:'Anedotas', nav_timeline:'Cronologia', nav_admin:'Admin',
+    nav_reunions:'Reuniões', nav_anecdotes:'Anedotas', nav_recettes:'Receitas', nav_timeline:'Cronologia', nav_admin:'Admin',
     // Site title & page headers
     site_title:'Nossa Família',
-    h_membres:'Membros', h_events:'Eventos', h_reunions:'Reuniões familiares', h_anecdotes:'Anedotas', h_timeline:'Linha do tempo',
+    h_membres:'Membros', h_events:'Eventos', h_reunions:'Reuniões familiares', h_anecdotes:'Anedotas', h_recettes:'Receitas de família', h_timeline:'Linha do tempo',
     h_admin:'Administração',
     h_repartition:'Distribuição por geração',
     h_longevite:'Maior longevidade',
@@ -202,7 +213,7 @@ const LANGS = {
     deceased_m:'falecido', deceased_f:'falecida',
     ne_m:'nascido em', ne_f:'nascida em',
     ne_label:'nascido', nee_label:'nascida',
-    add_event:'+ Adicionar', add_reunion:'+ Adicionar', add_anecdote:'+ Escrever',
+    add_event:'+ Adicionar', add_reunion:'+ Adicionar', add_anecdote:'+ Escrever', add_recette:'+ Adicionar',
     sec_participants:'Participantes', sec_description:'Descrição',
     stat_membres:'Membros', stat_vivants:'Vivos', stat_decedes:'Falecidos',
     stat_gens:'Gerações', stat_professions:'Profissões registadas',
@@ -238,6 +249,7 @@ const LANGS = {
     empty_timeline:'Nenhum evento com data', empty_timeline_sub:'Adicione membros ou eventos com uma data',
     tl_label_life:'Nascimentos & Óbitos', tl_label_mariage:'Casamentos', tl_label_other:'Outros eventos',
     empty_anecdotes:'Nenhuma anedota', empty_anecdotes_sub:'Escreva a primeira história familiar',
+    empty_recettes:'Nenhuma receita', empty_recettes_sub:'Adicione a primeira receita de família',
     empty_search:'Sem resultados',
     role_lecteur:'Leitor', role_editeur:'Editor', role_admin:'Admin',
     event_avatar_set:'Avatar do evento atualizado',
@@ -248,7 +260,9 @@ const LANGS = {
     toast_event_edited:'Evento modificado', toast_event_deleted:'Evento eliminado',
     toast_reunion_added:'Reunião adicionada', toast_reunion_edited:'Reunião modificada', toast_reunion_deleted:'Reunião eliminada',
     toast_anec_added:'Anedota adicionada', toast_anec_edited:'Anedota modificada',
-    toast_anec_deleted:'Anedota eliminada', toast_user_created:'Conta criada',
+    toast_anec_deleted:'Anedota eliminada',
+    toast_recette_added:'Receita adicionada', toast_recette_edited:'Receita modificada', toast_recette_deleted:'Receita eliminada',
+    toast_user_created:'Conta criada',
     toast_user_deleted:'Conta eliminada', toast_pwd:'Palavra-passe alterada',
     confirm_delete_person:'Eliminar definitivamente esta pessoa?',
     confirm_delete_lien:'Eliminar esta ligação familiar?', toast_lien_deleted:'Ligação eliminada',
@@ -265,12 +279,19 @@ const LANGS = {
     ph_titre_anec:'Ex : O verão em que o avô construiu a cabana',
     ph_contenu_anec:'Conte esta história…',
     ph_date_anec:'Ex : 1972, Verão 1985…',
+    lbl_ingredients:'Ingredientes', lbl_preparation:'Preparação',
+    ph_titre_recette:'Ex : Tarte de maçã da avó',
+    ph_desc_recette:'Breve descrição, contexto, história desta receita…',
+    ph_ingredients_recette:'1 massa quebrada, 3 maçãs, 50g de manteiga…',
+    ph_contenu_recette:'Passos de preparação…',
+    ph_date_recette:'Ex : 1980, Natal 1995…',
     ph_marque:'Ex : Citroën', ph_modele:'Ex : DS 21', ph_couleur:'Azul-escuro',
     ph_desc_auto:'Anedotas, história do carro…',
     ph_prenom_nom:'Nome Apelido', ph_password:'Mín. 8 caracteres',
     confirm_delete_event:'Eliminar este evento?',
     confirm_delete_reunion:'Eliminar esta reunião?',
     confirm_delete_anec:'Eliminar esta anedota?',
+    confirm_delete_recette:'Eliminar esta receita?',
     confirm_delete_user:'Eliminar esta conta?',
     role_conjoint:'Cônjuge', role_pere:'Pai', role_mere:'Mãe',
     role_fils:'Filho', role_fille:'Filha', lbl_enfants:'Filhos',
@@ -281,6 +302,7 @@ const LANGS = {
     form_title_new_person:'Nova pessoa', form_title_edit:'Editar',
     form_title_new_event:'Novo evento', form_title_new_reunion:'Nova reunião',
     form_title_new_anec:'Nova anedota',
+    form_title_new_recette:'Nova receita',
     form_title_new_user:'Nova conta',
     // Form field labels
     lbl_date:'Data', form_titre:'Título', form_type:'Tipo',
@@ -379,7 +401,7 @@ function applyLang() {
   const badge = document.getElementById('user-badge');
   if (badge && currentUser) badge.textContent = currentUser.nom + ' (' + T('role_' + currentUser.role) + ')';
   // Nav buttons
-  const navMap = {tree:'nav_tree',list:'nav_list',events:'nav_events',reunions:'nav_reunions',anecdotes:'nav_anecdotes',autos:'nav_autos',timeline:'nav_timeline',admin:'nav_admin'};
+  const navMap = {tree:'nav_tree',list:'nav_list',events:'nav_events',reunions:'nav_reunions',anecdotes:'nav_anecdotes',recettes:'nav_recettes',autos:'nav_autos',timeline:'nav_timeline',admin:'nav_admin'};
   document.querySelectorAll('nav button[data-view]').forEach(b => { b.textContent = T(navMap[b.dataset.view]||b.dataset.view); });
   // Logout
   const logoutBtn = document.getElementById('btn-logout');
@@ -404,6 +426,8 @@ function applyLang() {
   if (btnR) btnR.textContent = T('add_reunion');
   const btnA = document.getElementById('btn-add-anecdote');
   if (btnA) btnA.textContent = T('add_anecdote');
+  const btnRec = document.getElementById('btn-add-recette');
+  if (btnRec) btnRec.textContent = T('add_recette');
   const btnAu = document.getElementById('btn-add-auto');
   if (btnAu) btnAu.textContent = T('add_auto');
   // Sort buttons
@@ -427,6 +451,7 @@ function applyLang() {
     'view-events-heading':    'h_events',
     'view-reunions-heading':  'h_reunions',
     'view-anecdotes-heading': 'h_anecdotes',
+    'view-recettes-heading':  'h_recettes',
     'view-autos-heading':     'h_autos',
     'view-timeline-heading':  'h_timeline',
     'view-admin-comptes-heading':  'admin_comptes',
@@ -474,6 +499,7 @@ function applyLang() {
   if (activeView?.id === 'view-tree')      renderTree();
   if (activeView?.id === 'view-events')    loadEvents();
   if (activeView?.id === 'view-anecdotes') loadAnecdotes();
+  if (activeView?.id === 'view-recettes')  loadRecettes();
   if (activeView?.id === 'view-autos')     loadAutos();
   if (activeView?.id === 'view-timeline')  loadTimeline();
   if (typeof _renderArbreCombo === 'function') _renderArbreCombo();
