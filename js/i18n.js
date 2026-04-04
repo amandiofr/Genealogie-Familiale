@@ -522,8 +522,9 @@ function applyLang() {
   if (activeView?.id === 'view-list')      filterList();
   if (activeView?.id === 'view-tree')      renderTree();
   if (activeView?.id === 'view-events')    loadEvents();
-  if (activeView?.id === 'view-anecdotes') loadAnecdotes();
-  if (activeView?.id === 'view-recettes')  loadRecettes();
+  if (activeView?.id === 'view-anecdotes')    loadAnecdotes();
+  if (activeView?.id === 'view-recettes')     loadRecettes();
+  if (activeView?.id === 'view-admin-quality') loadQualityCheck();
   if (activeView?.id === 'view-autos')     loadAutos();
   if (activeView?.id === 'view-timeline')  loadTimeline();
   if (typeof _renderArbreCombo === 'function') _renderArbreCombo();
