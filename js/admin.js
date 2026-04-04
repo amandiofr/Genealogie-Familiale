@@ -215,6 +215,86 @@ async function _deleteOrphan(path) {
 }
 
 // ══════════════════════════════════════════════════════════════
+//  CONTRÔLE QUALITÉ
+// ══════════════════════════════════════════════════════════════
+async function loadQualityCheck() {
+  const el = document.getElementById('quality-result');
+  el.innerHTML = `<p style="font-size:.8rem;color:var(--ink3);">${T('admin_quality_loading')}</p>`;
+  try {
+    const d = await api('GET', 'api/admin.php?action=quality_check');
+
+    let html = '';
+
+    // ── Membres ──
+    html += `<h3 style="font-size:.9rem;font-weight:600;margin:1rem 0 .5rem;">${T('admin_quality_members')} (${d.personnes.length})</h3>`;
+    if (!d.personnes.length) {
+      html += `<p style="font-size:.8rem;color:var(--ink3);font-style:italic;">${T('admin_quality_ok')}</p>`;
+    } else {
+      html += `<div style="display:flex;flex-direction:column;gap:.3rem;">`;
+      html += d.personnes.map(p => {
+        const issues = [];
+        if (!p.nom || p.nom.includes('?'))           issues.push(T('admin_quality_nom'));
+        if (!p.naissance || p.naissance.includes('?')) issues.push(T('admin_quality_naissance'));
+        if (!p.lieu_naiss || p.lieu_naiss.includes('?')) issues.push(T('admin_quality_lieu_naiss'));
+        return `<div class="user-row" style="cursor:pointer;" onclick="showPersonForm(${p.id})">
+          <div style="flex:1;">
+            <div style="font-size:.85rem;font-weight:500;">${p.prenom} ${p.nom||'?'}</div>
+            <div style="font-size:.72rem;color:#b45309;">${issues.join(' · ')}</div>
+          </div>
+          <span style="font-size:.7rem;color:var(--ink3);">✏️</span>
+        </div>`;
+      }).join('');
+      html += `</div>`;
+    }
+
+    // ── Réunions ──
+    html += `<h3 style="font-size:.9rem;font-weight:600;margin:1.2rem 0 .5rem;">${T('admin_quality_reunions')} (${d.reunions.length})</h3>`;
+    if (!d.reunions.length) {
+      html += `<p style="font-size:.8rem;color:var(--ink3);font-style:italic;">${T('admin_quality_ok')}</p>`;
+    } else {
+      html += `<div style="display:flex;flex-direction:column;gap:.3rem;">`;
+      html += d.reunions.map(r => {
+        const issues = [];
+        if (!r.date_debut || r.date_debut.includes('?')) issues.push(T('admin_quality_no_date'));
+        if (!r.lieu || r.lieu.includes('?'))             issues.push(T('admin_quality_no_lieu'));
+        return `<div class="user-row" style="cursor:pointer;" onclick="showReunionForm(${r.id})">
+          <div style="flex:1;">
+            <div style="font-size:.85rem;font-weight:500;">${r.titre}</div>
+            <div style="font-size:.72rem;color:#b45309;">${issues.join(' · ')}</div>
+          </div>
+          <span style="font-size:.7rem;color:var(--ink3);">✏️</span>
+        </div>`;
+      }).join('');
+      html += `</div>`;
+    }
+
+    // ── Événements ──
+    html += `<h3 style="font-size:.9rem;font-weight:600;margin:1.2rem 0 .5rem;">${T('admin_quality_events')} (${d.evenements.length})</h3>`;
+    if (!d.evenements.length) {
+      html += `<p style="font-size:.8rem;color:var(--ink3);font-style:italic;">${T('admin_quality_ok')}</p>`;
+    } else {
+      html += `<div style="display:flex;flex-direction:column;gap:.3rem;">`;
+      html += d.evenements.map(e => {
+        const issues = [];
+        if (!e.nb_personnes || e.nb_personnes == 0)   issues.push(T('admin_quality_no_persons'));
+        if (!e.date_debut || e.date_debut.includes('?')) issues.push(T('admin_quality_no_date'));
+        if (!e.lieu || e.lieu.includes('?'))           issues.push(T('admin_quality_no_lieu'));
+        return `<div class="user-row" style="cursor:pointer;" onclick="showEventForm(${e.id})">
+          <div style="flex:1;">
+            <div style="font-size:.85rem;font-weight:500;">${EVT_ICONS[e.type]||'📌'} ${e.titre}</div>
+            <div style="font-size:.72rem;color:#b45309;">${issues.join(' · ')}</div>
+          </div>
+          <span style="font-size:.7rem;color:var(--ink3);">✏️</span>
+        </div>`;
+      }).join('');
+      html += `</div>`;
+    }
+
+    el.innerHTML = html;
+  } catch(e) { el.innerHTML = ''; toast(e.message, 'error'); }
+}
+
+// ══════════════════════════════════════════════════════════════
 //  MISC
 // ══════════════════════════════════════════════════════════════
 function closeOverlay(id){ document.getElementById(id).classList.remove('open'); }

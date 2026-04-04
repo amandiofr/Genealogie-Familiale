@@ -138,7 +138,7 @@ async function init() {
 
   // Deep linking via URL hash
   const hash = window.location.hash.slice(1);
-  const adminViews = ['admin-comptes','admin-export','admin-import','admin-notif','admin-password','admin-orphans','admin-logs'];
+  const adminViews = ['admin-comptes','admin-export','admin-import','admin-notif','admin-password','admin-orphans','admin-logs','admin-quality'];
   const validViews = ['tree','list','events','reunions','anecdotes','recettes','autos','timeline',...adminViews];
   if (hash && validViews.includes(hash)) {
     if (!adminViews.includes(hash) || currentUser.role === 'admin') {
@@ -152,7 +152,7 @@ async function init() {
 // ══════════════════════════════════════════════════════════════
 async function api(method, url, body) {
   const opts = { method, headers:{} };
-  if (authorName) opts.headers['X-Author-Name'] = authorName;
+  if (authorName) opts.headers['X-Author-Name'] = encodeURIComponent(authorName);
   if (body instanceof FormData) { opts.body = body; }
   else if (body) { opts.headers['Content-Type']='application/json'; opts.body=JSON.stringify(body); }
   const r = await fetch(url, opts);
@@ -187,6 +187,7 @@ function showView(name) {
   if (name==='admin-comptes')    { loadUsers(); }
   if (name==='admin-notif')      { loadNotifEmails(); }
   if (name==='admin-logs')       { loadModificationLog(); }
+  if (name==='admin-quality')    { loadQualityCheck(); }
 }
 
 // ══════════════════════════════════════════════════════════════

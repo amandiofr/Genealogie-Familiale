@@ -66,4 +66,42 @@ if ($action === 'logs' && method_is('GET')) {
     json_out($st->fetchAll());
 }
 
+// ── GET quality_check ────────────────────────────────────────────────────────
+if ($action === 'quality_check' && method_is('GET')) {
+    $db = pdo();
+    try {
+
+    $personnes = $db->query("
+        SELECT id, prenom, nom, naissance, lieu_naiss
+        FROM personnes
+        WHERE (nom        IS NULL OR nom        = '' OR nom        LIKE '%?%')
+           OR  naissance  IS NULL
+           OR (lieu_naiss IS NULL OR lieu_naiss = '' OR lieu_naiss LIKE '%?%')
+        ORDER BY nom, prenom
+    ")->fetchAll();
+
+    $evenements = $db->query("
+        SELECT e.id, e.titre, e.type, e.date_debut, e.lieu,
+               COUNT(ep.personne_id) AS nb_personnes
+        FROM evenements e
+        LEFT JOIN evenement_personnes ep ON ep.evenement_id = e.id
+        GROUP BY e.id, e.titre, e.type, e.date_debut, e.lieu
+        HAVING e.date_debut IS NULL
+            OR (e.lieu IS NULL OR e.lieu = '' OR e.lieu LIKE '%?%')
+            OR nb_personnes = 0
+        ORDER BY e.titre
+    ")->fetchAll();
+
+    $reunions = $db->query("
+        SELECT id, titre, date_debut, lieu
+        FROM reunions
+        WHERE  date_debut IS NULL
+           OR (lieu       IS NULL OR lieu = '' OR lieu LIKE '%?%')
+        ORDER BY titre
+    ")->fetchAll();
+
+    json_out(['personnes' => $personnes, 'evenements' => $evenements, 'reunions' => $reunions]);
+    } catch (\PDOException $e) { json_error($e->getMessage()); }
+}
+
 json_error('Action inconnue', 400);
