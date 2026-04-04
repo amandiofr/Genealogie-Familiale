@@ -82,7 +82,7 @@ async function showEventForm(id){
   const participantIds = new Set((e?.personnes||[]).map(p=>String(p.id)));
   const peopleOptions = people.map(p=>`<option value="${p.id}"${participantIds.has(String(p.id))?' selected':''}>${fullName(p)}</option>`).join('');
 
-  const typeOptions = ['mariage','naissance','deces','rencontre','voyage','reunion','fete','autre']
+  const typeOptions = ['mariage','demenagement','autre']
     .map(t => `<option value="${t}"${e?.type===t?' selected':''}>${EVT_ICONS[t]||''} ${evtLabel(t)}</option>`).join('');
 
   document.getElementById('modal-form-event').innerHTML=`
@@ -93,10 +93,10 @@ async function showEventForm(id){
     <div class="modal-bd">
       <div class="form-grid">
         <div class="fg full"><label>${T('form_titre')} *</label><input id="fe-titre" value="${e?.titre||''}" placeholder="${T('ph_titre_event')}"></div>
-        <div class="fg"><label>${T('form_type')} *</label><select id="fe-type">${typeOptions}</select></div>
+        <div class="fg"><label>${T('form_type')} *</label><select id="fe-type" onchange="checkDemenagementLieu()">${typeOptions}</select></div>
         <div class="fg"><label>${T('form_date_debut')}</label><input type="date" id="fe-date-debut" value="${e?.date_debut||''}"></div>
         <div class="fg"><label>${T('form_date_fin')}</label><input type="date" id="fe-date-fin" value="${e?.date_fin||''}"></div>
-        <div class="fg full"><label>${T('form_lieu')}</label><input id="fe-lieu" value="${e?.lieu||''}" placeholder="${T('ph_lieu')}"></div>
+        <div class="fg full"><label>${T('form_lieu')}</label><input id="fe-lieu" value="${e?.lieu||''}" placeholder="${T('ph_lieu')}" oninput="checkDemenagementLieu()"><div id="fe-lieu-warn" style="display:none;font-size:.72rem;color:#b45309;margin-top:3px;">⚠️ <span></span></div></div>
         <div class="fg full"><label>${T('sec_description')}</label><textarea id="fe-desc" placeholder="${T('ph_desc_event')}">${e?.description||''}</textarea></div>
         <div class="fg full"><label>${T('form_participants')}</label><select id="fe-personnes" multiple size="6" style="height:130px;">${peopleOptions}</select></div>
       </div>
@@ -116,6 +116,16 @@ async function showEventForm(id){
       </div>
     </div>`;
   document.getElementById('modal-form-event-overlay').classList.add('open');
+}
+
+function checkDemenagementLieu() {
+  const type = document.getElementById('fe-type')?.value;
+  const lieu = document.getElementById('fe-lieu')?.value.trim();
+  const warn = document.getElementById('fe-lieu-warn');
+  if (!warn) return;
+  const show = type === 'demenagement' && !lieu;
+  warn.style.display = show ? '' : 'none';
+  if (show) warn.querySelector('span').textContent = T('warn_demenagement_lieu');
 }
 
 let pendingEventFiles = [];

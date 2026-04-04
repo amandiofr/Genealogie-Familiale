@@ -69,7 +69,7 @@ CREATE TABLE IF NOT EXISTS photos (
 CREATE TABLE IF NOT EXISTS evenements (
   id          INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   titre       VARCHAR(300) NOT NULL,
-  type        ENUM('mariage','naissance','deces','rencontre','voyage','reunion','fete','autre') NOT NULL,
+  type        ENUM('mariage','demenagement','autre') NOT NULL,
   date_debut  DATE    DEFAULT NULL,
   date_fin    DATE    DEFAULT NULL,
   lieu        VARCHAR(300) DEFAULT NULL,

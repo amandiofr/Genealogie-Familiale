@@ -159,9 +159,8 @@ const LANGS = {
     lbl_upload_send:'📤 Envoyer', lbl_upload_max:'JPEG, PNG, WebP — max 20 Mo chacune',
     lbl_by:'Par', lbl_with:'Avec', btn_create_account:'Créer le compte',
     // Event type labels
-    evt_mariage:'Mariage', evt_naissance:'Naissance', evt_deces:'Décès',
-    evt_rencontre:'Rencontre', evt_voyage:'Voyage', evt_reunion:'Réunion',
-    evt_fete:'Fête', evt_autre:'Autre',
+    evt_mariage:'Mariage', evt_demenagement:'Déménagement', evt_autre:'Autre',
+    warn_demenagement_lieu:'Lieu non renseigné — cet événement ne sera pas utilisé pour la carte.',
     // Errors & validation
     error_name_required:'Prénom requis',
     error_title_required:'Titre requis',
@@ -327,9 +326,8 @@ const LANGS = {
     lbl_upload_send:'📤 Enviar', lbl_upload_max:'JPEG, PNG, WebP — máx 20 Mo cada',
     lbl_by:'Por', lbl_with:'Com', btn_create_account:'Criar conta',
     // Event type labels
-    evt_mariage:'Casamento', evt_naissance:'Nascimento', evt_deces:'Falecimento',
-    evt_rencontre:'Encontro', evt_voyage:'Viagem', evt_reunion:'Reunião',
-    evt_fete:'Festa', evt_autre:'Outro',
+    evt_mariage:'Casamento', evt_demenagement:'Mudança', evt_autre:'Outro',
+    warn_demenagement_lieu:'Local não preenchido — este evento não será usado para o mapa.',
     // Errors & validation
     error_name_required:'Primeiro nome obrigatório',
     error_title_required:'Título obrigatório',
@@ -361,7 +359,7 @@ const LANGS = {
 
 let currentLang = localStorage.getItem('lang') || 'fr';
 function T(key) { return LANGS[currentLang][key] || LANGS['fr'][key] || key; }
-function evtLabel(type) { return T('evt_' + type) || type; }
+function evtLabel(type) { const k='evt_'+type; const v=T(k); return v!==k?v:T('evt_autre'); }
 
 const LANG_META = { fr:{flag:'<img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzIDIiPjxyZWN0IHdpZHRoPSIxIiBoZWlnaHQ9IjIiIGZpbGw9IiMwMDIzOTUiLz48cmVjdCB4PSIxIiB3aWR0aD0iMSIgaGVpZ2h0PSIyIiBmaWxsPSIjZmZmIi8+PHJlY3QgeD0iMiIgd2lkdGg9IjEiIGhlaWdodD0iMiIgZmlsbD0iI0VEMjkzOSIvPjwvc3ZnPg==" width="18" height="12" style="border-radius:2px;vertical-align:middle;flex-shrink:0;" alt="">',code:'FR'}, pt:{flag:'<img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1IDMiPjxyZWN0IHdpZHRoPSIyIiBoZWlnaHQ9IjMiIGZpbGw9IiMwMDY2MDAiLz48cmVjdCB4PSIyIiB3aWR0aD0iMyIgaGVpZ2h0PSIzIiBmaWxsPSIjRkYwMDAwIi8+PGNpcmNsZSBjeD0iMiIgY3k9IjEuNSIgcj0iMC42IiBmaWxsPSIjRkZENzAwIiBzdHJva2U9IiMwMDMzOTkiIHN0cm9rZS13aWR0aD0iMC4xMiIvPjwvc3ZnPg==" width="18" height="12" style="border-radius:2px;vertical-align:middle;flex-shrink:0;" alt="">',code:'PT'} };
 
@@ -539,5 +537,5 @@ function _resizeAuthorPicker() {
   document.body.removeChild(span);
 }
 const GEN_LABELS = () => [T('gen_0'),T('gen_1'),T('gen_2'),T('gen_3'),T('gen_4'),T('gen_5'),T('gen_6')];
-const EVT_ICONS  = {mariage:'💍',naissance:'👶',deces:'🕊',rencontre:'🤝',voyage:'✈️',reunion:'🏠',fete:'🎉',autre:'📌'};
+const EVT_ICONS  = {mariage:'💍',demenagement:'📦',autre:'📌'};
 
