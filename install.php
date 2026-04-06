@@ -193,6 +193,38 @@ CREATE TABLE IF NOT EXISTS auto_photos (
   FOREIGN KEY (auto_id) REFERENCES autos(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;",
 
+'tresors' => "
+CREATE TABLE IF NOT EXISTS tresors (
+  id          INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  titre       VARCHAR(300) NOT NULL,
+  contenu     TEXT         NOT NULL,
+  date_tresor VARCHAR(50)  DEFAULT NULL,
+  auteur      VARCHAR(150) DEFAULT NULL,
+  photo_id    INT UNSIGNED DEFAULT NULL,
+  created_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at  DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;",
+
+'tresor_personnes' => "
+CREATE TABLE IF NOT EXISTS tresor_personnes (
+  tresor_id   INT UNSIGNED NOT NULL,
+  personne_id INT UNSIGNED NOT NULL,
+  PRIMARY KEY (tresor_id, personne_id),
+  FOREIGN KEY (tresor_id)   REFERENCES tresors(id)   ON DELETE CASCADE,
+  FOREIGN KEY (personne_id) REFERENCES personnes(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;",
+
+'tresor_photos' => "
+CREATE TABLE IF NOT EXISTS tresor_photos (
+  id           INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  tresor_id    INT UNSIGNED NOT NULL,
+  chemin       VARCHAR(400) NOT NULL,
+  chemin_thumb VARCHAR(400) DEFAULT NULL,
+  legende      TEXT         DEFAULT NULL,
+  ordre        SMALLINT     DEFAULT 0,
+  FOREIGN KEY (tresor_id) REFERENCES tresors(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;",
+
 'recettes' => "
 CREATE TABLE IF NOT EXISTS recettes (
   id           INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,

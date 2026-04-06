@@ -176,6 +176,35 @@ CREATE TABLE IF NOT EXISTS auto_photos (
   FOREIGN KEY (auto_id) REFERENCES autos(id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS tresors (
+  id          INTEGER PRIMARY KEY AUTOINCREMENT,
+  titre       TEXT NOT NULL,
+  contenu     TEXT NOT NULL,
+  date_tresor TEXT DEFAULT NULL,
+  auteur      TEXT DEFAULT NULL,
+  photo_id    INTEGER DEFAULT NULL,
+  created_at  TEXT DEFAULT CURRENT_TIMESTAMP,
+  updated_at  TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS tresor_personnes (
+  tresor_id   INTEGER NOT NULL,
+  personne_id INTEGER NOT NULL,
+  PRIMARY KEY (tresor_id, personne_id),
+  FOREIGN KEY (tresor_id)   REFERENCES tresors(id)   ON DELETE CASCADE,
+  FOREIGN KEY (personne_id) REFERENCES personnes(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS tresor_photos (
+  id           INTEGER PRIMARY KEY AUTOINCREMENT,
+  tresor_id    INTEGER NOT NULL,
+  chemin       TEXT NOT NULL,
+  chemin_thumb TEXT DEFAULT NULL,
+  legende      TEXT DEFAULT NULL,
+  ordre        INTEGER DEFAULT 0,
+  FOREIGN KEY (tresor_id) REFERENCES tresors(id) ON DELETE CASCADE
+);
+
 CREATE TABLE IF NOT EXISTS recettes (
   id           INTEGER PRIMARY KEY AUTOINCREMENT,
   titre        TEXT NOT NULL,

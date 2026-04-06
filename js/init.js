@@ -42,15 +42,19 @@ async function loadArbres() {
   _allTreeMembers = null; _allTreeSpouses = null; _directMembersSet = null;
   // Charger les liens pour pouvoir inclure les conjoints dans le filtre
   try { const r = await fetch('api/liens.php'); if (r.ok) _allLiens = await r.json(); } catch {}
-  const saved = localStorage.getItem('genealogie_arbre');
-  _currentArbreId = (saved === 'all' || _arbres.find(a => a.id === saved)) ? saved : (_arbres[0]?.id || null);
+  _arbres.sort((a, b) => {
+    const na = a.prenom_b ? `${a.prenom_a} ${a.prenom_b}` : a.prenom_a;
+    const nb = b.prenom_b ? `${b.prenom_a} ${b.prenom_b}` : b.prenom_a;
+    return na.localeCompare(nb, undefined, {sensitivity:'base'});
+  });
+  _currentArbreId = _arbres[0]?.id || null;
   _applyArbre();
   _renderArbreCombo();
 }
 
 function _applyArbre() {
   _directMembersSet = null;
-  if (!_currentArbreId || _currentArbreId === 'all' || !_arbres.length) { _currentMembers = null; return; }
+  if (!_currentArbreId || !_arbres.length) { _currentMembers = null; return; }
   const arbre = _arbres.find(a => a.id === _currentArbreId);
   _currentMembers = arbre ? new Set(arbre.membres.map(Number)) : null;
   if (typeof _expandCurrentMembersWithSpouses === 'function') _expandCurrentMembersWithSpouses();
@@ -62,8 +66,8 @@ function _renderArbreCombo() {
   sel.innerHTML = _arbres.map(a => {
     const nom = a.prenom_b ? `${a.prenom_a} ${T('lbl_et')} ${a.prenom_b}` : a.prenom_a;
     return `<option value="${encodeHTML(a.id)}">${encodeHTML(nom)}</option>`;
-  }).join('') + `<option value="all">${T('arbre_all')}</option>`;
-  sel.value = _currentArbreId ?? 'all';
+  }).join('');
+  sel.value = _currentArbreId ?? '';
 }
 
 function encodeHTML(s) { return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
@@ -93,6 +97,7 @@ async function init() {
       document.getElementById('btn-add-event').style.display='none';
       document.getElementById('btn-add-reunion').style.display='none';
       document.getElementById('btn-add-anecdote').style.display='none';
+      document.getElementById('btn-add-tresor').style.display='none';
       document.getElementById('btn-add-recette').style.display='none';
       document.getElementById('btn-add-auto').style.display='none';
     }
@@ -119,6 +124,7 @@ async function init() {
   document.getElementById('btn-add-event').onclick    = () => showEventForm(null);
   document.getElementById('btn-add-reunion').onclick  = () => showReunionForm(null);
   document.getElementById('btn-add-anecdote').onclick = () => showAnecdoteForm(null);
+  document.getElementById('btn-add-tresor').onclick   = () => showTresorForm(null);
   document.getElementById('btn-add-recette').onclick  = () => showRecetteForm(null);
   document.getElementById('btn-add-auto').onclick     = () => showAutoForm(null);
 
@@ -139,7 +145,7 @@ async function init() {
   // Deep linking via URL hash
   const hash = window.location.hash.slice(1);
   const adminViews = ['admin-comptes','admin-export','admin-import','admin-notif','admin-password','admin-orphans','admin-logs','admin-quality'];
-  const validViews = ['tree','list','events','reunions','anecdotes','recettes','autos','timeline',...adminViews];
+  const validViews = ['tree','list','events','reunions','anecdotes','tresors','recettes','autos','timeline',...adminViews];
   if (hash && validViews.includes(hash)) {
     if (!adminViews.includes(hash) || currentUser.role === 'admin') {
       showView(hash);
@@ -181,6 +187,7 @@ function showView(name) {
   if (name==='events')           { loadEvents(); }
   if (name==='reunions')         { loadReunions(); }
   if (name==='anecdotes')        { loadAnecdotes(); }
+  if (name==='tresors')          { loadTresors(); }
   if (name==='recettes')         { loadRecettes(); }
   if (name==='autos')            { loadAutos(); }
   if (name==='timeline')         { loadTimeline(); }

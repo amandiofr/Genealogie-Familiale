@@ -128,14 +128,8 @@ async function loadModificationLog(offset = 0) {
     }
     const actionColor = { ajout:'#2a7a2a', modification:'#1a6eb5', suppression:'#c44' };
     const rows = logs.map(l => `
-      <div class="user-row" style="gap:.6rem;align-items:flex-start;">
-        <div style="flex-shrink:0;width:120px;">
-          <div style="font-size:.72rem;color:var(--ink3);">${l.created_at?.replace('T',' ').slice(0,16) ?? ''}</div>
-          <div style="font-size:.72rem;font-weight:500;color:var(--ink2);margin-top:2px;">${l.auteur ?? ''}</div>
-        </div>
-        <span style="flex-shrink:0;font-size:.7rem;padding:2px 7px;border-radius:10px;background:var(--bg2);color:var(--ink2);">${l.type}</span>
-        <span style="flex-shrink:0;font-size:.7rem;padding:2px 7px;border-radius:10px;color:#fff;background:${actionColor[l.action]??'#888'};">${l.action}</span>
-        <div style="flex:1;font-size:.8rem;color:var(--ink);word-break:break-word;">${l.description}</div>
+      <div style="padding:.5rem 0;border-bottom:1px solid var(--border);font-size:.78rem;line-height:1.5;">
+        <span style="color:var(--ink3);margin-right:.4rem;">${l.created_at?.replace('T',' ').slice(0,16) ?? ''}</span><span style="font-weight:500;color:var(--ink2);margin-right:.4rem;">${l.auteur ?? ''}</span><span style="padding:1px 6px;border-radius:10px;background:var(--bg2);color:var(--ink2);margin-right:.3rem;">${l.type}</span><span style="padding:1px 6px;border-radius:10px;color:#fff;background:${actionColor[l.action]??'#888'};margin-right:.4rem;">${l.action}</span><span style="color:var(--ink);">${l.description}</span>
       </div>`).join('');
 
     if (offset === 0) {
