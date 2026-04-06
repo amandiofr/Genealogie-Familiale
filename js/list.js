@@ -31,7 +31,7 @@ function setSort(s,btn) {
 function filterList() {
   const q=(document.getElementById('search').value||'').toLowerCase().trim();
   let filtered=people.filter(p=>{
-    if(!inCurrentTree(p.id) && _inAnyTree(p.id)) return false;
+    if(!inCurrentTree(p.id)) return false;
     if(currentFilter==='male'&&p.genre!=='male') return false;
     if(currentFilter==='female'&&p.genre!=='female') return false;
     if(currentFilter==='living'&&(!p.vivant||p.deces)) return false;
@@ -228,7 +228,7 @@ function showPersonForm(id) {
           <div class="fg"><label>${T('form_lien_with')}</label>
             <select id="fp-lien-other">
               <option value="">${T('form_lien_none')}</option>
-              ${people.slice().sort((a,b)=>a.prenom.localeCompare(b.prenom,undefined,{sensitivity:'base'})).map(x=>`<option value="${x.id}">${fullName(x)}</option>`).join('')}
+              ${people.filter(x=>inCurrentTree(x.id)).sort((a,b)=>a.prenom.localeCompare(b.prenom,undefined,{sensitivity:'base'})).map(x=>`<option value="${x.id}">${fullName(x)}</option>`).join('')}
             </select>
           </div>
         </div>` : ''}

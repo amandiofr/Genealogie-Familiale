@@ -10,6 +10,11 @@ $id     = (int)($_GET['id'] ?? 0);
 // GET — liste
 if ($method === 'GET' && !$id) {
     $rows = $db->query('SELECT id,nom,email,role,created_at FROM utilisateurs ORDER BY id')->fetchAll();
+    // Inclure les arbres assignés pour chaque utilisateur
+    $auRows = $db->query('SELECT utilisateur_id, arbre_id FROM arbre_utilisateurs')->fetchAll();
+    $auMap = [];
+    foreach ($auRows as $r) $auMap[$r['utilisateur_id']][] = $r['arbre_id'];
+    foreach ($rows as &$u) $u['arbres'] = $auMap[$u['id']] ?? [];
     json_out($rows);
 }
 
@@ -37,6 +42,14 @@ if ($method === 'PUT' && $id) {
     } else {
         $db->prepare('UPDATE utilisateurs SET nom=?,email=?,role=? WHERE id=?')
            ->execute([$b['nom'], $b['email'], $b['role'], $id]);
+    }
+    // Mettre à jour les arbres assignés
+    if (isset($b['arbres']) && is_array($b['arbres'])) {
+        $db->prepare('DELETE FROM arbre_utilisateurs WHERE utilisateur_id=?')->execute([$id]);
+        $st = $db->prepare('INSERT IGNORE INTO arbre_utilisateurs (arbre_id, utilisateur_id) VALUES (?,?)');
+        foreach ($b['arbres'] as $arbreId) {
+            if ($arbreId) $st->execute([$arbreId, $id]);
+        }
     }
     json_out(['ok' => true]);
 }

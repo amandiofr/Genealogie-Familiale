@@ -4,12 +4,52 @@
 async function loadUsers(){
   const users=await api('GET','api/utilisateurs.php');
   document.getElementById('users-list').innerHTML=users.map(u=>`
-    <div class="user-row">
+    <div class="user-row" id="user-row-${u.id}">
       <div style="flex:1;"><div style="font-size:.88rem;font-weight:500;">${u.nom}</div><div style="font-size:.72rem;color:var(--ink3);">${u.email}</div></div>
       <span class="role-badge ${u.role}">${T('role_' + u.role)}</span>
+      ${u.role !== 'admin' ? `<button class="btn-sm" title="${T('lbl_arbres')}" onclick="showUserArbres(${u.id},${JSON.stringify(u.arbres).replace(/"/g,'&quot;')})">🌳</button>` : ''}
       <button class="btn-sm" title="${T('autologin_copy')}" onclick="genAutologinLink(${u.id})">🔗</button>
       <button class="btn-sm" onclick="deleteUser(${u.id},'${u.role}')">🗑</button>
     </div>`).join('');
+}
+
+function showUserArbres(userId, userArbres) {
+  const arbreNom = a => a.prenom_b ? `${a.prenom_a} ${T('lbl_et')} ${a.prenom_b}` : a.prenom_a;
+  const checks = _arbres.map(a => `
+    <label style="display:flex;align-items:center;gap:8px;padding:5px 0;cursor:pointer;font-size:.85rem;">
+      <input type="checkbox" value="${encodeHTML(a.id)}" ${userArbres.includes(a.id)?'checked':''} style="width:15px;height:15px;">
+      ${encodeHTML(arbreNom(a))}
+    </label>`).join('');
+  const el = document.getElementById('user-row-' + userId);
+  // Supprimer un panel déjà ouvert
+  const existing = el.nextElementSibling;
+  if (existing && existing.classList.contains('arbre-assign-panel')) { existing.remove(); return; }
+  document.querySelectorAll('.arbre-assign-panel').forEach(p => p.remove());
+  const panel = document.createElement('div');
+  panel.className = 'arbre-assign-panel';
+  panel.style.cssText = 'padding:10px 14px 12px;background:var(--bg2);border-top:1px solid var(--border);';
+  panel.innerHTML = `
+    <div style="font-size:.75rem;font-weight:500;color:var(--ink2);margin-bottom:6px;">${T('lbl_acces_arbres')}</div>
+    <div id="arbre-checks-${userId}">${checks || `<span style="font-size:.8rem;color:var(--ink3);">${T('empty_arbres')}</span>`}</div>
+    <div style="margin-top:10px;display:flex;gap:8px;">
+      <button class="btn-primary" style="font-size:.78rem;padding:5px 12px;" onclick="saveUserArbres(${userId})">${T('form_save')}</button>
+      <button class="btn-secondary" style="font-size:.78rem;padding:5px 12px;" onclick="this.closest('.arbre-assign-panel').remove()">${T('form_cancel')}</button>
+    </div>`;
+  el.insertAdjacentElement('afterend', panel);
+}
+
+async function saveUserArbres(userId) {
+  const checks = document.querySelectorAll(`#arbre-checks-${userId} input[type=checkbox]`);
+  const arbres = Array.from(checks).filter(c=>c.checked).map(c=>c.value);
+  try {
+    // PUT minimal : seulement les arbres (pas de nom/email/role)
+    const u = await api('GET','api/utilisateurs.php');
+    const user = u.find(x=>x.id===userId);
+    await api('PUT', `api/utilisateurs.php?id=${userId}`, {nom:user.nom, email:user.email, role:user.role, arbres});
+    document.querySelector('.arbre-assign-panel')?.remove();
+    loadUsers();
+    toast(T('toast_arbres_saved'));
+  } catch(e) { toast(e.message,'error'); }
 }
 
 function showAddUser(){

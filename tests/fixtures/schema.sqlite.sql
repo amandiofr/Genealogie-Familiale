@@ -258,3 +258,10 @@ CREATE TABLE IF NOT EXISTS notification_state (
   last_sent  TEXT DEFAULT NULL,
   PRIMARY KEY (id)
 );
+
+CREATE TABLE IF NOT EXISTS arbre_utilisateurs (
+  arbre_id       TEXT    NOT NULL,
+  utilisateur_id INTEGER NOT NULL,
+  PRIMARY KEY (arbre_id, utilisateur_id),
+  FOREIGN KEY (utilisateur_id) REFERENCES utilisateurs(id) ON DELETE CASCADE
+);

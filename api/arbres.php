@@ -1,10 +1,18 @@
 <?php
 require_once __DIR__ . '/../config.php';
 session_start_once();
-require_auth();
+$currentUser = require_auth();
 header('Content-Type: application/json; charset=utf-8');
 
 $db = pdo();
+
+// IDs d'arbres autorisés pour cet utilisateur (null = tous)
+$allowedArbres = null;
+if ($currentUser['role'] !== 'admin') {
+    $rows = $db->prepare('SELECT arbre_id FROM arbre_utilisateurs WHERE utilisateur_id = ?');
+    $rows->execute([$currentUser['id']]);
+    $allowedArbres = array_column($rows->fetchAll(), 'arbre_id');
+}
 
 // IDs de personnes qui ont au moins un parent (personne_b dans parent_enfant)
 $hasParentRows = $db->query("
@@ -96,6 +104,11 @@ foreach ($singles as $p) {
     $rootIds = [(int)$p['id']];
     $membres = bfs($rootIds, $childrenMap);
     $arbres[] = ['id' => 'p_' . $p['id'], 'prenom_a' => $p['prenom'], 'prenom_b' => null, 'racine' => $rootIds, 'membres' => $membres];
+}
+
+// Filtrer par arbres autorisés si non-admin
+if ($allowedArbres !== null) {
+    $arbres = array_values(array_filter($arbres, fn($a) => in_array($a['id'], $allowedArbres)));
 }
 
 json_out($arbres);

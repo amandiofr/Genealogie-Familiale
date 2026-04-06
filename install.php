@@ -286,6 +286,14 @@ CREATE TABLE IF NOT EXISTS notification_state (
   PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;",
 
+'arbre_utilisateurs' => "
+CREATE TABLE IF NOT EXISTS arbre_utilisateurs (
+  arbre_id      VARCHAR(50)  NOT NULL,
+  utilisateur_id INT UNSIGNED NOT NULL,
+  PRIMARY KEY (arbre_id, utilisateur_id),
+  FOREIGN KEY (utilisateur_id) REFERENCES utilisateurs(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;",
+
 ];
 
 $errors = [];

@@ -199,6 +199,7 @@ const LANGS = {
     autologin_copy:'Générer un lien de connexion', autologin_copied:'Lien copié dans le presse-papiers',
     // Autos
     lbl_et:'et', arbre_all:'Tous les arbres',
+    lbl_arbres:'Arbres', lbl_acces_arbres:'Accès aux arbres', empty_arbres:'Aucun arbre disponible', toast_arbres_saved:'Accès mis à jour',
     nav_autos:'Autos', h_autos:'Autos de famille', add_auto:'+ Ajouter',
     empty_autos:'Aucune voiture', empty_autos_sub:'Ajoutez la première voiture de la famille',
     form_title_new_auto:'Nouvelle voiture',
@@ -385,6 +386,7 @@ const LANGS = {
     autologin_copy:'Gerar link de acesso', autologin_copied:'Link copiado para a área de transferência',
     // Autos
     lbl_et:'e', arbre_all:'Todas as árvores',
+    lbl_arbres:'Árvores', lbl_acces_arbres:'Acesso às árvores', empty_arbres:'Nenhuma árvore disponível', toast_arbres_saved:'Acesso atualizado',
     nav_autos:'Autos', h_autos:'Carros da família', add_auto:'+ Adicionar',
     empty_autos:'Nenhum carro', empty_autos_sub:'Adicione o primeiro carro da família',
     form_title_new_auto:'Novo carro',
@@ -554,6 +556,7 @@ const LANGS = {
     author_placeholder:'First name',
     autologin_copy:'Generate login link', autologin_copied:'Link copied to clipboard',
     lbl_et:'and', arbre_all:'All trees',
+    lbl_arbres:'Trees', lbl_acces_arbres:'Tree access', empty_arbres:'No trees available', toast_arbres_saved:'Access updated',
     nav_autos:'Cars', h_autos:'Family cars', add_auto:'+ Add',
     empty_autos:'No cars', empty_autos_sub:'Add the first family car',
     form_title_new_auto:'New car',
@@ -730,6 +733,7 @@ const LANGS = {
     author_placeholder:'Vorname',
     autologin_copy:'Anmeldelink generieren', autologin_copied:'Link in die Zwischenablage kopiert',
     lbl_et:'und', arbre_all:'Alle Bäume',
+    lbl_arbres:'Bäume', lbl_acces_arbres:'Baumzugang', empty_arbres:'Keine Bäume verfügbar', toast_arbres_saved:'Zugang aktualisiert',
     nav_autos:'Autos', h_autos:'Familienautos', add_auto:'+ Hinzufügen',
     empty_autos:'Keine Autos', empty_autos_sub:'Erstes Familienauto hinzufügen',
     form_title_new_auto:'Neues Auto',
@@ -906,6 +910,7 @@ const LANGS = {
     author_placeholder:'نام',
     autologin_copy:'ایجاد لینک ورود', autologin_copied:'لینک در کلیپ‌بورد کپی شد',
     lbl_et:'و', arbre_all:'همه درخت‌ها',
+    lbl_arbres:'درخت‌ها', lbl_acces_arbres:'دسترسی به درخت‌ها', empty_arbres:'هیچ درختی موجود نیست', toast_arbres_saved:'دسترسی به‌روز شد',
     nav_autos:'اتومبیل‌ها', h_autos:'اتومبیل‌های خانوادگی', add_auto:'+ افزودن',
     empty_autos:'هیچ اتومبیلی وجود ندارد', empty_autos_sub:'اولین اتومبیل خانوادگی را اضافه کنید',
     form_title_new_auto:'اتومبیل جدید',
@@ -1098,7 +1103,8 @@ function setAuthorName(val) {
 function updateAuthorPicker() {
   const sel = document.getElementById('author-picker');
   if (!sel) return;
-  const names = [...new Set(people.map(p => p.prenom))].sort((a,b) => a.localeCompare(b,'fr'));
+  const filtered = (typeof inCurrentTree === 'function') ? people.filter(p => inCurrentTree(p.id)) : people;
+  const names = [...new Set(filtered.map(p => p.prenom))].sort((a,b) => a.localeCompare(b,'fr'));
   sel.innerHTML = `<option value="" disabled${!authorName ? ' selected' : ''}>${T('author_placeholder')}</option>`
     + names.map(n => `<option value="${n}"${n === authorName ? ' selected' : ''}>${n}</option>`).join('');
   _resizeAuthorPicker();

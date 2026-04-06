@@ -1,8 +1,28 @@
 // ══════════════════════════════════════════════════════════════
 //  RECETTES
 // ══════════════════════════════════════════════════════════════
+function _normName(s) {
+  return s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+}
+function _nameSimilar(a, b) {
+  const na=_normName(a), nb=_normName(b);
+  if(na===nb) return true;
+  // Levenshtein avec seuil 2
+  const m=na.length, n=nb.length;
+  if(Math.abs(m-n)>2) return false;
+  const dp=Array.from({length:m+1},(_,i)=>Array.from({length:n+1},(_,j)=>i?j?0:i:j));
+  for(let i=1;i<=m;i++) for(let j=1;j<=n;j++)
+    dp[i][j]=na[i-1]===nb[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);
+  return dp[m][n]<=2;
+}
+
 async function loadRecettes(){
-  const rows=await api('GET','api/recettes.php');
+  const all=await api('GET','api/recettes.php');
+  const rows=all.filter(r=>{
+    if(!_currentMembers) return true;
+    if(!r.auteur) return true;
+    return people.some(p=>inCurrentTreeDirect(p.id)&&_nameSimilar(p.prenom,r.auteur));
+  });
   const el=document.getElementById('recettes-list');
   if(!rows.length){el.innerHTML=`<div class="empty"><div class="empty-icon">🍽️</div><div class="empty-title">${T('empty_recettes')}</div><div class="empty-sub">${T('empty_recettes_sub')}</div></div>`;return;}
   el.innerHTML=rows.map(r=>`

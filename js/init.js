@@ -76,6 +76,7 @@ function setCurrentArbre(id) {
   _currentArbreId = id;
   localStorage.setItem('genealogie_arbre', id);
   _applyArbre();
+  updateAuthorPicker();
   renderTree();
   const activeView = document.querySelector('.view.active')?.id?.replace('view-', '');
   if (activeView && activeView !== 'tree') showView(activeView, null);

@@ -3,7 +3,7 @@
 // ══════════════════════════════════════════════════════════════
 async function loadEvents(){
   const all=await api('GET','api/evenements.php');
-  const evts=all.filter(e=>!_currentMembers||e.personne_ids.some(id=>_currentMembers.has(id)));
+  const evts=all.filter(e=>!_currentMembers||e.personne_ids.some(id=>inCurrentTreeDirect(id)));
   const el=document.getElementById('events-grid');
   if(!evts.length){el.innerHTML=`<div class="empty"><div class="empty-icon">📅</div><div class="empty-title">${T('empty_events')}</div><div class="empty-sub">${T('empty_events_sub')}</div></div>`;return;}
   // Tri chronologique (événements sans date en dernier)
@@ -80,7 +80,7 @@ async function showEventForm(id){
   if (id) { try { e = await api('GET', `api/evenements.php?id=${id}`); } catch {} }
 
   const participantIds = new Set((e?.personnes||[]).map(p=>String(p.id)));
-  const peopleOptions = people.map(p=>`<option value="${p.id}"${participantIds.has(String(p.id))?' selected':''}>${fullName(p)}</option>`).join('');
+  const peopleOptions = people.filter(p=>inCurrentTree(p.id)).map(p=>`<option value="${p.id}"${participantIds.has(String(p.id))?' selected':''}>${fullName(p)}</option>`).join('');
 
   const typeOptions = ['mariage','demenagement','autre']
     .map(t => `<option value="${t}"${e?.type===t?' selected':''}>${EVT_ICONS[t]||''} ${evtLabel(t)}</option>`).join('');
@@ -176,7 +176,8 @@ async function deleteEvent(id){
 //  ANECDOTES
 // ══════════════════════════════════════════════════════════════
 async function loadAnecdotes(){
-  const rows=await api('GET','api/anecdotes.php');
+  const all=await api('GET','api/anecdotes.php');
+  const rows=all.filter(a=>!_currentMembers||!a.personne_ids.length||a.personne_ids.some(id=>inCurrentTreeDirect(id)));
   const el=document.getElementById('anecdotes-list');
   if(!rows.length){el.innerHTML=`<div class="empty"><div class="empty-icon">📖</div><div class="empty-title">${T('empty_anecdotes')}</div><div class="empty-sub">${T('empty_anecdotes_sub')}</div></div>`;return;}
   el.innerHTML=rows.map(a=>`

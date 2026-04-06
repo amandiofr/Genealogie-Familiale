@@ -3,7 +3,7 @@
 // ══════════════════════════════════════════════════════════════
 async function loadAutos() {
   const all = await api('GET', 'api/autos.php');
-  const rows = all.filter(a => !a.owner_id || inCurrentTree(a.owner_id));
+  const rows = all.filter(a => !a.owner_id || inCurrentTreeDirect(a.owner_id));
   const el = document.getElementById('autos-list');
   if (!rows.length) {
     el.innerHTML = `<div class="empty"><div class="empty-icon">🚗</div><div class="empty-title">${T('empty_autos')}</div><div class="empty-sub">${T('empty_autos_sub')}</div></div>`;

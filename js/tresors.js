@@ -2,7 +2,13 @@
 //  TRÉSORS
 // ══════════════════════════════════════════════════════════════
 async function loadTresors(){
-  const rows=await api('GET','api/tresors.php');
+  const all=await api('GET','api/tresors.php');
+  const rows=all.filter(t=>{
+    if(!_currentMembers) return true;
+    if(t.personne_ids.length) return t.personne_ids.some(id=>inCurrentTreeDirect(id));
+    if(!t.auteur) return true;
+    return people.some(p=>inCurrentTreeDirect(p.id)&&_nameSimilar(p.prenom,t.auteur));
+  });
   const el=document.getElementById('tresors-list');
   if(!rows.length){el.innerHTML=`<div class="empty"><div class="empty-icon">💎</div><div class="empty-title">${T('empty_tresors')}</div><div class="empty-sub">${T('empty_tresors_sub')}</div></div>`;return;}
   el.innerHTML=rows.map(t=>`

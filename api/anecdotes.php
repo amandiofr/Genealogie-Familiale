@@ -12,7 +12,8 @@ $subid  = (int)($_GET['subid'] ?? 0);
 if ($method === 'GET' && !$id) {
     $rows = $db->query("
         SELECT a.*,
-          GROUP_CONCAT(p.prenom SEPARATOR ', ') AS personnes_noms,
+          GROUP_CONCAT(DISTINCT p.prenom ORDER BY p.prenom SEPARATOR ', ') AS personnes_noms,
+          GROUP_CONCAT(DISTINCT ap.personne_id) AS personne_ids,
           COALESCE(
             (SELECT chemin_thumb FROM anecdote_photos WHERE id=a.photo_id AND anecdote_id=a.id LIMIT 1),
             (SELECT chemin_thumb FROM anecdote_photos WHERE anecdote_id=a.id ORDER BY ordre LIMIT 1)
@@ -23,6 +24,10 @@ if ($method === 'GET' && !$id) {
         GROUP BY a.id
         ORDER BY a.date_anec IS NULL, a.date_anec DESC, a.created_at DESC
     ")->fetchAll();
+    foreach ($rows as &$row) {
+        $row['personne_ids'] = $row['personne_ids']
+            ? array_map('intval', explode(',', $row['personne_ids'])) : [];
+    }
     json_out($rows);
 }
 
