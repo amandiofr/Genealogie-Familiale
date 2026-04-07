@@ -11,7 +11,7 @@ const LANGS = {
     nav_reunions:'Réunions', nav_anecdotes:'Anecdotes', nav_tresors:'Trésors', nav_recettes:'Recettes', nav_timeline:'Chronologie', nav_admin:'Admin',
     // Site title & page headers
     site_title:'Notre Famille',
-    h_membres:'Membres', h_events:'Événements', h_reunions:'Réunions familiales', h_anecdotes:'Anecdotes', h_tresors:'Trésors de famille', h_recettes:'Recettes de famille', h_timeline:'Frise chronologique',
+    h_membres:'Membres', h_events:'Événements', h_reunions:'Réunions familiales', h_anecdotes:'Anecdotes', h_tresors:'Trésors de famille', h_recettes:'Recettes de famille', h_timeline:'Au fil du temps',
     h_admin:'Administration',
     h_repartition:'Répartition par génération',
     h_longevite:'Longévité la plus élevée',
@@ -1101,6 +1101,12 @@ function applyLang() {
     const el = document.getElementById(id);
     if (el) el.textContent = T(key);
   });
+  // Admin toggle button (has a <span> for the arrow — update only the text node)
+  const navAdminBtn = document.getElementById('nav-admin');
+  if (navAdminBtn) {
+    const tn = [...navAdminBtn.childNodes].find(n => n.nodeType === Node.TEXT_NODE);
+    if (tn) tn.textContent = T('nav_admin') + ' ';
+  }
   const transLbl = document.getElementById('auto-translate-lbl');
   if (transLbl) transLbl.textContent = T('lbl_translate');
   // Export page
