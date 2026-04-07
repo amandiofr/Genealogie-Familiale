@@ -368,6 +368,7 @@ async function uploadPhotos(personId){
   }
   pendingFiles=[];
   await loadPeople();
+  renderTree();
   closeOverlay('modal-person-edit-overlay');
   toast(`${pendingFiles.length||'Photos'} envoyée(s)`);
   openPerson(personId);
