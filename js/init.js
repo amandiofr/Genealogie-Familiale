@@ -159,7 +159,7 @@ async function init() {
 // ══════════════════════════════════════════════════════════════
 async function api(method, url, body) {
   const opts = { method, headers:{} };
-  if (authorName) opts.headers['X-Author-Name'] = encodeURIComponent(authorName);
+  if (authorName) opts.headers['X-Author-Name'] = btoa(unescape(encodeURIComponent(authorName)));
   if (body instanceof FormData) { opts.body = body; }
   else if (body) { opts.headers['Content-Type']='application/json'; opts.body=JSON.stringify(body); }
   const r = await fetch(url, opts);
