@@ -29,9 +29,14 @@ async function buildTreeSVG() {
 
 function _expandCurrentMembersWithSpouses() {
   if (!_currentMembers) return;
+  // Ajouter les conjoints
   _allLiens.filter(l => l.type === 'conjoint').forEach(l => {
     if (_currentMembers.has(Number(l.personne_a))) _currentMembers.add(Number(l.personne_b));
     if (_currentMembers.has(Number(l.personne_b))) _currentMembers.add(Number(l.personne_a));
+  });
+  // Ajouter les enfants des conjoints ajoutés
+  _allLiens.filter(l => l.type === 'parent_enfant').forEach(l => {
+    if (_currentMembers.has(Number(l.personne_a))) _currentMembers.add(Number(l.personne_b));
   });
 }
 
