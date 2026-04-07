@@ -12,7 +12,8 @@ async function loadReunions(){
     if(!b.date_debut) return -1;
     return a.date_debut > b.date_debut ? -1 : a.date_debut < b.date_debut ? 1 : 0;
   });
-  el.innerHTML=evts.map(e=>`
+  const rows=await Promise.all(evts.map(e=>translateFields(e,['titre'])));
+  el.innerHTML=rows.map(e=>`
     <div class="ev-card" onclick="openReunion(${e.id})">
       ${e.thumb?`<img class="ev-thumb" src="${imgUrl(e.thumb)}" alt="">`:''}
       <div class="ev-title">${e.titre}</div>
@@ -21,7 +22,8 @@ async function loadReunions(){
 }
 
 async function openReunion(id){
-  const e=await api('GET',`api/reunions.php?id=${id}`);
+  let e=await api('GET',`api/reunions.php?id=${id}`);
+  e=await translateFields(e,['titre','description']);
   const avatarHtml = e.thumb
     ? `<div class="modal-av" style="border-radius:10px;overflow:hidden;width:60px;height:60px;flex-shrink:0;"><img src="${imgUrl(e.thumb)}" style="width:100%;height:100%;object-fit:cover;" alt=""></div>`
     : `<div style="font-size:1.8rem;line-height:1;">🏡</div>`;

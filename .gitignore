@@ -5,7 +5,6 @@
 
 # Config locales
 config.local.php
-config.php
 
 # Dépendances
 /vendor/

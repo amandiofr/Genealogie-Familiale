@@ -200,6 +200,11 @@ const LANGS = {
     // Autos
     lbl_et:'et', arbre_all:'Tous les arbres',
     lbl_arbres:'Arbres', lbl_acces_arbres:'Accès aux arbres', empty_arbres:'Aucun arbre disponible', toast_arbres_saved:'Accès mis à jour',
+    lbl_translate:'Traduire',
+    btn_choose_file:'Choisir un fichier',
+    export_gedcom_title:'Exporter en GEDCOM', export_gedcom_sub:'Standard universel — compatible Ancestry, MyHeritage, Geneanet…',
+    export_json_title:'Exporter en JSON', export_json_sub:'Sauvegarde complète — toutes les données, événements, anecdotes',
+    export_csv_title:'Exporter en CSV (ZIP)', export_csv_sub:'Toutes les tables — membres, liens, événements, anecdotes…',
     nav_autos:'Autos', h_autos:'Autos de famille', add_auto:'+ Ajouter',
     empty_autos:'Aucune voiture', empty_autos_sub:'Ajoutez la première voiture de la famille',
     form_title_new_auto:'Nouvelle voiture',
@@ -387,6 +392,11 @@ const LANGS = {
     // Autos
     lbl_et:'e', arbre_all:'Todas as árvores',
     lbl_arbres:'Árvores', lbl_acces_arbres:'Acesso às árvores', empty_arbres:'Nenhuma árvore disponível', toast_arbres_saved:'Acesso atualizado',
+    lbl_translate:'Traduzir',
+    btn_choose_file:'Escolher um ficheiro',
+    export_gedcom_title:'Exportar em GEDCOM', export_gedcom_sub:'Padrão universal — compatível com Ancestry, MyHeritage, Geneanet…',
+    export_json_title:'Exportar em JSON', export_json_sub:'Backup completo — todos os dados, eventos, anedotas',
+    export_csv_title:'Exportar em CSV (ZIP)', export_csv_sub:'Todas as tabelas — membros, ligações, eventos, anedotas…',
     nav_autos:'Autos', h_autos:'Carros da família', add_auto:'+ Adicionar',
     empty_autos:'Nenhum carro', empty_autos_sub:'Adicione o primeiro carro da família',
     form_title_new_auto:'Novo carro',
@@ -557,6 +567,11 @@ const LANGS = {
     autologin_copy:'Generate login link', autologin_copied:'Link copied to clipboard',
     lbl_et:'and', arbre_all:'All trees',
     lbl_arbres:'Trees', lbl_acces_arbres:'Tree access', empty_arbres:'No trees available', toast_arbres_saved:'Access updated',
+    lbl_translate:'Translate',
+    btn_choose_file:'Choose a file',
+    export_gedcom_title:'Export to GEDCOM', export_gedcom_sub:'Universal standard — compatible with Ancestry, MyHeritage, Geneanet…',
+    export_json_title:'Export to JSON', export_json_sub:'Full backup — all data, events, anecdotes',
+    export_csv_title:'Export to CSV (ZIP)', export_csv_sub:'All tables — members, links, events, anecdotes…',
     nav_autos:'Cars', h_autos:'Family cars', add_auto:'+ Add',
     empty_autos:'No cars', empty_autos_sub:'Add the first family car',
     form_title_new_auto:'New car',
@@ -734,6 +749,11 @@ const LANGS = {
     autologin_copy:'Anmeldelink generieren', autologin_copied:'Link in die Zwischenablage kopiert',
     lbl_et:'und', arbre_all:'Alle Bäume',
     lbl_arbres:'Bäume', lbl_acces_arbres:'Baumzugang', empty_arbres:'Keine Bäume verfügbar', toast_arbres_saved:'Zugang aktualisiert',
+    lbl_translate:'Übersetzen',
+    btn_choose_file:'Datei auswählen',
+    export_gedcom_title:'Als GEDCOM exportieren', export_gedcom_sub:'Universalstandard — kompatibel mit Ancestry, MyHeritage, Geneanet…',
+    export_json_title:'Als JSON exportieren', export_json_sub:'Vollständiges Backup — alle Daten, Ereignisse, Anekdoten',
+    export_csv_title:'Als CSV exportieren (ZIP)', export_csv_sub:'Alle Tabellen — Mitglieder, Verknüpfungen, Ereignisse, Anekdoten…',
     nav_autos:'Autos', h_autos:'Familienautos', add_auto:'+ Hinzufügen',
     empty_autos:'Keine Autos', empty_autos_sub:'Erstes Familienauto hinzufügen',
     form_title_new_auto:'Neues Auto',
@@ -911,6 +931,11 @@ const LANGS = {
     autologin_copy:'ایجاد لینک ورود', autologin_copied:'لینک در کلیپ‌بورد کپی شد',
     lbl_et:'و', arbre_all:'همه درخت‌ها',
     lbl_arbres:'درخت‌ها', lbl_acces_arbres:'دسترسی به درخت‌ها', empty_arbres:'هیچ درختی موجود نیست', toast_arbres_saved:'دسترسی به‌روز شد',
+    lbl_translate:'ترجمه',
+    btn_choose_file:'انتخاب فایل',
+    export_gedcom_title:'صدور به GEDCOM', export_gedcom_sub:'استاندارد جهانی — سازگار با Ancestry، MyHeritage، Geneanet…',
+    export_json_title:'صدور به JSON', export_json_sub:'پشتیبان کامل — همه داده‌ها، رویدادها، خاطرات',
+    export_csv_title:'صدور به CSV (ZIP)', export_csv_sub:'همه جداول — اعضا، پیوندها، رویدادها، خاطرات…',
     nav_autos:'اتومبیل‌ها', h_autos:'اتومبیل‌های خانوادگی', add_auto:'+ افزودن',
     empty_autos:'هیچ اتومبیلی وجود ندارد', empty_autos_sub:'اولین اتومبیل خانوادگی را اضافه کنید',
     form_title_new_auto:'اتومبیل جدید',
@@ -1069,11 +1094,22 @@ function applyLang() {
     'btn-pwd-save':       'pwd_save',
     'btn-import-ged':     'btn_import_ged',
     'btn-import-json':    'btn_import_json',
+    'btn-choose-ged':     'btn_choose_file',
+    'btn-choose-json':    'btn_choose_file',
   };
   Object.entries(adminIds).forEach(([id, key]) => {
     const el = document.getElementById(id);
     if (el) el.textContent = T(key);
   });
+  const transLbl = document.getElementById('auto-translate-lbl');
+  if (transLbl) transLbl.textContent = T('lbl_translate');
+  // Export page
+  const exportIds = {
+    'export-gedcom-title':'export_gedcom_title','export-gedcom-sub':'export_gedcom_sub',
+    'export-json-title':'export_json_title','export-json-sub':'export_json_sub',
+    'export-csv-title':'export_csv_title','export-csv-sub':'export_csv_sub',
+  };
+  Object.entries(exportIds).forEach(([id,key])=>{ const el=document.getElementById(id); if(el) el.textContent=T(key); });
   const activeView = document.querySelector('.view.active');
   if (activeView?.id === 'view-list')      filterList();
   if (activeView?.id === 'view-tree')      renderTree();

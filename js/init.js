@@ -141,6 +141,7 @@ async function init() {
   if (_c) _c.textContent = _m.code;
   applyLang();
   updateAuthorPicker();
+  initAutoTranslate();
   renderTree();
 
   // Deep linking via URL hash

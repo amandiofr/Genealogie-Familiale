@@ -13,7 +13,8 @@ async function loadEvents(){
     if(!b.date_debut) return -1;
     return a.date_debut < b.date_debut ? -1 : a.date_debut > b.date_debut ? 1 : 0;
   });
-  el.innerHTML=evts.map(e=>`
+  const rows=await Promise.all(evts.map(e=>translateFields(e,['titre'])));
+  el.innerHTML=rows.map(e=>`
     <div class="ev-card" onclick="openEvent(${e.id})">
       ${e.thumb?`<img class="ev-thumb" src="${imgUrl(e.thumb)}" alt="">`:''}
       <div class="ev-type">${EVT_ICONS[e.type]||''} ${evtLabel(e.type)}</div>
@@ -23,7 +24,8 @@ async function loadEvents(){
 }
 
 async function openEvent(id){
-  const e=await api('GET',`api/evenements.php?id=${id}`);
+  let e=await api('GET',`api/evenements.php?id=${id}`);
+  e=await translateFields(e,['titre','description']);
   // Avatar : photo préférée ou icône type
   const avatarHtml = e.thumb
     ? `<div class="modal-av" style="border-radius:10px;overflow:hidden;width:60px;height:60px;flex-shrink:0;"><img src="${imgUrl(e.thumb)}" style="width:100%;height:100%;object-fit:cover;" alt=""></div>`
@@ -177,7 +179,8 @@ async function deleteEvent(id){
 // ══════════════════════════════════════════════════════════════
 async function loadAnecdotes(){
   const all=await api('GET','api/anecdotes.php');
-  const rows=all.filter(a=>!_currentMembers||!a.personne_ids.length||a.personne_ids.some(id=>inCurrentTreeDirect(id)));
+  const filtered=all.filter(a=>!_currentMembers||!a.personne_ids.length||a.personne_ids.some(id=>inCurrentTreeDirect(id)));
+  const rows=await Promise.all(filtered.map(a=>translateFields(a,['titre','contenu'])));
   const el=document.getElementById('anecdotes-list');
   if(!rows.length){el.innerHTML=`<div class="empty"><div class="empty-icon">📖</div><div class="empty-title">${T('empty_anecdotes')}</div><div class="empty-sub">${T('empty_anecdotes_sub')}</div></div>`;return;}
   el.innerHTML=rows.map(a=>`
@@ -192,7 +195,8 @@ async function loadAnecdotes(){
 }
 
 async function openAnecdote(id){
-  const a=await api('GET',`api/anecdotes.php?id=${id}`);
+  let a=await api('GET',`api/anecdotes.php?id=${id}`);
+  a=await translateFields(a,['titre','contenu']);
   let html=`<div class="modal-hd" style="padding:1.2rem 1.4rem .8rem;">
     <div style="font-size:1.5rem;">📖</div>
     <div class="modal-ti"><div class="modal-name">${a.titre}</div>${a.date_anec||a.auteur?`<div class="modal-maiden">${[a.date_anec,a.auteur?T('lbl_by')+' '+a.auteur:''].filter(Boolean).join(' · ')}</div>`:''}</div>

@@ -3,12 +3,13 @@
 // ══════════════════════════════════════════════════════════════
 async function loadTresors(){
   const all=await api('GET','api/tresors.php');
-  const rows=all.filter(t=>{
+  const filtered=all.filter(t=>{
     if(!_currentMembers) return true;
     if(t.personne_ids.length) return t.personne_ids.some(id=>inCurrentTreeDirect(id));
     if(!t.auteur) return true;
     return people.some(p=>inCurrentTreeDirect(p.id)&&_nameSimilar(p.prenom,t.auteur));
   });
+  const rows=await Promise.all(filtered.map(t=>translateFields(t,['titre','contenu'])));
   const el=document.getElementById('tresors-list');
   if(!rows.length){el.innerHTML=`<div class="empty"><div class="empty-icon">💎</div><div class="empty-title">${T('empty_tresors')}</div><div class="empty-sub">${T('empty_tresors_sub')}</div></div>`;return;}
   el.innerHTML=rows.map(t=>`
@@ -23,7 +24,8 @@ async function loadTresors(){
 }
 
 async function openTresor(id){
-  const t=await api('GET',`api/tresors.php?id=${id}`);
+  let t=await api('GET',`api/tresors.php?id=${id}`);
+  t=await translateFields(t,['titre','contenu']);
   let html=`<div class="modal-hd" style="padding:1.2rem 1.4rem .8rem;">
     <div style="font-size:1.5rem;">💎</div>
     <div class="modal-ti"><div class="modal-name">${t.titre}</div>${t.date_tresor||t.auteur?`<div class="modal-maiden">${[t.date_tresor,t.auteur?T('lbl_by')+' '+t.auteur:''].filter(Boolean).join(' · ')}</div>`:''}</div>

@@ -65,7 +65,8 @@ function filterList() {
 //  OPEN PERSON MODAL
 // ══════════════════════════════════════════════════════════════
 async function openPerson(id) {
-  const p = await api('GET',`api/personnes.php?id=${id}`);
+  let p = await api('GET',`api/personnes.php?id=${id}`);
+  p = await translateFields(p, ['biographie']);
   const age = calcAge(p);
   const av  = (p.photos||[]).find(ph=>ph.id==p.photo_id);
 

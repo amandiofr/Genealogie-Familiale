@@ -35,7 +35,8 @@ async function loadAutos() {
 }
 
 async function openAuto(id) {
-  const a = await api('GET', `api/autos.php?id=${id}`);
+  let a = await api('GET', `api/autos.php?id=${id}`);
+  a = await translateFields(a, ['description']);
   const ownerAv = a.owner_thumb
     ? `<div class="fl-av ${a.owner_genre||'male'}" style="width:44px;height:44px;flex-shrink:0;"><img src="${imgUrl(a.owner_thumb)}" alt=""></div>`
     : a.owner_prenom
