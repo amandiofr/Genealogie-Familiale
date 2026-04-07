@@ -44,12 +44,8 @@ if (empty($logs)) {
     echo "Aucune modification à notifier.\n"; exit;
 }
 
-// ── Récupérer les destinataires avec leur token autologin ────────────────────
-$recipients = $db->query("
-    SELECT ne.email, u.autologin_token
-    FROM notification_emails ne
-    LEFT JOIN utilisateurs u ON u.email = ne.email
-")->fetchAll();
+// ── Récupérer les destinataires ───────────────────────────────────────────────
+$recipients = $db->query("SELECT email FROM notification_emails")->fetchAll();
 if (empty($recipients)) {
     echo "Aucun destinataire configuré.\n"; exit;
 }
@@ -75,38 +71,36 @@ $actionsPt = ['ajout' => 'Adição', 'modification' => 'Modificação', 'suppres
 $linesFr = '';
 $linesPt = '';
 foreach ($logs as $log) {
-    $date     = date('d/m/Y H:i', strtotime($log['created_at']));
+    $date     = date('d/m H:i', strtotime($log['created_at']));
     $typeFr   = $typesFr[$log['type']]   ?? $log['type'];
     $typePt   = $typesPt[$log['type']]   ?? $log['type'];
     $actionFr = $actionsFr[$log['action']] ?? $log['action'];
     $actionPt = $actionsPt[$log['action']] ?? $log['action'];
-    $auteur   = $log['auteur'] ? ", par {$log['auteur']}" : '';
-    $auteurPt = $log['auteur'] ? ", por {$log['auteur']}" : '';
+    $auteur   = $log['auteur'] ? "\n    par {$log['auteur']}" : '';
+    $auteurPt = $log['auteur'] ? "\n    por {$log['auteur']}" : '';
 
-    $linesFr .= "  • [{$date}] {$typeFr} — {$actionFr} : {$log['description']}{$auteur}\n";
-    $linesPt .= "  • [{$date}] {$typePt} — {$actionPt} : {$log['description']}{$auteurPt}\n";
+    $linesFr .= "• {$date} — {$typeFr} — {$actionFr}\n  {$log['description']}{$auteur}\n\n";
+    $linesPt .= "• {$date} — {$typePt} — {$actionPt}\n  {$log['description']}{$auteurPt}\n\n";
 }
 
 $nbModifs = count($logs);
 $bodyText = <<<BODY
-🌿 Nossa Família — Atualizações / Notre Famille — Mises à jour
-══════════════════════════════════════════════════════════
+🌿 Nossa Família / Notre Famille
+────────────────────────
 
-── Português ───────────────────────────────────────────
+── Português ────────────
 
-{$nbModifs} alteração(ões) foram feitas na árvore genealógica :
+{$nbModifs} alteração(ões) :
 
 {$linesPt}
+── Français ─────────────
 
-── Français ────────────────────────────────────────────
-
-{$nbModifs} modification(s) ont été apportées à l'arbre généalogique :
+{$nbModifs} modification(s) :
 
 {$linesFr}
-
-══════════════════════════════════════════════════════════
-__LINK_PT____LINK_FR__Receberá esta mensagem porque está subscrito às notificações desta árvore genealógica.
-Vous recevez ce message car vous êtes abonné aux notifications de cet arbre généalogique.
+────────────────────────
+Subscrito às notificações /
+Abonné aux notifications.
 BODY;
 
 // ── Envoyer le mail à chaque destinataire ─────────────────────────────────────
@@ -119,23 +113,13 @@ $headers .= "X-Mailer: PHP/" . phpversion();
 
 $sent = 0;
 foreach ($recipients as $r) {
-    $linkPt = $linkFr = '';
-    if (!empty($r['autologin_token'])) {
-        $url    = rtrim(SITE_URL, '/') . '/login.html?autologin=' . urlencode($r['autologin_token']);
-        $linkPt = "\n🔗 Aceder diretamente : {$url}\n";
-        $linkFr = "\n🔗 Accès direct : {$url}\n";
-    }
-    $body = str_replace(
-        ['__LINK_PT__', '__LINK_FR__'],
-        [$linkPt, $linkFr],
-        $bodyText
-    );
-    if (mail($r['email'], $subject, base64_encode($body), $headers)) {
+    if (mail($r['email'], $subject, chunk_split(base64_encode($bodyText)), $headers)) {
         $sent++;
     }
 }
 
-// ── Mettre à jour l'état ──────────────────────────────────────────────────────
+// ── Mettre à jour l'état et vider le log ─────────────────────────────────────
 $db->prepare("UPDATE notification_state SET send_after=NULL, last_sent=NOW() WHERE id=1")->execute();
+$db->exec("DELETE FROM modification_log");
 
 echo "Mail envoyé à {$sent}/" . count($recipients) . " destinataire(s). {$nbModifs} modification(s) notifiée(s).\n";

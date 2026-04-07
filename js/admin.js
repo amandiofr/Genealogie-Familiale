@@ -5,11 +5,13 @@ async function loadUsers(){
   const users=await api('GET','api/utilisateurs.php');
   document.getElementById('users-list').innerHTML=users.map(u=>`
     <div class="user-row" id="user-row-${u.id}">
-      <div style="flex:1;"><div style="font-size:.88rem;font-weight:500;">${u.nom}</div><div style="font-size:.72rem;color:var(--ink3);">${u.email}</div></div>
-      <span class="role-badge ${u.role}">${T('role_' + u.role)}</span>
-      ${u.role !== 'admin' ? `<button class="btn-sm" title="${T('lbl_arbres')}" onclick="showUserArbres(${u.id},${JSON.stringify(u.arbres).replace(/"/g,'&quot;')})">🌳</button>` : ''}
-      <button class="btn-sm" title="${T('autologin_copy')}" onclick="genAutologinLink(${u.id})">🔗</button>
-      <button class="btn-sm" onclick="deleteUser(${u.id},'${u.role}')">🗑</button>
+      <div class="user-email">${u.email}</div>
+      <div class="user-actions">
+        <span class="role-badge ${u.role}">${T('role_' + u.role)}</span>
+        ${u.role !== 'admin' ? `<button class="btn-sm" title="${T('lbl_arbres')}" onclick="showUserArbres(${u.id},${JSON.stringify(u.arbres).replace(/"/g,'&quot;')})">🌳</button>` : ''}
+        <button class="btn-sm" title="${T('autologin_copy')}" onclick="genAutologinLink(${u.id})">🔗</button>
+        <button class="btn-sm" onclick="deleteUser(${u.id},'${u.role}')">🗑</button>
+      </div>
     </div>`).join('');
 }
 
@@ -111,7 +113,7 @@ async function loadNotifEmails() {
     }
     el.innerHTML = list.map(e => `
       <div class="user-row">
-        <div style="flex:1;font-size:.85rem;">${e.email}</div>
+        <div style="flex:1;min-width:0;font-size:.85rem;word-break:break-all;">${e.email}</div>
         <button class="btn-sm" onclick="deleteNotifEmail(${e.id})">🗑</button>
       </div>`).join('');
   } catch(e) { /* tables pas encore créées → silencieux */ }
@@ -168,8 +170,14 @@ async function loadModificationLog(offset = 0) {
     }
     const actionColor = { ajout:'#2a7a2a', modification:'#1a6eb5', suppression:'#c44' };
     const rows = logs.map(l => `
-      <div style="padding:.5rem 0;border-bottom:1px solid var(--border);font-size:.78rem;line-height:1.5;">
-        <span style="color:var(--ink3);margin-right:.4rem;">${l.created_at?.replace('T',' ').slice(0,16) ?? ''}</span><span style="font-weight:500;color:var(--ink2);margin-right:.4rem;">${l.auteur ?? ''}</span><span style="padding:1px 6px;border-radius:10px;background:var(--bg2);color:var(--ink2);margin-right:.3rem;">${l.type}</span><span style="padding:1px 6px;border-radius:10px;color:#fff;background:${actionColor[l.action]??'#888'};margin-right:.4rem;">${l.action}</span><span style="color:var(--ink);">${l.description}</span>
+      <div style="padding:.5rem 0;border-bottom:1px solid var(--border);font-size:.78rem;line-height:1.6;">
+        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:.3rem .4rem;margin-bottom:.15rem;">
+          <span style="padding:1px 6px;border-radius:10px;color:#fff;background:${actionColor[l.action]??'#888'};">${l.action}</span>
+          <span style="padding:1px 6px;border-radius:10px;background:var(--bg2);color:var(--ink2);">${l.type}</span>
+          <span style="color:var(--ink3);">${l.created_at?.replace('T',' ').slice(0,16) ?? ''}</span>
+          <span style="font-weight:500;color:var(--ink2);">${l.auteur ?? ''}</span>
+        </div>
+        <div style="color:var(--ink);word-break:break-word;">${l.description}</div>
       </div>`).join('');
 
     if (offset === 0) {

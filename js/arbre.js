@@ -64,8 +64,6 @@ function drawTree(allLiens) {
   // Cela garantit que les enfants d'un même couple sont toujours contigus.
 
   const units = {};
-  // parentId → [childId, ...] dans l'ordre de rendu (pour le drag-reorder)
-  const _siblings = {};
 
   function unitWidth(u) {
     return u.type === 'couple' ? cW * 2 + cCoupleGap : cW;
@@ -119,19 +117,12 @@ function drawTree(allLiens) {
           )
         );
 
-        // Trier par arbre_ordre si défini, sinon par date de naissance
-        children.sort((a, b) => {
-          const ao = a.arbre_ordre, bo = b.arbre_ordre;
-          if (ao != null && bo != null) return ao - bo;
-          if (ao != null) return -1;
-          if (bo != null) return 1;
-          return (a.naissance || '') < (b.naissance || '') ? -1
-            : (a.naissance || '') > (b.naissance || '') ? 1
-            : a.id - b.id;
-        });
-        // Mémoriser la fratrie pour le drag-reorder
-        const parentKey = parentUnit.people.map(p => p.id).sort().join('-');
-        _siblings[parentKey] = children.map(c => c.id);
+        // Trier du plus vieux au plus jeune (gauche → droite)
+        children.sort((a, b) =>
+          (a.naissance || '') < (b.naissance || '') ? -1
+          : (a.naissance || '') > (b.naissance || '') ? 1
+          : a.id - b.id
+        );
 
         children.forEach(child => {
           if (used.has(child.id)) return;
@@ -384,10 +375,9 @@ function drawTree(allLiens) {
     const yrD  = p.deces ? p.deces.substring(0,4) : '';
     const neLabel = p.genre==='female' ? T('ne_f') : T('ne_m');
     const dates = yrD ? `${yr||'?'}–${yrD}` : yr ? `${neLabel} ${yr}` : `${neLabel} ?`;
-    const dragAttr = currentUser?.role === 'admin' ? `data-drag-pid="${p.id}"` : '';
     const av = p.chemin_thumb
-      ? `<div class="p-avatar ${p.genre}" ${dragAttr}><img src="${imgUrl(p.chemin_thumb)}" alt="" style="pointer-events:none"></div>`
-      : `<div class="p-avatar ${p.genre}" ${dragAttr}>${initials(p)}</div>`;
+      ? `<div class="p-avatar ${p.genre}"><img src="${imgUrl(p.chemin_thumb)}" alt="" style="pointer-events:none"></div>`
+      : `<div class="p-avatar ${p.genre}">${initials(p)}</div>`;
     const maidenLabel = p.genre==='female' ? T('nee_label') : T('ne_label');
     const maiden = p.nom_naiss ? `<div class="p-maiden">${maidenLabel} ${p.nom_naiss}</div>` : '';
 
@@ -406,7 +396,6 @@ function drawTree(allLiens) {
   const wrap = document.getElementById('view-tree').querySelector('.tree-wrap');
   enableDrag(wrap);
   enablePinchZoom(wrap);
-  if (currentUser?.role === 'admin') enableTreeReorder(container, _siblings);
   requestAnimationFrame(() => centerTree());
 }
 
@@ -430,89 +419,6 @@ function centerTree() {
   }
 }
 
-function enableTreeReorder(container, siblings) {
-  // siblings: { 'parentKey': [childId, ...] }
-  // On travaille sur les foreignObject dans le SVG
-  const svg = container.querySelector('svg');
-  if (!svg) return;
-
-  const DRAG_THRESHOLD = 6; // px avant de considérer que c'est un vrai drag
-  let dragState = null; // { pid, fo, avatar, origX, startClientX, siblingKey, siblingIds, dragging }
-
-  container.addEventListener('pointerdown', e => {
-    const avatar = e.target.closest('[data-drag-pid]');
-    if (!avatar) return;
-    const fo = avatar.closest('foreignObject');
-    if (!fo) return;
-
-    const pid = +avatar.dataset.dragPid;
-    let siblingKey = null, siblingIds = null;
-    for (const [key, ids] of Object.entries(siblings)) {
-      if (ids.includes(pid)) { siblingKey = key; siblingIds = ids; break; }
-    }
-    if (!siblingIds) return;
-
-    dragState = { pid, fo, avatar, origX: parseFloat(fo.getAttribute('x')), startClientX: e.clientX, pointerId: e.pointerId, siblingKey, siblingIds, dragging: false };
-  });
-
-  container.addEventListener('pointermove', e => {
-    if (!dragState) return;
-    const dx = e.clientX - dragState.startClientX;
-    if (!dragState.dragging) {
-      if (Math.abs(dx) < DRAG_THRESHOLD) return;
-      // Seuil dépassé : démarrer le drag
-      dragState.dragging = true;
-      container.setPointerCapture(dragState.pointerId);
-      e.stopPropagation();
-      e.preventDefault();
-      dragState.fo.style.opacity = '0.6';
-      dragState.avatar.style.cursor = 'grabbing';
-    }
-    dragState.fo.setAttribute('x', dragState.origX + dx);
-  });
-
-  container.addEventListener('pointerup', async e => {
-    if (!dragState) return;
-    const { pid, fo, origX, startClientX, siblingKey, siblingIds, dragging } = dragState;
-    dragState = null;
-
-    fo.style.opacity = '';
-    fo.setAttribute('x', origX); // reset visuel immédiat
-    if (!dragging) return; // simple clic, laisser le onclick de la carte se déclencher
-    // Position X finale du fo draggé
-    const foX = origX + (e.clientX - startClientX);
-
-    // Map pid → foreignObject pour les frères
-    const foMap = {};
-    svg.querySelectorAll('foreignObject').forEach(f => {
-      const av = f.querySelector('[data-drag-pid]');
-      if (av) foMap[+av.dataset.dragPid] = f;
-    });
-
-    // Construire la map pid→x pour les frères (en utilisant leur position actuelle sauf le draggé)
-    const siblingsX = {};
-    siblingIds.forEach(sid => {
-      siblingsX[sid] = sid === pid ? foX : parseFloat(foMap[sid]?.getAttribute('x') ?? 0);
-    });
-
-    // Recalculer l'ordre par position X
-    const newOrder = [...siblingIds].sort((a, b) => (siblingsX[a] ?? 0) - (siblingsX[b] ?? 0));
-
-    // Si l'ordre n'a pas changé, ne rien faire
-    if (newOrder.join() === siblingIds.join()) { renderTree(); return; }
-
-    // Envoyer à l'API
-    try {
-      await api('PUT', 'api/personnes.php?action=reorder', { order: newOrder });
-      // Mettre à jour l'arbre_ordre local dans people[]
-      newOrder.forEach((id, idx) => {
-        const p = people.find(p => p.id == id);
-        if (p) p.arbre_ordre = idx;
-      });
-    } catch(err) { toast(err.message, 'error'); }
-    renderTree();
-  });
-}
 
 let _pinchAbort = null;
 
