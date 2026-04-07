@@ -381,7 +381,7 @@ function showLienForm(personId) {
   const p = people.find(x => x.id == personId);
   const others = people.slice()
     .sort((a,b) => a.prenom.localeCompare(b.prenom, undefined, {sensitivity:'base'}) || (a.nom||'').localeCompare(b.nom||'', undefined, {sensitivity:'base'}))
-    .filter(x => x.id != personId)
+    .filter(x => x.id != personId && (currentUser?.role === 'admin' ? _inAnyTree(x.id) : inCurrentTree(x.id)))
     .map(x => `<option value="${x.id}">${fullName(x)}</option>`).join('');
 
   document.getElementById('modal-person-edit').innerHTML = `
