@@ -33,10 +33,9 @@ async function loadTimeline() {
     const arbre = _arbres.find(a => a.id === _currentArbreId);
     return arbre ? new Set(arbre.membres.map(Number)) : null;
   })();
-  const filteredEvts = evts.filter(e => !_directMembers || e.personne_ids.some(id => _directMembers.has(id)));
+  const filteredEvts = evts.filter(e => e.type === 'mariage' && (!_directMembers || e.personne_ids.some(id => _directMembers.has(id))));
   filteredEvts.forEach(e => {
-    const group = (e.type === 'naissance' || e.type === 'deces') ? 'life'
-                : e.type === 'mariage' ? 'mariage' : 'other';
+    const group = 'mariage';
     entries.push({
       group,
       date: e.date_debut || null,
@@ -65,10 +64,8 @@ async function loadTimeline() {
     <div class="tl-wrap">
       <div class="tl-rail tl-rail-life"></div>
       <div class="tl-rail tl-rail-mariage"></div>
-      <div class="tl-rail tl-rail-other"></div>
       <div class="tl-item tl-item-life tl-item-lbl"><div class="tl-dot"></div><div class="tl-rail-label">${T('tl_label_life')}</div></div>
-      <div class="tl-item tl-item-mariage tl-item-lbl"><div class="tl-dot"></div><div class="tl-rail-label">${T('tl_label_mariage')}</div></div>
-      <div class="tl-item tl-item-other tl-item-lbl"><div class="tl-dot"></div><div class="tl-rail-label">${T('tl_label_other')}</div></div>`;
+      <div class="tl-item tl-item-mariage tl-item-lbl"><div class="tl-dot"></div><div class="tl-rail-label">${T('tl_label_mariage')}</div></div>`;
 
   let lastDecade = null;
   let lastFive   = null;
