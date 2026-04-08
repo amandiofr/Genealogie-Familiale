@@ -271,6 +271,17 @@ function _updateCarteYearLabel() {
 }
 
 function toggleCartePlay() {
+  if (!_cartePlaying && _carteYear >= _carteYearMax) {
+    // Recommencer depuis le début
+    Object.values(_carteAnimFrames).forEach(id => cancelAnimationFrame(id));
+    _carteAnimFrames = {};
+    Object.values(_carteMarkers).forEach(m => { m.marker.map = null; m.lat = null; m.lng = null; });
+    _carteYear = _carteYearMin;
+    const slider = document.getElementById('carte-slider');
+    if (slider) slider.value = _carteYear;
+    _updateCarteYearLabel();
+    _renderCarteYear(_carteYear);
+  }
   _cartePlaying = !_cartePlaying;
   const btn = document.getElementById('carte-play-btn');
   if (btn) btn.textContent = _cartePlaying ? '⏸' : '▶';
@@ -281,12 +292,12 @@ function toggleCartePlay() {
 function _cartePlayStep() {
   if (!_cartePlaying) return;
   if (_carteYear >= _carteYearMax) {
-    _carteYear = _carteYearMin;
-    // Réinitialiser les positions pour que les marqueurs réapparaissent correctement
-    Object.values(_carteMarkers).forEach(m => { m.marker.map = null; m.lat = null; m.lng = null; });
-  } else {
-    _carteYear++;
+    _cartePlaying = false;
+    const btn = document.getElementById('carte-play-btn');
+    if (btn) btn.textContent = '▶';
+    return;
   }
+  _carteYear++;
   const slider = document.getElementById('carte-slider');
   if (slider) slider.value = _carteYear;
   _updateCarteYearLabel();
