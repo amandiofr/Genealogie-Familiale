@@ -18,6 +18,54 @@ if (!$isCli) {
 
 $db = pdo();
 
+// ── Anniversaires du jour (personnes vivantes) ────────────────────────────────
+$hourEurope = (int)(new DateTime('now', new DateTimeZone('Europe/Paris')))->format('H');
+$todayMD = date('--m-d'); // format --MM-DD pour comparer avec DATE_FORMAT
+$birthdays = $db->query(
+    "SELECT prenom, nom, naissance FROM personnes
+     WHERE vivant=1 AND naissance IS NOT NULL AND naissance != ''
+     AND DATE_FORMAT(naissance, '--%m-%d') = '$todayMD'"
+)->fetchAll();
+
+if (!empty($birthdays) && $hourEurope >= 8 && $hourEurope < 22) {
+    $recipientsBd = $db->query("SELECT email FROM notification_emails")->fetchAll();
+    if (!empty($recipientsBd)) {
+        $linesBdFr = '';
+        $linesBdPt = '';
+        foreach ($birthdays as $p) {
+            $age = (int)date('Y') - (int)substr($p['naissance'], 0, 4);
+            $linesBdFr .= "🎂 {$p['prenom']} {$p['nom']} — {$age} ans\n";
+            $linesBdPt .= "🎂 {$p['prenom']} {$p['nom']} — {$age} anos\n";
+        }
+        $bdBody = <<<BODY
+🌿 Nossa Família / Notre Famille
+────────────────────────
+
+── Português ────────────
+
+Aniversários de hoje :
+
+{$linesBdPt}
+── Français ─────────────
+
+Anniversaires du jour :
+
+{$linesBdFr}
+────────────────────────
+BODY;
+        $bdSubject = '=?UTF-8?B?' . base64_encode('🎂 Anniversaires — Nossa Família / Notre Famille') . '?=';
+        $bdHeaders  = "MIME-Version: 1.0\r\n";
+        $bdHeaders .= "Content-Type: text/plain; charset=UTF-8\r\n";
+        $bdHeaders .= "Content-Transfer-Encoding: base64\r\n";
+        $bdHeaders .= "From: Notre Famille <" . NOTIFY_FROM . ">\r\n";
+        $bdHeaders .= "X-Mailer: PHP/" . phpversion();
+        foreach ($recipientsBd as $r) {
+            mail($r['email'], $bdSubject, chunk_split(base64_encode($bdBody)), $bdHeaders);
+        }
+        echo count($birthdays) . " anniversaire(s) notifié(s).\n";
+    }
+}
+
 // ── Vérifier l'état des notifications ────────────────────────────────────────
 $state = $db->query("SELECT * FROM notification_state WHERE id=1")->fetch();
 

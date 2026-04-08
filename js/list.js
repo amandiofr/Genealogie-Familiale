@@ -28,7 +28,7 @@ function setSort(s,btn) {
   document.getElementById('sort-btn-alpha').classList.toggle('active', s==='alpha');
   filterList();
 }
-function filterList() {
+async function filterList() {
   const q=(document.getElementById('search').value||'').toLowerCase().trim();
   let filtered=people.filter(p=>{
     if(!inCurrentTree(p.id)) return false;
@@ -52,12 +52,13 @@ function filterList() {
   if(heading) heading.textContent=`${filtered.length} ${T('h_membres')}`;
   const el=document.getElementById('person-list');
   if(!filtered.length){el.innerHTML=`<div class="empty"><div class="empty-icon">🔍</div><div class="empty-title">${T('empty_search')}</div></div>`;return;}
-  el.innerHTML=filtered.map(p=>{
+  const rows = await Promise.all(filtered.map(p => translateFields(p, ['profession'])));
+  el.innerHTML=rows.map(p=>{
     const naiss = p.naissance ? fmtDate(p.naissance) : '?';
     const deces = p.deces ? ' – ' + fmtDate(p.deces) : '';
     const sub=[p.profession, naiss+deces].filter(Boolean).join(' · ');
     const av=p.chemin_thumb?`<div class="li-avatar ${p.genre}"><img src="${imgUrl(p.chemin_thumb)}" alt=""></div>`:`<div class="li-avatar ${p.genre}">${initials(p)}</div>`;
-    return `<div class="list-item" onclick="openPerson(${p.id})">${av}<div class="li-info"><div class="li-name">${fullName(p)}${p.nom_naiss?` <span style="color:var(--ink3);font-size:.8em;font-style:italic;">${T('nee_label')} ${p.nom_naiss}</span>`:''}</div><div class="li-sub">${sub}</div></div><span class="li-badge">${genLabel(p.generation)}</span><span class="li-arrow">›</span></div>`;
+    return `<div class="list-item" onclick="openPerson(${p.id})">${av}<div class="li-info"><div class="li-name">${fullName(p)}${p.nom_naiss?` <span style="color:var(--ink3);font-size:.8em;font-style:italic;">${T('nee_label')} ${p.nom_naiss}</span>`:''}</div><div class="li-sub">${sub}</div></div><span class="li-arrow">›</span></div>`;
   }).join('');
 }
 
@@ -66,7 +67,7 @@ function filterList() {
 // ══════════════════════════════════════════════════════════════
 async function openPerson(id) {
   let p = await api('GET',`api/personnes.php?id=${id}`);
-  p = await translateFields(p, ['biographie']);
+  p = await translateFields(p, ['biographie', 'profession']);
   const age = calcAge(p);
   const av  = (p.photos||[]).find(ph=>ph.id==p.photo_id);
 
@@ -257,27 +258,117 @@ async function savePerson(id) {
   };
   if(!body.prenom){toast(T('error_name_required'),'error');return;}
   try{
-    let newId = id;
-    if(id) await api('PUT',`api/personnes.php?id=${id}`,body);
-    else { const r = await api('POST','api/personnes.php',body); newId = r.id; }
-
-    // Lien familial (nouveau membre seulement)
-    if(!id) {
-      const lienType  = document.getElementById('fp-lien-type')?.value;
-      const lienOther = document.getElementById('fp-lien-other')?.value;
-      if(lienType && lienOther && newId) {
-        let type = lienType, persA = newId, persB = lienOther;
-        if(lienType === 'parent_enfant_a') { type = 'parent_enfant'; persA = newId;    persB = lienOther; }
-        if(lienType === 'parent_enfant_b') { type = 'parent_enfant'; persA = lienOther; persB = newId; }
-        await api('POST', `api/personnes.php?id=${persA}&sub=liens`, { personne_b: persB, type });
-      }
+    if(id) {
+      await api('PUT',`api/personnes.php?id=${id}`,body);
+      await loadPeople(); await loadArbres(); renderTree(); renderList();
+      _refreshActiveView();
+      closeOverlay('modal-person-edit-overlay');
+      toast(T('toast_edited'));
+      return;
     }
 
+    // Nouveau membre
+    const lienType  = document.getElementById('fp-lien-type')?.value;
+    const lienOther = document.getElementById('fp-lien-other')?.value;
+    const hasLien   = lienType && lienOther;
+
+    if(!hasLien) {
+      // Montrer le dialogue AVANT de créer — stocker les données en attente
+      closeOverlay('modal-person-edit-overlay');
+      _showNoTreeDialog(null, body);
+      return;
+    }
+
+    const r = await api('POST','api/personnes.php',body);
+    const newId = r.id;
+    let type = lienType, persA = newId, persB = lienOther;
+    if(lienType === 'parent_enfant_a') { type = 'parent_enfant'; persA = newId;    persB = lienOther; }
+    if(lienType === 'parent_enfant_b') { type = 'parent_enfant'; persA = lienOther; persB = newId; }
+    await api('POST', `api/personnes.php?id=${persA}&sub=liens`, { personne_b: persB, type });
     await loadPeople(); await loadArbres(); renderTree(); renderList();
     _refreshActiveView();
     closeOverlay('modal-person-edit-overlay');
-    toast(id?T('toast_edited'):T('toast_added'));
+    toast(T('toast_added'));
   }catch(e){toast(e.message,'error');}
+}
+
+let _noTreeBody = null; // données du formulaire en attente de création
+
+function _cancelNoTree() {
+  _noTreeBody = null;
+  closeOverlay('modal-no-tree-overlay');
+}
+
+function _showNoTreeDialog(personId, body) {
+  // personId ignoré désormais — on stocke body et on crée au moment du choix
+  _noTreeBody = body;
+  const name = [body.prenom, body.nom].filter(Boolean).join(' ');
+  const lienOptions = people.filter(x => _inAnyTree(x.id))
+    .sort((a,b) => a.prenom.localeCompare(b.prenom, undefined, {sensitivity:'base'}))
+    .map(x => `<option value="${x.id}">${fullName(x)}</option>`).join('');
+  const el = document.getElementById('modal-no-tree');
+  if (!el) return;
+  el.innerHTML = `
+    <div class="modal-hd" style="padding:1.2rem 1.4rem .8rem;">
+      <div style="flex:1;font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:500;">${T('no_tree_title')}</div>
+      <button class="modal-close" onclick="_cancelNoTree()">✕</button>
+    </div>
+    <div class="modal-bd">
+      <p style="font-size:.9rem;color:var(--ink2);margin-bottom:1rem;">${T('no_tree_msg').replace('{name}', name)}</p>
+      <div class="form-grid">
+        <div class="fg"><label>${T('form_lien_type')}</label>
+          <select id="nt-lien-type">
+            <option value="conjoint">💍 ${T('lien_conjoint')}</option>
+            <option value="parent_enfant_a">👶 ${T('lien_parent_a')}</option>
+            <option value="parent_enfant_b">👨‍👩‍👧 ${T('lien_parent_b')}</option>
+            <option value="fiancailles">💑 ${T('lien_fiancailles')}</option>
+          </select>
+        </div>
+        <div class="fg"><label>${T('form_lien_with')}</label>
+          <select id="nt-lien-other">
+            <option value="">${T('form_lien_none')}</option>
+            ${lienOptions}
+          </select>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn-primary" onclick="_saveNoTreeLien()">${T('no_tree_add_link')}</button>
+        <button class="btn-secondary" onclick="_confirmNewTree()">${T('no_tree_new_tree')}</button>
+      </div>
+    </div>`;
+  document.getElementById('modal-no-tree-overlay').classList.add('open');
+}
+
+async function _confirmNewTree() {
+  if (!_noTreeBody) { closeOverlay('modal-no-tree-overlay'); return; }
+  try {
+    await api('POST','api/personnes.php', _noTreeBody);
+    _noTreeBody = null;
+    await loadPeople(); await loadArbres(); renderTree(); renderList();
+    _refreshActiveView();
+    closeOverlay('modal-no-tree-overlay');
+    toast(T('toast_added'));
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function _saveNoTreeLien() {
+  const lienType  = document.getElementById('nt-lien-type').value;
+  const lienOther = document.getElementById('nt-lien-other').value;
+  if (!lienOther) { toast(T('form_lien_none'), 'error'); return; }
+  if (!_noTreeBody) return;
+  try {
+    const r = await api('POST','api/personnes.php', _noTreeBody);
+    const newId = r.id;
+    let type = lienType, persA = newId, persB = lienOther;
+    if (lienType === 'parent_enfant_a') { type = 'parent_enfant'; persA = newId;    persB = lienOther; }
+    if (lienType === 'parent_enfant_b') { type = 'parent_enfant'; persA = lienOther; persB = newId; }
+    await api('POST', `api/personnes.php?id=${persA}&sub=liens`, { personne_b: persB, type });
+    _noTreeBody = null;
+    await loadPeople(); await loadArbres(); renderTree(); renderList();
+    _refreshActiveView();
+    closeOverlay('modal-no-tree-overlay');
+    toast(T('toast_added'));
+  } catch(e) { toast(e.message, 'error'); }
 }
 
 async function deleteEventPhoto(eventId, photoId){
