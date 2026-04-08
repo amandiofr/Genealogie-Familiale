@@ -84,7 +84,7 @@ async function loadCarte() {
       naissAnnee:   parseInt(p.naissance),
       decesAnnee:   p.deces ? parseInt(p.deces) : null,
       lieuNaiss:    p.lieu_naiss,
-      deplacements: demParPersonne[p.id] || [],
+      deplacements: (demParPersonne[p.id] || []).filter(d => d.annee >= parseInt(p.naissance)),
     }));
 
   // Plage d'années

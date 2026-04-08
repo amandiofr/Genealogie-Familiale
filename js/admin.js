@@ -731,9 +731,9 @@ async function editLieuSearch(i) {
   const query = input?.value.trim();
   if (!query) return;
   try {
-    const r = await api('POST', 'api/lieux.php?action=geocode', { nom: query });
+    const r = await api('POST', 'api/lieux.php?action=geocode', { nom: query, nom_approx: l.nom_approx });
     if (r.found === false) { toast(`${query} : ${T('lieux_not_geocoded')}`, 'error'); return; }
-    _lieuxData[i] = { ...l, ...r, nom_approx: l.nom_approx };
+    _lieuxData[i] = { ...l, ...r };
     _renderLieux();
     toast(`${l.nom_approx} → ${r.nom_normalise}`);
   } catch(e) { toast(e.message, 'error'); }

@@ -9,31 +9,21 @@ $action = $_GET['action'] ?? '';
 // ── GET : collecter tous les lieux uniques de la BD ───────────────────────────
 if ($method === 'GET' && $action === 'collect') {
     $sql = "
-        SELECT DISTINCT lieu FROM (
+        SELECT DISTINCT
+            t.lieu                AS nom_approx,
+            lg.nom_normalise,
+            lg.lat,
+            lg.lng,
+            lg.updated_at
+        FROM (
             SELECT lieu_naiss AS lieu FROM personnes WHERE lieu_naiss IS NOT NULL AND lieu_naiss != ''
             UNION
             SELECT lieu FROM evenements WHERE lieu IS NOT NULL AND lieu != '' AND type = 'demenagement'
         ) AS t
-        ORDER BY lieu
+        LEFT JOIN lieux_geocodes lg ON lg.nom_approx = t.lieu
+        ORDER BY t.lieu
     ";
-    $lieux = $db->query($sql)->fetchAll(PDO::FETCH_COLUMN);
-
-    // Joindre les géocodages existants
-    $geocoded = [];
-    if ($lieux) {
-        $in = implode(',', array_fill(0, count($lieux), '?'));
-        $rows = $db->prepare("SELECT * FROM lieux_geocodes WHERE nom_approx IN ($in)")->execute($lieux);
-        $stmt = $db->prepare("SELECT * FROM lieux_geocodes WHERE nom_approx IN ($in)");
-        $stmt->execute($lieux);
-        foreach ($stmt->fetchAll() as $r) $geocoded[$r['nom_approx']] = $r;
-    }
-
-    $result = array_map(fn($l) => array_merge(
-        ['nom_approx' => $l, 'nom_normalise' => null, 'lat' => null, 'lng' => null],
-        $geocoded[$l] ?? []
-    ), $lieux);
-
-    json_out($result);
+    json_out($db->query($sql)->fetchAll());
 }
 
 // ── GET : retourner tous les géocodages ───────────────────────────────────────
@@ -48,6 +38,8 @@ if ($method === 'POST' && $action === 'geocode') {
     $b   = body();
     $nom = trim($b['nom'] ?? '');
     if (!$nom) json_error('Nom manquant');
+    // nom_approx_override : clé originale à conserver en base (pour edit sans changer la clé)
+    $nom_approx = trim($b['nom_approx'] ?? '') ?: $nom;
 
     $url = 'https://maps.googleapis.com/maps/api/geocode/json?address=' . urlencode($nom) . '&key=' . urlencode(GOOGLE_API_KEY);
     $ctx = stream_context_create(['http' => ['timeout' => 8]]);
@@ -67,9 +59,9 @@ if ($method === 'POST' && $action === 'geocode') {
     $db->prepare("INSERT INTO lieux_geocodes (nom_approx, nom_normalise, lat, lng)
                   VALUES (?,?,?,?)
                   ON DUPLICATE KEY UPDATE nom_normalise=VALUES(nom_normalise), lat=VALUES(lat), lng=VALUES(lng), updated_at=NOW()")
-       ->execute([$nom, $nom_normalise, $lat, $lng]);
+       ->execute([$nom_approx, $nom_normalise, $lat, $lng]);
 
-    json_out(['nom_approx' => $nom, 'nom_normalise' => $nom_normalise, 'lat' => $lat, 'lng' => $lng]);
+    json_out(['nom_approx' => $nom_approx, 'nom_normalise' => $nom_normalise, 'lat' => $lat, 'lng' => $lng]);
 }
 
 // ── PUT : mise à jour manuelle ────────────────────────────────────────────────

@@ -142,8 +142,9 @@ async function openPerson(id) {
   // Biographie
   if(p.biographie) html+=`<div class="modal-section"><div class="sec-title">${T('sec_bio')}</div><div class="notes-box">${p.biographie.replace(/\n/g,'<br>')}</div></div>`;
 
-  // Déménagements
-  const _dems = (p.evenements||[]).filter(e=>e.type==='demenagement').sort((a,b)=>a.date_debut>b.date_debut?1:-1);
+  // Déménagements (membres directs uniquement)
+  const _dems = inCurrentTreeDirect(id) ? (p.evenements||[]).filter(e=>e.type==='demenagement').sort((a,b)=>a.date_debut>b.date_debut?1:-1) : null;
+  if (_dems !== null) {
   html+=`<div class="modal-section" id="dem-section"><div class="sec-title">${T('sec_dems')}</div>`;
   html+=`<div id="dem-list">`;
   if(_dems.length){
@@ -165,6 +166,7 @@ async function openPerson(id) {
   if(currentUser.role!=='lecteur') html+=`<button class="btn-secondary" style="width:100%;margin-top:8px;font-size:.75rem;" onclick="showDemForm(${id},null)">${T('btn_add_dem')}</button>`;
   html+=`<div id="dem-form-wrap" style="display:none;"></div>`;
   html+=`</div>`;
+  } // fin if inCurrentTreeDirect
 
   // Événements liés (hors déménagements)
   const _evts = (p.evenements||[]).filter(e=>e.type!=='demenagement');
@@ -671,7 +673,7 @@ async function showDemForm(personId, eventId) {
 
 function _renderDemParticipants(excludeId) {
   return people
-    .filter(p => inCurrentTree(p.id))
+    .filter(p => inCurrentTreeDirect(p.id))
     .map(p => {
       const checked = _demSelected.has(p.id);
       const disabled = p.id === excludeId ? 'disabled' : '';

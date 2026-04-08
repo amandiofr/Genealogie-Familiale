@@ -102,7 +102,7 @@ async function showEventForm(id){
         <div class="fg full"><label>${T('form_participants')}</label><select id="fe-personnes" multiple size="6" style="height:130px;">${peopleOptions}</select></div>
       </div>
       ${id ? `<div class="fg full" style="margin-top:.8rem;">
-        <label>${T('lbl_add_photos')}</label>
+        <div class="fg-section-label">${T('lbl_add_photos')}</div>
         <div class="upload-zone">
           <input type="file" accept="image/*" multiple onchange="previewEventPhotos(this)">
           <div class="upload-icon">📷</div>
@@ -249,7 +249,7 @@ async function showAnecdoteForm(id){
         <div class="fg full"><label>${T('form_mentions')}</label><select id="fa-personnes" multiple size="5" style="height:110px;">${peopleOptions}</select></div>
       </div>
       ${id ? `<div class="fg full" style="margin-top:.8rem;">
-        <label>${T('lbl_add_photos')}</label>
+        <div class="fg-section-label">${T('lbl_add_photos')}</div>
         <div class="upload-zone">
           <input type="file" accept="image/*" multiple onchange="previewAnecdotePhotos(this)">
           <div class="upload-icon">📷</div>

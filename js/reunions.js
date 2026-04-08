@@ -93,7 +93,7 @@ async function showReunionForm(id){
         <div class="fg full"><label>${T('form_participants')}</label><select id="rn-personnes" multiple size="6" style="height:130px;">${peopleOptions}</select></div>
       </div>
       ${id ? `<div class="fg full" style="margin-top:.8rem;">
-        <label>${T('lbl_add_photos')}</label>
+        <div class="fg-section-label">${T('lbl_add_photos')}</div>
         <div class="upload-zone">
           <input type="file" accept="image/*" multiple onchange="previewReunionPhotos(this)">
           <div class="upload-icon">📷</div>

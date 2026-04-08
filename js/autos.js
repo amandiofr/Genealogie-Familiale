@@ -107,7 +107,7 @@ async function showAutoForm(id) {
         <div class="fg full"><label>${T('sec_description')}</label><textarea id="fau-desc" placeholder="${T('ph_desc_auto')}">${a?.description||''}</textarea></div>
       </div>
       ${id ? `<div class="fg full" style="margin-top:.8rem;">
-        <label>${T('lbl_add_photos')}</label>
+        <div class="fg-section-label">${T('lbl_add_photos')}</div>
         <div class="upload-zone">
           <input type="file" accept="image/*" multiple onchange="previewAutoPhotos(this)">
           <div class="upload-icon">📷</div>
