@@ -2,27 +2,8 @@
 //  EVENTS
 // ══════════════════════════════════════════════════════════════
 async function loadEvents(){
-  const [allEvts, allReunions] = await Promise.all([
-    api('GET','api/evenements.php'),
-    api('GET','api/reunions.php').catch(()=>[]),
-  ]);
-  // Transformer les réunions legacy au format événement
-  const legacyReunions = allReunions.map(r=>({
-    id: r.id,
-    titre: r.titre,
-    type: 'reunion',
-    date_debut: r.date_debut,
-    lieu: r.lieu,
-    thumb: r.thumb || null,
-    nb_personnes: r.nb_personnes || 0,
-    personne_ids: r.personne_ids || [],
-    _legacy: true,
-  }));
-  const all = [
-    ...allEvts.filter(e=>e.type!=='demenagement'),
-    ...legacyReunions,
-  ];
-  const evts = all.filter(e=>!_currentMembers||e.personne_ids.some(id=>inCurrentTreeDirect(id)));
+  const all = await api('GET','api/evenements.php');
+  const evts = all.filter(e=>e.type!=='demenagement'&&(!_currentMembers||e.personne_ids.some(id=>inCurrentTreeDirect(id))));
   const el=document.getElementById('events-grid');
   if(!evts.length){el.innerHTML=`<div class="empty"><div class="empty-icon">📅</div><div class="empty-title">${T('empty_events')}</div><div class="empty-sub">${T('empty_events_sub')}</div></div>`;return;}
   evts.sort((a,b)=>{
@@ -33,7 +14,7 @@ async function loadEvents(){
   });
   const rows=await Promise.all(evts.map(e=>translateFields(e,['titre'])));
   el.innerHTML=rows.map(e=>`
-    <div class="ev-card" onclick="${e._legacy?`openReunion(${e.id})`:`openEvent(${e.id})`}">
+    <div class="ev-card" onclick="openEvent(${e.id})">
       ${e.thumb?`<img class="ev-thumb" src="${imgUrl(e.thumb)}" alt="">`:''}
       <div class="ev-type">${EVT_ICONS[e.type]||''} ${evtLabel(e.type)}</div>
       <div class="ev-title">${e.titre}</div>
