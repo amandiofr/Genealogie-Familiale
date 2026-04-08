@@ -57,7 +57,7 @@ const LANGS = {
     admin_quality_loading:'Analyse en cours…',
     admin_quality_ok:'Aucun problème détecté.',
     admin_quality_members:'Membres incomplets',
-    admin_quality_events:'Événements incomplets',
+    admin_quality_events:'Événements incomplets', admin_quality_lieux:'Lieux non géocodés',
     admin_quality_nom:'Nom manquant',
     admin_quality_naissance:'Date de naissance manquante',
     admin_quality_lieu_naiss:'Lieu de naissance manquant',
@@ -201,6 +201,12 @@ const LANGS = {
     lbl_et:'et', arbre_all:'Tous les arbres',
     lbl_arbres:'Arbres', lbl_acces_arbres:'Accès aux arbres', empty_arbres:'Aucun arbre disponible', toast_arbres_saved:'Accès mis à jour',
     lbl_translate:'Traduire',
+    nav_carte:'Carte', h_carte:'Carte de la famille',
+    carte_no_key:'Clé Google Maps non configurée', carte_persons_label:'personnes localisées',
+    admin_nav_lieux:'Géocodage', admin_lieux:'Géocodage des lieux',
+    empty_lieux:'Aucun lieu trouvé dans la base', lieux_geocoded:'géocodés', lieux_not_geocoded:'Non géocodé',
+    lieux_geocoding:'Géocodage en cours', btn_geocode:'Géocoder', btn_search:'Rechercher',
+    toast_geocode_done:'Géocodage terminé', toast_lieu_saved:'Lieu mis à jour',
     btn_choose_file:'Choisir un fichier',
     no_tree_title:'Membre isolé', no_tree_msg:'{name} n\'est lié(e) à aucun arbre existant. Ajouter un lien ou créer un nouvel arbre ?', no_tree_add_link:'Ajouter un lien', no_tree_new_tree:'Nouvel arbre',
     export_gedcom_title:'Exporter en GEDCOM', export_gedcom_sub:'Standard universel — compatible Ancestry, MyHeritage, Geneanet…',
@@ -257,7 +263,7 @@ const LANGS = {
     admin_quality_loading:'A analisar…',
     admin_quality_ok:'Nenhum problema detetado.',
     admin_quality_members:'Membros incompletos',
-    admin_quality_events:'Eventos incompletos',
+    admin_quality_events:'Eventos incompletos', admin_quality_lieux:'Locais não geocodificados',
     admin_quality_nom:'Apelido em falta',
     admin_quality_naissance:'Data de nascimento em falta',
     admin_quality_lieu_naiss:'Local de nascimento em falta',
@@ -394,6 +400,12 @@ const LANGS = {
     lbl_et:'e', arbre_all:'Todas as árvores',
     lbl_arbres:'Árvores', lbl_acces_arbres:'Acesso às árvores', empty_arbres:'Nenhuma árvore disponível', toast_arbres_saved:'Acesso atualizado',
     lbl_translate:'Traduzir',
+    nav_carte:'Mapa', h_carte:'Mapa da família',
+    carte_no_key:'Chave Google Maps não configurada', carte_persons_label:'pessoas localizadas',
+    admin_nav_lieux:'Geocodificação', admin_lieux:'Geocodificação de locais',
+    empty_lieux:'Nenhum local encontrado', lieux_geocoded:'geocodificados', lieux_not_geocoded:'Não geocodificado',
+    lieux_geocoding:'Geocodificando', btn_geocode:'Geocodificar', btn_search:'Pesquisar',
+    toast_geocode_done:'Geocodificação concluída', toast_lieu_saved:'Local atualizado',
     btn_choose_file:'Escolher um ficheiro',
     no_tree_title:'Membro isolado', no_tree_msg:'{name} não está ligado(a) a nenhuma árvore existente. Adicionar um vínculo ou criar uma nova árvore?', no_tree_add_link:'Adicionar vínculo', no_tree_new_tree:'Nova árvore',
     export_gedcom_title:'Exportar em GEDCOM', export_gedcom_sub:'Padrão universal — compatível com Ancestry, MyHeritage, Geneanet…',
@@ -450,7 +462,7 @@ const LANGS = {
     admin_quality_loading:'Analysing…',
     admin_quality_ok:'No issues found.',
     admin_quality_members:'Incomplete members',
-    admin_quality_events:'Incomplete events',
+    admin_quality_events:'Incomplete events', admin_quality_lieux:'Non-geocoded places',
     admin_quality_reunions:'Incomplete reunions',
     admin_quality_nom:'Missing surname',
     admin_quality_naissance:'Missing birth date',
@@ -570,6 +582,12 @@ const LANGS = {
     lbl_et:'and', arbre_all:'All trees',
     lbl_arbres:'Trees', lbl_acces_arbres:'Tree access', empty_arbres:'No trees available', toast_arbres_saved:'Access updated',
     lbl_translate:'Translate',
+    nav_carte:'Map', h_carte:'Family Map',
+    carte_no_key:'Google Maps key not configured', carte_persons_label:'persons located',
+    admin_nav_lieux:'Geocoding', admin_lieux:'Place geocoding',
+    empty_lieux:'No places found in database', lieux_geocoded:'geocoded', lieux_not_geocoded:'Not geocoded',
+    lieux_geocoding:'Geocoding', btn_geocode:'Geocode', btn_search:'Search',
+    toast_geocode_done:'Geocoding complete', toast_lieu_saved:'Place updated',
     btn_choose_file:'Choose a file',
     no_tree_title:'Isolated member', no_tree_msg:'{name} is not linked to any existing tree. Add a link or create a new tree?', no_tree_add_link:'Add a link', no_tree_new_tree:'New tree',
     export_gedcom_title:'Export to GEDCOM', export_gedcom_sub:'Universal standard — compatible with Ancestry, MyHeritage, Geneanet…',
@@ -633,7 +651,7 @@ const LANGS = {
     admin_quality_loading:'Wird analysiert…',
     admin_quality_ok:'Keine Probleme gefunden.',
     admin_quality_members:'Unvollständige Mitglieder',
-    admin_quality_events:'Unvollständige Ereignisse',
+    admin_quality_events:'Unvollständige Ereignisse', admin_quality_lieux:'Nicht geocodierte Orte',
     admin_quality_reunions:'Unvollständige Treffen',
     admin_quality_nom:'Nachname fehlt',
     admin_quality_naissance:'Geburtsdatum fehlt',
@@ -753,6 +771,12 @@ const LANGS = {
     lbl_et:'und', arbre_all:'Alle Bäume',
     lbl_arbres:'Bäume', lbl_acces_arbres:'Baumzugang', empty_arbres:'Keine Bäume verfügbar', toast_arbres_saved:'Zugang aktualisiert',
     lbl_translate:'Übersetzen',
+    nav_carte:'Karte', h_carte:'Familienkarte',
+    carte_no_key:'Google Maps Schlüssel nicht konfiguriert', carte_persons_label:'Personen lokalisiert',
+    admin_nav_lieux:'Geocodierung', admin_lieux:'Orte geocodieren',
+    empty_lieux:'Keine Orte gefunden', lieux_geocoded:'geocodiert', lieux_not_geocoded:'Nicht geocodiert',
+    lieux_geocoding:'Geocodierung läuft', btn_geocode:'Geocodieren', btn_search:'Suchen',
+    toast_geocode_done:'Geocodierung abgeschlossen', toast_lieu_saved:'Ort aktualisiert',
     btn_choose_file:'Datei auswählen',
     no_tree_title:'Isoliertes Mitglied', no_tree_msg:'{name} ist mit keinem bestehenden Baum verknüpft. Link hinzufügen oder neuen Baum erstellen?', no_tree_add_link:'Link hinzufügen', no_tree_new_tree:'Neuer Baum',
     export_gedcom_title:'Als GEDCOM exportieren', export_gedcom_sub:'Universalstandard — kompatibel mit Ancestry, MyHeritage, Geneanet…',
@@ -816,7 +840,7 @@ const LANGS = {
     admin_quality_loading:'در حال تحلیل…',
     admin_quality_ok:'مشکلی یافت نشد.',
     admin_quality_members:'اعضای ناقص',
-    admin_quality_events:'رویدادهای ناقص',
+    admin_quality_events:'رویدادهای ناقص', admin_quality_lieux:'مکان‌های کدگذاری نشده',
     admin_quality_reunions:'گردهمایی‌های ناقص',
     admin_quality_nom:'نام خانوادگی موجود نیست',
     admin_quality_naissance:'تاریخ تولد موجود نیست',
@@ -936,6 +960,12 @@ const LANGS = {
     lbl_et:'و', arbre_all:'همه درخت‌ها',
     lbl_arbres:'درخت‌ها', lbl_acces_arbres:'دسترسی به درخت‌ها', empty_arbres:'هیچ درختی موجود نیست', toast_arbres_saved:'دسترسی به‌روز شد',
     lbl_translate:'ترجمه',
+    nav_carte:'نقشه', h_carte:'نقشه خانوادگی',
+    carte_no_key:'کلید Google Maps تنظیم نشده', carte_persons_label:'نفر مکان‌یابی شده',
+    admin_nav_lieux:'جغرافیاکدگذاری', admin_lieux:'جغرافیا‌کدگذاری مکان‌ها',
+    empty_lieux:'هیچ مکانی یافت نشد', lieux_geocoded:'کدگذاری شده', lieux_not_geocoded:'کدگذاری نشده',
+    lieux_geocoding:'در حال کدگذاری', btn_geocode:'کدگذاری', btn_search:'جستجو',
+    toast_geocode_done:'کدگذاری کامل شد', toast_lieu_saved:'مکان به‌روز شد',
     btn_choose_file:'انتخاب فایل',
     no_tree_title:'عضو منفرد', no_tree_msg:'{name} به هیچ درختی متصل نیست. پیوند اضافه کنید یا درخت جدید بسازید؟', no_tree_add_link:'افزودن پیوند', no_tree_new_tree:'درخت جدید',
     export_gedcom_title:'صدور به GEDCOM', export_gedcom_sub:'استاندارد جهانی — سازگار با Ancestry، MyHeritage، Geneanet…',
@@ -1006,7 +1036,7 @@ function applyLang() {
   const badge = document.getElementById('user-badge');
   if (badge && currentUser) badge.textContent = currentUser.nom + ' (' + T('role_' + currentUser.role) + ')';
   // Nav buttons
-  const navMap = {tree:'nav_tree',list:'nav_list',events:'nav_events',reunions:'nav_reunions',anecdotes:'nav_anecdotes',tresors:'nav_tresors',recettes:'nav_recettes',autos:'nav_autos',timeline:'nav_timeline',admin:'nav_admin'};
+  const navMap = {tree:'nav_tree',list:'nav_list',events:'nav_events',reunions:'nav_reunions',anecdotes:'nav_anecdotes',tresors:'nav_tresors',recettes:'nav_recettes',autos:'nav_autos',timeline:'nav_timeline',carte:'nav_carte',admin:'nav_admin'};
   document.querySelectorAll('nav button[data-view]').forEach(b => { b.textContent = T(navMap[b.dataset.view]||b.dataset.view); });
   // Logout
   const logoutBtn = document.getElementById('btn-logout');
@@ -1070,6 +1100,8 @@ function applyLang() {
     'view-admin-orphans-heading':  'admin_orphans',
     'view-admin-logs-heading':     'admin_logs',
     'view-admin-quality-heading':  'admin_quality',
+    'view-carte-heading':          'h_carte',
+    'view-admin-lieux-heading':    'admin_lieux',
   };
   Object.entries(headings).forEach(([id, key]) => {
     const el = document.getElementById(id);
@@ -1087,6 +1119,8 @@ function applyLang() {
     'nav-dd-orphans':  'admin_nav_orphans',
     'nav-dd-logs':     'admin_nav_logs',
     'nav-dd-quality':  'admin_nav_quality',
+    'nav-dd-lieux':    'admin_nav_lieux',
+    'btn-geocode-all': 'btn_geocode',
     'lbl-admin-notif-desc': 'admin_notif_desc',
     'lbl-admin-orphans-desc': 'admin_orphans_desc',
     'btn-scan-orphans':   'admin_orphans_scan',
@@ -1114,6 +1148,12 @@ function applyLang() {
   }
   const transLbl = document.getElementById('auto-translate-lbl');
   if (transLbl) transLbl.textContent = T('lbl_translate');
+  // Carte
+  const carteCount = document.getElementById('carte-count');
+  if (carteCount && carteCount.textContent) {
+    const n = carteCount.textContent.split(' ')[0];
+    if (n) carteCount.textContent = `${n} ${T('carte_persons_label')}`;
+  }
   // Export page
   const exportIds = {
     'export-gedcom-title':'export_gedcom_title','export-gedcom-sub':'export_gedcom_sub',

@@ -265,3 +265,11 @@ CREATE TABLE IF NOT EXISTS arbre_utilisateurs (
   PRIMARY KEY (arbre_id, utilisateur_id),
   FOREIGN KEY (utilisateur_id) REFERENCES utilisateurs(id) ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS lieux_geocodes (
+  nom_approx    TEXT NOT NULL PRIMARY KEY,
+  nom_normalise TEXT DEFAULT NULL,
+  lat           REAL DEFAULT NULL,
+  lng           REAL DEFAULT NULL,
+  updated_at    TEXT DEFAULT CURRENT_TIMESTAMP
+);

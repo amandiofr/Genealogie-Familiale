@@ -7,7 +7,7 @@
 <meta name="version" content="2.1">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=64">
+<link rel="stylesheet" href="css/style.css?v=65">
 </head>
 </head>
 <body>
@@ -26,6 +26,7 @@
       <button data-view="recettes">Recettes</button>
       <button data-view="autos">Autos</button>
       <button data-view="timeline">Timeline</button>
+      <button data-view="carte">Carte</button>
       <div class="admin-nav-wrap" id="nav-admin-wrap" style="display:none">
         <button id="nav-admin">Admin <span style="font-size:.65em;opacity:.7;">▾</span></button>
         <div class="admin-dropdown" id="admin-dropdown">
@@ -37,6 +38,7 @@
           <button data-view="admin-orphans"  id="nav-dd-orphans">Fichiers</button>
           <button data-view="admin-logs"     id="nav-dd-logs">Logs</button>
           <button data-view="admin-quality"  id="nav-dd-quality">Qualité</button>
+          <button data-view="admin-lieux"    id="nav-dd-lieux">Lieux</button>
         </div>
       </div>
     </div>
@@ -179,6 +181,20 @@
   </div>
 </div>
 
+<!-- ── CARTE ─────────────────────────────────────────────────── -->
+<div id="view-carte" class="view" style="padding:0;">
+  <div style="padding:.8rem 1rem .4rem;display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;background:var(--bg);position:sticky;top:56px;z-index:10;border-bottom:1px solid var(--border);">
+    <h2 id="view-carte-heading" style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:400;margin:0;white-space:nowrap;">Carte</h2>
+    <button id="carte-play-btn" onclick="toggleCartePlay()" style="background:var(--accent);color:#fff;border:none;border-radius:6px;padding:4px 12px;cursor:pointer;font-size:1rem;">▶</button>
+    <input type="range" id="carte-slider" min="1800" max="2025" value="1900"
+           oninput="onCarteSlider(this.value)"
+           style="flex:1;min-width:120px;accent-color:var(--accent);">
+    <span id="carte-year-label" style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:500;min-width:4ch;text-align:right;">1900</span>
+    <span id="carte-count" style="font-size:.78rem;color:var(--ink3);white-space:nowrap;"></span>
+  </div>
+  <div id="carte-map" style="width:100%;height:calc(100vh - 110px);"></div>
+</div>
+
 <!-- ── ADMIN ──────────────────────────────────────────────────── -->
 <!-- ── ADMIN : Comptes ────────────────────────────────────────── -->
 <div id="view-admin-comptes" class="view">
@@ -301,6 +317,20 @@
   </div>
 </div>
 
+<!-- ── ADMIN : Lieux ──────────────────────────────────────────── -->
+<div id="view-admin-lieux" class="view">
+  <div class="view-inner">
+    <h2 id="view-admin-lieux-heading" style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:400;margin-bottom:1.2rem;">Géocodage des lieux</h2>
+    <div class="form-card">
+      <div style="display:flex;gap:.6rem;margin-bottom:1rem;flex-wrap:wrap;">
+        <button class="btn-primary" style="font-size:.78rem;" onclick="geocodeAllLieux()" id="btn-geocode-all">Géocoder tous</button>
+        <span id="lieux-progress" style="font-size:.8rem;color:var(--ink3);align-self:center;"></span>
+      </div>
+      <div id="lieux-list"></div>
+    </div>
+  </div>
+</div>
+
 <!-- ── MODAL PERSON VIEW ─────────────────────────────────────── -->
 <div class="overlay" id="modal-person-view-overlay" onclick="closeOverlay('modal-person-view-overlay')">
   <div class="modal" id="modal-person-view" onclick="event.stopPropagation()"></div>
@@ -363,17 +393,18 @@
 <div class="toast" id="toast"></div>
 
 
-<script src="js/i18n.js?v=64"></script>
-<script src="js/translate.js?v=64"></script>
-<script src="js/init.js?v=64"></script>
-<script src="js/arbre.js?v=64"></script>
-<script src="js/list.js?v=64"></script>
-<script src="js/events.js?v=64"></script>
-<script src="js/reunions.js?v=64"></script>
-<script src="js/timeline.js?v=64"></script>
-<script src="js/autos.js?v=64"></script>
-<script src="js/tresors.js?v=64"></script>
-<script src="js/recettes.js?v=64"></script>
-<script src="js/admin.js?v=64"></script>
+<script src="js/i18n.js?v=65"></script>
+<script src="js/translate.js?v=65"></script>
+<script src="js/init.js?v=65"></script>
+<script src="js/arbre.js?v=65"></script>
+<script src="js/list.js?v=65"></script>
+<script src="js/events.js?v=65"></script>
+<script src="js/reunions.js?v=65"></script>
+<script src="js/timeline.js?v=65"></script>
+<script src="js/autos.js?v=65"></script>
+<script src="js/tresors.js?v=65"></script>
+<script src="js/recettes.js?v=65"></script>
+<script src="js/carte.js?v=65"></script>
+<script src="js/admin.js?v=65"></script>
 </body>
 </html>

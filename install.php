@@ -294,6 +294,16 @@ CREATE TABLE IF NOT EXISTS arbre_utilisateurs (
   FOREIGN KEY (utilisateur_id) REFERENCES utilisateurs(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;",
 
+'lieux_geocodes' => "
+CREATE TABLE IF NOT EXISTS lieux_geocodes (
+  nom_approx    VARCHAR(255) NOT NULL,
+  nom_normalise VARCHAR(255) DEFAULT NULL,
+  lat           DOUBLE       DEFAULT NULL,
+  lng           DOUBLE       DEFAULT NULL,
+  updated_at    DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (nom_approx)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;",
+
 ];
 
 $errors = [];

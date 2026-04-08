@@ -332,6 +332,24 @@ async function loadQualityCheck() {
       html += `</div>`;
     }
 
+    // ── Lieux non géocodés ──
+    const lieux = await api('GET', 'api/lieux.php?action=collect');
+    const nonGeo = lieux.filter(l => l.lat == null);
+    html += `<h3 style="font-size:.9rem;font-weight:600;margin:1.2rem 0 .5rem;">${T('admin_quality_lieux')} (${nonGeo.length})</h3>`;
+    if (!nonGeo.length) {
+      html += `<p style="font-size:.8rem;color:var(--ink3);font-style:italic;">${T('admin_quality_ok')}</p>`;
+    } else {
+      html += `<div style="display:flex;flex-direction:column;gap:.3rem;">`;
+      html += nonGeo.map(l => `<div class="user-row" style="cursor:pointer;" onclick="showView('admin-lieux')">
+        <div style="flex:1;">
+          <div style="font-size:.85rem;font-weight:500;">📍 ${l.nom_approx}</div>
+          <div style="font-size:.72rem;color:#b45309;">${T('lieux_not_geocoded')}</div>
+        </div>
+        <span style="font-size:.7rem;color:var(--ink3);">→</span>
+      </div>`).join('');
+      html += `</div>`;
+    }
+
     el.innerHTML = html;
   } catch(e) { el.innerHTML = ''; toast(e.message, 'error'); }
 }
@@ -621,6 +639,104 @@ function toast(msg,type='ok'){
 async function logout(){
   await fetch('api/auth.php?action=logout',{method:'POST'});
   window.location.href='login.html';
+}
+
+// ══════════════════════════════════════════════════════════════
+//  LIEUX — géocodage admin
+// ══════════════════════════════════════════════════════════════
+let _lieuxData = [];
+
+async function loadLieux() {
+  const rows = await api('GET', 'api/lieux.php?action=collect');
+  _lieuxData = rows;
+  _renderLieux();
+}
+
+function _renderLieux() {
+  const el = document.getElementById('lieux-list');
+  if (!el) return;
+  if (!_lieuxData.length) { el.innerHTML = `<div style="font-size:.85rem;color:var(--ink3);">${T('empty_lieux')}</div>`; return; }
+  const geocoded = _lieuxData.filter(l => l.lat != null).length;
+  document.getElementById('lieux-progress').textContent = `${geocoded}/${_lieuxData.length} ${T('lieux_geocoded')}`;
+  el.innerHTML = _lieuxData.map((l, i) => {
+    const ok = l.lat != null;
+    const status = ok
+      ? `<span style="color:var(--green,#4a7c4e);font-size:.75rem;">✓ ${l.nom_normalise||''}</span>`
+      : `<span style="color:var(--ink3);font-size:.75rem;">${T('lieux_not_geocoded')}</span>`;
+    return `<div style="display:flex;flex-direction:column;gap:.3rem;padding:.5rem 0;border-bottom:1px solid var(--border);" id="lieu-row-${i}">
+      <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;">
+        <span style="flex:1;font-size:.85rem;min-width:120px;">${l.nom_approx}</span>
+        <span style="flex:2;min-width:140px;">${status}</span>
+        <span style="font-size:.75rem;color:var(--ink3);min-width:110px;">${ok ? `${parseFloat(l.lat).toFixed(4)}, ${parseFloat(l.lng).toFixed(4)}` : ''}</span>
+        <button class="btn-sm" onclick="geocodeLieu(${i})">${T('btn_geocode')}</button>
+        <button class="btn-sm" onclick="editLieu(${i})">${T('btn_edit')}</button>
+      </div>
+      <div id="lieu-edit-${i}" style="display:none;padding:.4rem .2rem;gap:.4rem;align-items:center;flex-wrap:wrap;">
+        <input id="lieu-edit-input-${i}" type="text" value="${l.nom_approx.replace(/"/g,'&quot;')}" onkeydown="if(event.key==='Enter')editLieuSearch(${i})" style="flex:1;min-width:180px;font-size:.85rem;padding:.3rem .5rem;border:1px solid var(--border);border-radius:6px;background:var(--surface2);">
+        <button class="btn-sm btn-primary" onclick="editLieuSearch(${i})">${T('btn_search')}</button>
+        <button class="btn-sm" onclick="editLieuClose(${i})">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function geocodeLieu(i) {
+  const l = _lieuxData[i];
+  if (!l) return;
+  try {
+    const r = await api('POST', 'api/lieux.php?action=geocode', { nom: l.nom_approx });
+    if (r.found === false) { toast(`${l.nom_approx} : ${T('lieux_not_geocoded')}`, 'error'); return; }
+    _lieuxData[i] = { ...l, ...r };
+    _renderLieux();
+    toast(`${l.nom_approx} → ${r.nom_normalise}`);
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function geocodeAllLieux() {
+  const btn = document.getElementById('btn-geocode-all');
+  if (btn) btn.disabled = true;
+  const todo = _lieuxData.filter(l => l.lat == null);
+  let done = 0;
+  for (const l of todo) {
+    const i = _lieuxData.indexOf(l);
+    try {
+      const r = await api('POST', 'api/lieux.php?action=geocode', { nom: l.nom_approx });
+      if (r.found !== false) _lieuxData[i] = { ...l, ...r };
+    } catch {}
+    done++;
+    document.getElementById('lieux-progress').textContent = `${T('lieux_geocoding')} ${done}/${todo.length}…`;
+    await new Promise(r => setTimeout(r, 300)); // éviter rate limit
+  }
+  if (btn) btn.disabled = false;
+  _renderLieux();
+  toast(T('toast_geocode_done'));
+}
+
+function editLieu(i) {
+  const el = document.getElementById(`lieu-edit-${i}`);
+  if (!el) return;
+  el.style.display = 'flex';
+  document.getElementById(`lieu-edit-input-${i}`)?.focus();
+}
+
+function editLieuClose(i) {
+  const el = document.getElementById(`lieu-edit-${i}`);
+  if (el) el.style.display = 'none';
+}
+
+async function editLieuSearch(i) {
+  const l = _lieuxData[i];
+  if (!l) return;
+  const input = document.getElementById(`lieu-edit-input-${i}`);
+  const query = input?.value.trim();
+  if (!query) return;
+  try {
+    const r = await api('POST', 'api/lieux.php?action=geocode', { nom: query });
+    if (r.found === false) { toast(`${query} : ${T('lieux_not_geocoded')}`, 'error'); return; }
+    _lieuxData[i] = { ...l, ...r, nom_approx: l.nom_approx };
+    _renderLieux();
+    toast(`${l.nom_approx} → ${r.nom_normalise}`);
+  } catch(e) { toast(e.message, 'error'); }
 }
 
 // ══════════════════════════════════════════════════════════════

@@ -193,10 +193,12 @@ function showView(name) {
   if (name==='recettes')         { loadRecettes(); }
   if (name==='autos')            { loadAutos(); }
   if (name==='timeline')         { loadTimeline(); }
+  if (name==='carte')            { loadCarte(); }
   if (name==='admin-comptes')    { loadUsers(); }
   if (name==='admin-notif')      { loadNotifEmails(); }
   if (name==='admin-logs')       { loadModificationLog(); }
   if (name==='admin-quality')    { loadQualityCheck(); }
+  if (name==='admin-lieux')      { loadLieux(); }
 }
 
 // ══════════════════════════════════════════════════════════════
