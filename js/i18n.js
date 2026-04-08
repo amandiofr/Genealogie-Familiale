@@ -33,7 +33,7 @@ const LANGS = {
     dem_required:'Année et lieu requis', toast_dem_saved:'Déménagement enregistré', toast_dem_deleted:'Déménagement supprimé',
     confirm_delete_dem:'Supprimer ce déménagement ?',
     lbl_naiss:'Naissance', lbl_age:'Âge', lbl_deces:'Décès', lbl_job:'Profession',
-    btn_edit:'✏️ Modifier', btn_photos:'📷 Photos', btn_delete:'🗑', btn_save:'Enregistrer',
+    btn_edit:'✏️ Modifier', btn_photos:'📷 Photos', btn_delete:'🗑', btn_save:'Enregistrer', btn_subtree:'🌳 Sous-arbre', btn_clear_subtree:'✕ Quitter le sous-arbre',
     avatar_set:'Avatar mis à jour',
     deceased_m:'décédé', deceased_f:'décédée',
     ne_m:'né en', ne_f:'née en',
@@ -247,7 +247,7 @@ const LANGS = {
     dem_required:'Ano e local são obrigatórios', toast_dem_saved:'Mudança guardada', toast_dem_deleted:'Mudança eliminada',
     confirm_delete_dem:'Eliminar esta mudança de residência?',
     lbl_naiss:'Nascimento', lbl_age:'Idade', lbl_deces:'Falecimento', lbl_job:'Profissão',
-    btn_edit:'✏️ Editar', btn_photos:'📷 Fotos', btn_delete:'🗑', btn_save:'Guardar',
+    btn_edit:'✏️ Editar', btn_photos:'📷 Fotos', btn_delete:'🗑', btn_save:'Guardar', btn_subtree:'🌳 Sub-árvore', btn_clear_subtree:'✕ Sair da sub-árvore',
     avatar_set:'Avatar atualizado',
     deceased_m:'falecido', deceased_f:'falecida',
     ne_m:'nascido em', ne_f:'nascida em',
@@ -449,7 +449,7 @@ const LANGS = {
     dem_required:'Year and place are required', toast_dem_saved:'Move saved', toast_dem_deleted:'Move deleted',
     confirm_delete_dem:'Delete this move?',
     lbl_naiss:'Birth', lbl_age:'Age', lbl_deces:'Death', lbl_job:'Profession',
-    btn_edit:'✏️ Edit', btn_photos:'📷 Photos', btn_delete:'🗑', btn_save:'Save',
+    btn_edit:'✏️ Edit', btn_photos:'📷 Photos', btn_delete:'🗑', btn_save:'Save', btn_subtree:'🌳 Sub-tree', btn_clear_subtree:'✕ Exit sub-tree',
     avatar_set:'Avatar updated',
     deceased_m:'deceased', deceased_f:'deceased',
     ne_m:'born in', ne_f:'born in',
@@ -642,7 +642,7 @@ const LANGS = {
     dem_required:'Jahr und Ort sind erforderlich', toast_dem_saved:'Umzug gespeichert', toast_dem_deleted:'Umzug gelöscht',
     confirm_delete_dem:'Diesen Umzug löschen?',
     lbl_naiss:'Geburt', lbl_age:'Alter', lbl_deces:'Tod', lbl_job:'Beruf',
-    btn_edit:'✏️ Bearbeiten', btn_photos:'📷 Fotos', btn_delete:'🗑', btn_save:'Speichern',
+    btn_edit:'✏️ Bearbeiten', btn_photos:'📷 Fotos', btn_delete:'🗑', btn_save:'Speichern', btn_subtree:'🌳 Teilbaum', btn_clear_subtree:'✕ Teilbaum verlassen',
     avatar_set:'Avatar aktualisiert',
     deceased_m:'verstorben', deceased_f:'verstorben',
     ne_m:'geboren in', ne_f:'geboren in',
@@ -835,7 +835,7 @@ const LANGS = {
     dem_required:'سال و مکان الزامی هستند', toast_dem_saved:'نقل مکان ذخیره شد', toast_dem_deleted:'نقل مکان حذف شد',
     confirm_delete_dem:'این نقل مکان حذف شود؟',
     lbl_naiss:'تولد', lbl_age:'سن', lbl_deces:'فوت', lbl_job:'حرفه',
-    btn_edit:'✏️ ویرایش', btn_photos:'📷 عکس‌ها', btn_delete:'🗑', btn_save:'ذخیره',
+    btn_edit:'✏️ ویرایش', btn_photos:'📷 عکس‌ها', btn_delete:'🗑', btn_save:'ذخیره', btn_subtree:'🌳 زیردرخت', btn_clear_subtree:'✕ خروج از زیردرخت',
     avatar_set:'آواتار به‌روز شد',
     deceased_m:'درگذشته', deceased_f:'درگذشته',
     ne_m:'متولد', ne_f:'متولده',
@@ -1192,6 +1192,14 @@ function applyLang() {
   if (activeView?.id === 'view-autos')     loadAutos();
   if (activeView?.id === 'view-timeline')  loadTimeline();
   if (typeof _renderArbreCombo === 'function') _renderArbreCombo();
+  // Bandeau sous-arbre
+  if (typeof _subtreeRootId !== 'undefined' && _subtreeRootId) {
+    const p = people.find(x => x.id === _subtreeRootId);
+    const lbl = document.getElementById('subtree-banner-label');
+    const btn = document.querySelector('#subtree-banner button');
+    if (lbl && p) lbl.textContent = `🌳 ${T('btn_subtree').replace('🌳 ','')} : ${fullName(p)}`;
+    if (btn) btn.textContent = T('btn_clear_subtree');
+  }
 }
 
 // BASE_URL : chemin absolu vers la racine du site (fonctionne quel que soit le sous-répertoire)

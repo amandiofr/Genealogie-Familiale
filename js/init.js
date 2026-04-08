@@ -4,6 +4,7 @@
 const _isTouch = window.matchMedia('(pointer:coarse)').matches;
 let _arbres = [], _currentArbreId = null, _currentMembers = null;
 let _allLiens = [];
+let _subtreeRootId = null; // null = pas de filtre sous-arbre (non persisté)
 
 function inCurrentTree(personId) {
   return !_currentMembers || _currentMembers.has(Number(personId));
@@ -72,7 +73,59 @@ function _renderArbreCombo() {
 
 function encodeHTML(s) { return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
 
+// ── Sous-arbre temporaire ────────────────────────────────────────────────────
+function _computeDescendants(rootId) {
+  const direct = new Set([Number(rootId)]);
+  const queue = [Number(rootId)];
+  while (queue.length) {
+    const pid = queue.shift();
+    for (const l of _allLiens) {
+      if (l.type === 'parent_enfant' && Number(l.personne_a) === pid) {
+        const child = Number(l.personne_b);
+        if (!direct.has(child)) { direct.add(child); queue.push(child); }
+      }
+    }
+  }
+  return direct;
+}
+
+function setSubtree(personId) {
+  _subtreeRootId = Number(personId);
+  const p = people.find(x => x.id === _subtreeRootId);
+  _directMembersSet = _computeDescendants(_subtreeRootId);
+  _currentMembers = new Set(_directMembersSet);
+  for (const l of _allLiens) {
+    if (l.type === 'conjoint' || l.type === 'fiancailles') {
+      const a = Number(l.personne_a), b = Number(l.personne_b);
+      if (_currentMembers.has(a)) _currentMembers.add(b);
+      if (_currentMembers.has(b)) _currentMembers.add(a);
+    }
+  }
+  const banner = document.getElementById('subtree-banner');
+  if (banner) {
+    document.getElementById('subtree-banner-label').textContent = `🌳 ${T('btn_subtree').replace('🌳 ','')} : ${p ? fullName(p) : ''}`;
+    document.querySelector('#subtree-banner button').textContent = T('btn_clear_subtree');
+    banner.style.display = 'flex';
+  }
+  renderTree();
+  const activeView = document.querySelector('.view.active')?.id?.replace('view-', '');
+  if (activeView && activeView !== 'tree') showView(activeView, null);
+}
+
+function clearSubtree() {
+  _subtreeRootId = null;
+  _applyArbre();
+  const banner = document.getElementById('subtree-banner');
+  if (banner) banner.style.display = 'none';
+  renderTree();
+  const activeView = document.querySelector('.view.active')?.id?.replace('view-', '');
+  if (activeView && activeView !== 'tree') showView(activeView, null);
+}
+
 function setCurrentArbre(id) {
+  _subtreeRootId = null;
+  const banner = document.getElementById('subtree-banner');
+  if (banner) banner.style.display = 'none';
   _currentArbreId = id;
   localStorage.setItem('genealogie_arbre', id);
   _applyArbre();

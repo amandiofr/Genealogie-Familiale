@@ -191,6 +191,13 @@ async function openPerson(id) {
       ${currentUser.role==='admin' ? `<button class="btn-danger" style="font-size:.78rem;padding:6px 11px;" onclick="deletePerson(${id})">🗑</button>` : ''}
     </div>`;
   }
+  const _isSubtreeRoot = _subtreeRootId === id;
+  html+=`<div style="margin-top:.5rem;">
+    ${_isSubtreeRoot
+      ? `<button class="btn-secondary" style="width:100%;font-size:.78rem;padding:6px 14px;" onclick="clearSubtree();closeOverlay('modal-person-view-overlay')">${T('btn_clear_subtree')}</button>`
+      : `<button class="btn-secondary" style="width:100%;font-size:.78rem;padding:6px 14px;" onclick="setSubtree(${id});closeOverlay('modal-person-view-overlay')">${T('btn_subtree')}</button>`
+    }
+  </div>`;
   html+=`</div>`;
 
   const _mv = document.getElementById('modal-person-view');
