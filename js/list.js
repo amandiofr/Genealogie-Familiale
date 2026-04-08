@@ -142,10 +142,35 @@ async function openPerson(id) {
   // Biographie
   if(p.biographie) html+=`<div class="modal-section"><div class="sec-title">${T('sec_bio')}</div><div class="notes-box">${p.biographie.replace(/\n/g,'<br>')}</div></div>`;
 
-  // Événements liés
-  if((p.evenements||[]).length){
+  // Déménagements
+  const _dems = (p.evenements||[]).filter(e=>e.type==='demenagement').sort((a,b)=>a.date_debut>b.date_debut?1:-1);
+  html+=`<div class="modal-section" id="dem-section"><div class="sec-title">${T('sec_dems')}</div>`;
+  html+=`<div id="dem-list">`;
+  if(_dems.length){
+    _dems.forEach(e=>{
+      const annee = e.date_debut ? e.date_debut.substring(0,4) : '?';
+      const autres = (e.nb_personnes||1) - 1;
+      const avecLabel = autres > 0 ? ` <span style="color:var(--ink3);font-size:.75em;">+ ${autres}</span>` : '';
+      const editBtns = currentUser.role!=='lecteur' ? `<button onclick="showDemForm(${id},${e.id})" style="background:none;border:none;color:var(--ink3);cursor:pointer;font-size:.75rem;padding:0 4px;">✏️</button><button onclick="deleteDem(${id},${e.id})" style="background:none;border:none;color:var(--ink3);cursor:pointer;font-size:.75rem;padding:0 2px;">🗑</button>` : '';
+      html+=`<div style="display:flex;align-items:center;gap:.5rem;padding:.35rem 0;border-bottom:1px solid var(--border2);">
+        <span style="font-size:.8rem;font-weight:600;min-width:2.5rem;color:var(--ink2);">${annee}</span>
+        <span style="flex:1;font-size:.85rem;">${e.lieu||'—'}${avecLabel}</span>
+        ${editBtns}
+      </div>`;
+    });
+  } else {
+    html+=`<div style="font-size:.8rem;color:var(--ink3);font-style:italic;padding:.3rem 0;">${T('dem_empty')}</div>`;
+  }
+  html+=`</div>`;
+  if(currentUser.role!=='lecteur') html+=`<button class="btn-secondary" style="width:100%;margin-top:8px;font-size:.75rem;" onclick="showDemForm(${id},null)">${T('btn_add_dem')}</button>`;
+  html+=`<div id="dem-form-wrap" style="display:none;"></div>`;
+  html+=`</div>`;
+
+  // Événements liés (hors déménagements)
+  const _evts = (p.evenements||[]).filter(e=>e.type!=='demenagement');
+  if(_evts.length){
     html+=`<div class="modal-section"><div class="sec-title">${T('sec_events')}</div>`;
-    p.evenements.forEach(e=>{html+=`<div class="list-item" onclick="openEvent(${e.id});closeOverlay('modal-person-view-overlay')"><span style="font-size:1rem;">${EVT_ICONS[e.type]||'📌'}</span><div class="li-info"><div class="li-name">${e.titre}</div><div class="li-sub">${fmtDate(e.date_debut)||''}</div></div></div>`;});
+    _evts.forEach(e=>{html+=`<div class="list-item" onclick="openEvent(${e.id});closeOverlay('modal-person-view-overlay')"><span style="font-size:1rem;">${EVT_ICONS[e.type]||'📌'}</span><div class="li-info"><div class="li-name">${e.titre}</div><div class="li-sub">${fmtDate(e.date_debut)||''}</div></div></div>`;});
     html+=`</div>`;
   }
 
@@ -585,6 +610,121 @@ async function deleteLien(personId, lienId) {
     _refreshActiveView();
     toast(T('toast_lien_deleted'));
     openPerson(personId);
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+// ══════════════════════════════════════════════════════════════
+//  DÉMÉNAGEMENTS — form inline dans la fiche personne
+// ══════════════════════════════════════════════════════════════
+let _demPersonId  = null;
+let _demEventId   = null;
+let _demSelected  = new Set(); // participant IDs sélectionnés
+
+async function showDemForm(personId, eventId) {
+  _demPersonId = personId;
+  _demEventId  = eventId;
+  _demSelected = new Set([personId]); // la personne elle-même toujours incluse
+
+  let annee = '', lieu = '';
+
+  if (eventId) {
+    // Charger les données existantes
+    const e = await api('GET', `api/evenements.php?id=${eventId}`);
+    annee = e.date_debut ? e.date_debut.substring(0,4) : '';
+    lieu  = e.lieu || '';
+    (e.personnes||[]).forEach(p => _demSelected.add(p.id));
+  }
+
+  // Construire la liste des lieux connus pour le datalist
+  const lieuxConnus = Object.keys(typeof _carteLieux !== 'undefined' ? _carteLieux : {});
+
+  // Construire le form
+  const wrap = document.getElementById('dem-form-wrap');
+  if (!wrap) return;
+
+  const datalistOpts = lieuxConnus.map(l => `<option value="${encodeHTML(l)}">`).join('');
+
+  wrap.style.display = 'block';
+  wrap.innerHTML = `
+    <datalist id="dem-lieux-list">${datalistOpts}</datalist>
+    <div style="background:var(--surface2);border-radius:8px;padding:.8rem;margin-top:.5rem;display:flex;flex-direction:column;gap:.6rem;">
+      <div style="display:flex;gap:.5rem;">
+        <input id="dem-annee" type="number" min="1600" max="2100" value="${encodeHTML(annee)}" placeholder="${T('dem_year')}"
+          style="width:80px;padding:.35rem .5rem;border:1px solid var(--border);border-radius:6px;background:var(--bg);font-size:.85rem;">
+        <input id="dem-lieu" type="text" list="dem-lieux-list" value="${encodeHTML(lieu)}" placeholder="${T('dem_place')}"
+          style="flex:1;padding:.35rem .5rem;border:1px solid var(--border);border-radius:6px;background:var(--bg);font-size:.85rem;">
+      </div>
+      <div>
+        <div style="font-size:.75rem;color:var(--ink3);margin-bottom:.35rem;">${T('dem_participants')}</div>
+        <div id="dem-participants" style="display:flex;flex-direction:column;gap:.25rem;max-height:180px;overflow-y:auto;">
+          ${_renderDemParticipants(personId)}
+        </div>
+      </div>
+      <div style="display:flex;gap:.5rem;">
+        <button class="btn-primary" style="flex:1;font-size:.8rem;" onclick="saveDem()">${T('btn_save')}</button>
+        <button class="btn-secondary" style="font-size:.8rem;" onclick="closeDemForm()">✕</button>
+      </div>
+    </div>`;
+
+  wrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function _renderDemParticipants(excludeId) {
+  return people
+    .filter(p => inCurrentTree(p.id))
+    .map(p => {
+      const checked = _demSelected.has(p.id);
+      const disabled = p.id === excludeId ? 'disabled' : '';
+      return `<label style="display:flex;align-items:center;gap:.5rem;font-size:.8rem;cursor:pointer;padding:.15rem 0;">
+        <input type="checkbox" ${checked ? 'checked' : ''} ${disabled} onchange="toggleDemParticipant(${p.id},this.checked)"
+          style="width:15px;height:15px;flex-shrink:0;">
+        <span>${p.prenom} ${p.nom}</span>
+      </label>`;
+    }).join('');
+}
+
+function toggleDemParticipant(pid, checked) {
+  if (checked) _demSelected.add(pid);
+  else _demSelected.delete(pid);
+}
+
+function closeDemForm() {
+  const wrap = document.getElementById('dem-form-wrap');
+  if (wrap) { wrap.style.display = 'none'; wrap.innerHTML = ''; }
+}
+
+async function saveDem() {
+  const annee = document.getElementById('dem-annee')?.value?.trim();
+  const lieu  = document.getElementById('dem-lieu')?.value?.trim();
+  if (!annee || !lieu) { toast(T('dem_required'), 'error'); return; }
+
+  const personnes = [..._demSelected].map(id => ({ id }));
+  const body = {
+    titre:      lieu,
+    type:       'demenagement',
+    date_debut: annee + '-01-01',
+    lieu:       lieu,
+    personnes,
+  };
+
+  try {
+    if (_demEventId) {
+      await api('PUT', `api/evenements.php?id=${_demEventId}`, body);
+    } else {
+      await api('POST', 'api/evenements.php', body);
+    }
+    closeDemForm();
+    openPerson(_demPersonId);
+    toast(T('toast_dem_saved'));
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function deleteDem(personId, eventId) {
+  if (!confirm(T('confirm_delete_dem'))) return;
+  try {
+    await api('DELETE', `api/evenements.php?id=${eventId}`);
+    openPerson(personId);
+    toast(T('toast_dem_deleted'));
   } catch(e) { toast(e.message, 'error'); }
 }
 

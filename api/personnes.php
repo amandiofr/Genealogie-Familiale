@@ -62,9 +62,11 @@ if ($method === 'GET' && $id) {
 
     // Événements
     $ev = $db->prepare("
-        SELECT e.* FROM evenements e
+        SELECT e.*,
+          (SELECT COUNT(*) FROM evenement_personnes WHERE evenement_id=e.id) AS nb_personnes
+        FROM evenements e
         JOIN evenement_personnes ep ON ep.evenement_id=e.id
-        WHERE ep.personne_id=? ORDER BY e.date_debut DESC
+        WHERE ep.personne_id=? ORDER BY e.date_debut ASC
     ");
     $ev->execute([$id]); $p['evenements'] = $ev->fetchAll();
 

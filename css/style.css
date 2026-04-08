@@ -131,8 +131,8 @@ nav button.active{background:var(--ink);color:var(--bg);}
 .fl-name{font-size:.8rem;color:var(--ink);}
 .fl-role{font-size:.66rem;color:var(--ink3);}
 .notes-box{background:var(--accent3);border-radius:8px;padding:11px 13px;font-size:1.1rem;line-height:1.7;color:var(--ink2);font-style:italic;font-family:'Cormorant Garamond',serif;}
-.photos-strip{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;}
-.photo-thumb{width:80px;height:80px;object-fit:cover;border-radius:7px;cursor:pointer;transition:opacity .15s;}
+.photos-strip{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:8px;margin-top:6px;}
+.photo-thumb{width:100%;aspect-ratio:1;object-fit:cover;border-radius:7px;cursor:pointer;transition:opacity .15s;}
 .photo-thumb:hover{opacity:.85;}
 .modal-section{margin-bottom:1.1rem;}
 
