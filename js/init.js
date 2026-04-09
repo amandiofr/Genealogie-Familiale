@@ -77,6 +77,14 @@ function encodeHTML(s) { return String(s).replace(/&/g,'&amp;').replace(/"/g,'&q
 function _computeDescendants(rootId) {
   const direct = new Set([Number(rootId)]);
   const queue = [Number(rootId)];
+  // Inclure le/les conjoint(s) du root comme co-racines du BFS
+  for (const l of _allLiens) {
+    if (l.type === 'conjoint' || l.type === 'fiancailles') {
+      const a = Number(l.personne_a), b = Number(l.personne_b);
+      if (a === Number(rootId) && !direct.has(b)) { direct.add(b); queue.push(b); }
+      if (b === Number(rootId) && !direct.has(a)) { direct.add(a); queue.push(a); }
+    }
+  }
   while (queue.length) {
     const pid = queue.shift();
     for (const l of _allLiens) {
