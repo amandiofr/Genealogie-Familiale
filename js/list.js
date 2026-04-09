@@ -110,7 +110,11 @@ async function openPerson(id) {
     const delBtn = isDirect && currentUser.role!=='lecteur'
       ? `<button class="fl-del-btn" data-pid="${id}" data-lid="${l.lien_id}" style="margin-left:2px;background:none;border:none;color:var(--ink3);cursor:pointer;font-size:.7rem;padding:0 2px;line-height:1;" title="${T('confirm_delete_lien')}">✕</button>`
       : '';
-    return `<div class="family-link" onclick="openPerson(${lid})">${fav}<div><div class="fl-name">${l.prenom} ${l.nom}</div><div class="fl-role">${l.role}</div></div><span style="margin-left:auto;color:var(--ink3);font-size:.8rem;">›</span>${editBtn}${delBtn}</div>`;
+    const isSpouse = l.type==='conjoint'||l.type==='fiancailles';
+    const dateLbl = isSpouse
+      ? (l.date_debut ? fmtDate(l.date_debut) : '')
+      : (l.naissance  ? fmtDate(l.naissance)  : '');
+    return `<div class="family-link" onclick="openPerson(${lid})">${fav}<div><div class="fl-name">${l.prenom} ${l.nom}</div><div class="fl-role">${l.role}${dateLbl?` <span style="color:var(--ink3);font-size:.75em;">${dateLbl}</span>`:''}</div></div><span style="margin-left:auto;color:var(--ink3);font-size:.8rem;">›</span>${editBtn}${delBtn}</div>`;
   };
   if(allFamily.length){
     html+=`<div class="modal-section"><div class="sec-title">${T('sec_famille')}</div>`;
@@ -168,20 +172,6 @@ async function openPerson(id) {
   html+=`</div>`;
   } // fin if inCurrentTreeDirect
 
-  // Événements liés (hors déménagements)
-  const _evts = (p.evenements||[]).filter(e=>e.type!=='demenagement');
-  if(_evts.length){
-    html+=`<div class="modal-section"><div class="sec-title">${T('sec_events')}</div>`;
-    _evts.forEach(e=>{html+=`<div class="list-item" onclick="openEvent(${e.id});closeOverlay('modal-person-view-overlay')"><span style="font-size:1rem;">${EVT_ICONS[e.type]||'📌'}</span><div class="li-info"><div class="li-name">${e.titre}</div><div class="li-sub">${fmtDate(e.date_debut)||''}</div></div></div>`;});
-    html+=`</div>`;
-  }
-
-  // Anecdotes liées
-  if((p.anecdotes||[]).length){
-    html+=`<div class="modal-section"><div class="sec-title">${T('sec_anecdotes')}</div>`;
-    p.anecdotes.forEach(a=>{html+=`<div class="list-item" onclick="openAnecdote(${a.id});closeOverlay('modal-person-view-overlay')"><span style="font-size:1rem;">📖</span><div class="li-info"><div class="li-name">${a.titre}</div><div class="li-sub">${a.date_anec||a.auteur||''}</div></div></div>`;});
-    html+=`</div>`;
-  }
 
   // Actions
   if(currentUser.role!=='lecteur'){

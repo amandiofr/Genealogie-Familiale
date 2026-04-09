@@ -72,20 +72,40 @@ async function loadCarte() {
   });
   Object.values(demParPersonne).forEach(arr => arr.sort((a, b) => a.annee - b.annee));
 
+  // Index année de mariage par personne_id (premier lien conjoint/fiancailles avec date)
+  const marriageYear = {};
+  for (const l of _allLiens) {
+    if ((l.type === 'conjoint' || l.type === 'fiancailles') && l.date_debut) {
+      const yr = parseInt(l.date_debut);
+      if (isNaN(yr)) continue;
+      const a = Number(l.personne_a), b = Number(l.personne_b);
+      if (!marriageYear[a]) marriageYear[a] = yr;
+      if (!marriageYear[b]) marriageYear[b] = yr;
+    }
+  }
+
   // Construire les données de timeline par personne
+  // Membres directs → depuis la naissance ; conjoints → depuis le mariage
   _cartePersons = persons
-    .filter(p => inCurrentTreeDirect(p.id) && p.lieu_naiss && p.naissance)
-    .map(p => ({
-      id:           p.id,
-      prenom:       p.prenom,
-      nom:          p.nom,
-      genre:        p.genre || 'autre',
-      thumb:        p.chemin_thumb || null,
-      naissAnnee:   parseInt(p.naissance),
-      decesAnnee:   p.deces ? parseInt(p.deces) : null,
-      lieuNaiss:    p.lieu_naiss,
-      deplacements: (demParPersonne[p.id] || []).filter(d => d.annee >= parseInt(p.naissance)),
-    }));
+    .filter(p => inCurrentTree(p.id) && p.lieu_naiss && p.naissance)
+    .map(p => {
+      const naissAnnee = parseInt(p.naissance);
+      const isDirect = inCurrentTreeDirect(p.id);
+      if (!isDirect && !marriageYear[p.id]) return null;
+      const showFrom = isDirect ? naissAnnee : marriageYear[p.id];
+      return {
+        id:           p.id,
+        prenom:       p.prenom,
+        nom:          p.nom,
+        genre:        p.genre || 'autre',
+        thumb:        p.chemin_thumb || null,
+        naissAnnee:   showFrom,
+        decesAnnee:   p.deces ? parseInt(p.deces) : null,
+        lieuNaiss:    p.lieu_naiss,
+        deplacements: (demParPersonne[p.id] || []).filter(d => d.annee >= naissAnnee),
+      };
+    })
+    .filter(Boolean);
 
   // Plage d'années
   const annees = _cartePersons.map(p => p.naissAnnee).filter(Boolean);
@@ -104,7 +124,7 @@ async function loadCarte() {
     const wrapper = document.createElement('div');
     wrapper.style.cssText = 'width:0;height:0;position:relative;';
     const av = document.createElement('div');
-    av.style.cssText = `position:absolute;width:27px;height:27px;border-radius:50%;border:2px solid #fff;overflow:hidden;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#fff;transform:translate(-50%,-50%);`;
+    av.style.cssText = `position:absolute;width:30px;height:30px;border-radius:50%;border:2px solid #fff;overflow:hidden;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;transform:translate(-50%,-50%);`;
     const colors = { male:'#5b7fa6', female:'#a67b8a', autre:'#7c5c3e' };
     av.style.background = colors[p.genre] || colors.autre;
     if (p.thumb) {
