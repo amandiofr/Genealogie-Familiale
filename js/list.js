@@ -146,8 +146,8 @@ async function openPerson(id) {
   // Biographie
   if(p.biographie) html+=`<div class="modal-section"><div class="sec-title">${T('sec_bio')}</div><div class="notes-box">${p.biographie.replace(/\n/g,'<br>')}</div></div>`;
 
-  // Déménagements (membres directs uniquement)
-  const _dems = inCurrentTreeDirect(id) ? (p.evenements||[]).filter(e=>e.type==='demenagement').sort((a,b)=>a.date_debut>b.date_debut?1:-1) : null;
+  // Déménagements (membres directs et conjoints de l'arbre courant)
+  const _dems = inCurrentTree(id) ? (p.evenements||[]).filter(e=>e.type==='demenagement').sort((a,b)=>a.date_debut>b.date_debut?1:-1) : null;
   if (_dems !== null) {
   html+=`<div class="modal-section" id="dem-section"><div class="sec-title">${T('sec_dems')}</div>`;
   html+=`<div id="dem-list">`;
@@ -670,7 +670,7 @@ async function showDemForm(personId, eventId) {
 
 function _renderDemParticipants(excludeId) {
   return people
-    .filter(p => inCurrentTreeDirect(p.id))
+    .filter(p => inCurrentTree(p.id))
     .map(p => {
       const checked = _demSelected.has(p.id);
       const disabled = p.id === excludeId ? 'disabled' : '';

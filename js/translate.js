@@ -22,8 +22,8 @@ async function translateText(text) {
   if (_translateCache[key]) return _translateCache[key];
   try {
     const d = await api('POST', 'api/translate.php', { text, target: currentLang });
-    _translateCache[key] = d.translation;
-    return d.translation;
+    _translateCache[key] = d.translation.trim().replace(/\n{2,}/g, '\n');
+    return _translateCache[key];
   } catch {
     return text; // en cas d'erreur, afficher l'original
   }

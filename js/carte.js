@@ -142,23 +142,20 @@ async function loadCarte() {
       content: wrapper,
       zIndex: 0,
     });
-    marker.addListener('gmp-click', () => {
-      const age = _carteYear - p.naissAnnee;
-      const m = _carteMarkers[p.id];
-      _carteInfoWindow.setContent(`<div style="font-family:'DM Sans',sans-serif;max-width:200px;">
-        <div style="font-weight:600;">${p.prenom} ${p.nom}</div>
-        <div style="color:#888;font-size:.85em;">${age} ans · ${m?._currentLieu||''}</div>
-      </div>`);
-      _carteInfoWindow.open(_carteMap, marker);
-    });
+    marker.addListener('gmp-click', () => openPerson(p.id));
     _carteMarkers[p.id] = { marker, wrapper, av, lat: null, lng: null, _currentLieu: '' };
   });
 
-  // Ajuster la vue pour englober toutes les positions historiques
+  // Ajuster la vue pour englober toutes les positions visibles (à partir de naissAnnee)
   const allPositions = [];
   _cartePersons.forEach(p => {
-    [p.lieuNaiss, ...p.deplacements.map(d => d.lieu)].forEach(lieu => {
-      const geo = _geoForLieu(lieu);
+    const startLoc = _locForPersonAtYear(p, p.naissAnnee);
+    if (startLoc) {
+      const geo = _geoForLieu(startLoc.lieu);
+      if (geo?.lat != null) allPositions.push({ lat: parseFloat(geo.lat), lng: parseFloat(geo.lng) });
+    }
+    p.deplacements.filter(d => d.annee >= p.naissAnnee).forEach(d => {
+      const geo = _geoForLieu(d.lieu);
       if (geo?.lat != null) allPositions.push({ lat: parseFloat(geo.lat), lng: parseFloat(geo.lng) });
     });
   });
@@ -204,11 +201,12 @@ function _geoForLieu(lieu) {
 function _locForPersonAtYear(p, year) {
   if (year < p.naissAnnee) return null;
   let lieu = p.lieuNaiss;
+  let arrival = p.naissAnnee;
   for (const dep of p.deplacements) {
-    if (dep.annee <= year) lieu = dep.lieu;
+    if (dep.annee <= year) { lieu = dep.lieu; arrival = dep.annee; }
     else break;
   }
-  return lieu;
+  return { lieu, arrival };
 }
 
 function _renderCarteYear(year) {
@@ -217,9 +215,22 @@ function _renderCarteYear(year) {
   // Calculer la position cible de chaque personne
   const targets = {}; // personId → {lat, lng, geo, lieu}
   _cartePersons.forEach(p => {
-    const lieu = _locForPersonAtYear(p, year);
-    const geo  = lieu ? _geoForLieu(lieu) : null;
-    if (geo?.lat != null) targets[p.id] = { lat: parseFloat(geo.lat), lng: parseFloat(geo.lng), geo, lieu };
+    const loc = _locForPersonAtYear(p, year);
+    const geo  = loc ? _geoForLieu(loc.lieu) : null;
+    if (geo?.lat != null) targets[p.id] = { lat: parseFloat(geo.lat), lng: parseFloat(geo.lng), geo, lieu: loc.lieu, arrival: loc.arrival };
+  });
+
+  // Décalage horizontal pour les marqueurs colocalisés (50% du diamètre = 15px)
+  const posGroups = {};
+  Object.entries(targets).forEach(([pid, t]) => {
+    const key = `${t.lat.toFixed(6)},${t.lng.toFixed(6)}`;
+    if (!posGroups[key]) posGroups[key] = [];
+    posGroups[key].push({ pid: Number(pid), arrival: t.arrival });
+  });
+  const offsetByPid = {};
+  Object.values(posGroups).forEach(entries => {
+    entries.sort((a, b) => a.arrival - b.arrival || a.pid - b.pid);
+    entries.forEach(({ pid }, idx) => { offsetByPid[pid] = idx; });
   });
 
   let visible = 0;
@@ -231,6 +242,8 @@ function _renderCarteYear(year) {
     if (!t) {
       m.marker.map = null;
       m.lat = null; m.lng = null;
+      m._shift = 0;
+      m.av.style.transform = 'translate(-50%,-50%)';
       return;
     }
 
@@ -239,17 +252,28 @@ function _renderCarteYear(year) {
     m._currentLieu = t.geo.nom_normalise || t.lieu;
     visible++;
 
+    const shift = (offsetByPid[p.id] ?? 0) * 15;
     if (m.lat === null) {
+      // Première apparition : décalage immédiat
+      m._shift = shift;
+      m.av.style.transform = shift ? `translate(calc(-50% + ${shift}px),-50%)` : 'translate(-50%,-50%)';
       m.marker.position = { lat: toLat, lng: toLng };
       m.marker.zIndex = ++_carteZIndex;
       m.marker.map = _carteMap;
       m.lat = toLat; m.lng = toLng;
     } else if (m.lat !== toLat || m.lng !== toLng) {
+      // Déménagement : animer position ET décalage
+      const fromShift = m._shift ?? 0;
+      m._shift = shift;
       const fromLat = m.lat, fromLng = m.lng;
       m.lat = toLat; m.lng = toLng;
       m.marker.zIndex = ++_carteZIndex;
       m.marker.map = _carteMap;
-      _animateMarker(p.id, fromLat, fromLng, toLat, toLng, 600);
+      _animateMarker(p.id, fromLat, fromLng, toLat, toLng, fromShift, shift, 600);
+    } else {
+      // Même position : mettre à jour le décalage immédiatement
+      m._shift = shift;
+      m.av.style.transform = shift ? `translate(calc(-50% + ${shift}px),-50%)` : 'translate(-50%,-50%)';
     }
   });
 
@@ -257,19 +281,19 @@ function _renderCarteYear(year) {
   if (lbl) lbl.textContent = `${visible} ${T('carte_persons_label')}`;
 }
 
-function _animateMarker(pid, fromLat, fromLng, toLat, toLng, duration) {
+function _animateMarker(pid, fromLat, fromLng, toLat, toLng, fromShift, toShift, duration) {
   if (_carteAnimFrames[pid]) cancelAnimationFrame(_carteAnimFrames[pid]);
   const start = performance.now();
   const m = _carteMarkers[pid];
   if (!m) return;
-  // zIndex déjà incrémenté dans _renderCarteYear avant l'appel
   function step(now) {
     const t = Math.min((now - start) / duration, 1);
-    // ease in-out cubic plus prononcé aux extrémités
     const ease = t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3)/2;
     const lat = fromLat + (toLat - fromLat) * ease;
     const lng = fromLng + (toLng - fromLng) * ease;
+    const shift = fromShift + (toShift - fromShift) * ease;
     m.marker.position = { lat, lng };
+    m.av.style.transform = shift ? `translate(calc(-50% + ${shift}px),-50%)` : 'translate(-50%,-50%)';
     if (t < 1) {
       _carteAnimFrames[pid] = requestAnimationFrame(step);
     } else {
