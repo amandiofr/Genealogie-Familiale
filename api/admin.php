@@ -1,8 +1,14 @@
 <?php
 require_once __DIR__ . '/../config.php';
-require_role('admin');
 
 $action = $_GET['action'] ?? '';
+
+// quality_check est accessible aux éditeurs aussi
+if ($action === 'quality_check') {
+    require_role('admin', 'editeur');
+} else {
+    require_role('admin');
+}
 
 // ── GET orphan_files ──────────────────────────────────────────────────────────
 if ($action === 'orphan_files' && method_is('GET')) {

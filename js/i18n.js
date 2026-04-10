@@ -1096,7 +1096,7 @@ function applyLang() {
   const badge = document.getElementById('user-badge');
   if (badge && currentUser) badge.textContent = currentUser.nom + ' (' + T('role_' + currentUser.role) + ')';
   // Nav buttons
-  const navMap = {tree:'nav_tree',list:'nav_list',events:'nav_events',reunions:'nav_reunions',anecdotes:'nav_anecdotes',tresors:'nav_tresors',recettes:'nav_recettes',autos:'nav_autos',timeline:'nav_timeline',carte:'nav_carte',admin:'nav_admin','quality':'admin_quality'};
+  const navMap = {tree:'nav_tree',list:'nav_list',events:'nav_events',reunions:'nav_reunions',anecdotes:'nav_anecdotes',tresors:'nav_tresors',recettes:'nav_recettes',autos:'nav_autos',timeline:'nav_timeline',carte:'nav_carte',admin:'nav_admin','quality':'admin_nav_quality'};
   document.querySelectorAll('nav button[data-view]').forEach(b => { b.textContent = T(navMap[b.dataset.view]||b.dataset.view); });
   // Logout
   const logoutBtn = document.getElementById('btn-logout');
