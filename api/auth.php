@@ -5,7 +5,7 @@ session_start_once();
 header('Content-Type: application/json; charset=utf-8');
 
 $action   = $_GET['action'] ?? '';
-$lifetime = 180 * 24 * 3600; // 6 mois
+$lifetime = 365 * 24 * 3600; // 1 an
 $cookieName = 'GENEALOGIE_REMEMBER';
 
 // ── Helpers token ─────────────────────────────────────────────────────────────
@@ -14,6 +14,7 @@ function set_remember_cookie(string $token, int $lifetime): void {
     setcookie($cookieName, $token, [
         'expires'  => time() + $lifetime,
         'path'     => '/',
+        'secure'   => true,
         'httponly' => true,
         'samesite' => 'Lax',
     ]);
@@ -55,10 +56,11 @@ function restore_session_from_cookie(): ?array {
     $st->execute([$hash]);
     $row = $st->fetch();
     if (!$row) { clear_remember_cookie(); return null; }
-    // Rotation : supprimer l'ancien token, émettre un nouveau
-    pdo()->prepare("DELETE FROM remember_tokens WHERE id=?")->execute([$row['token_id']]);
+    // Prolonger l'expiry sans changer le token (évite la perte en cas d'échec d'INSERT)
+    $newExpires = date('Y-m-d H:i:s', time() + $lifetime);
+    pdo()->prepare("UPDATE remember_tokens SET expires_at=? WHERE id=?")->execute([$newExpires, $row['token_id']]);
+    set_remember_cookie($raw, $lifetime);
     $user = ['id' => $row['id'], 'nom' => $row['nom'], 'email' => $row['email'], 'role' => $row['role']];
-    issue_token($user['id'], $lifetime);
     $_SESSION['user'] = $user;
     return $user;
 }

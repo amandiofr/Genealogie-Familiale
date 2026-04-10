@@ -170,14 +170,12 @@ async function loadModificationLog(offset = 0) {
     }
     const actionColor = { ajout:'#2a7a2a', modification:'#1a6eb5', suppression:'#c44' };
     const rows = logs.map(l => `
-      <div style="padding:.5rem 0;border-bottom:1px solid var(--border);font-size:.78rem;line-height:1.6;">
-        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:.3rem .4rem;margin-bottom:.15rem;">
-          <span style="padding:1px 6px;border-radius:10px;color:#fff;background:${actionColor[l.action]??'#888'};">${l.action}</span>
-          <span style="padding:1px 6px;border-radius:10px;background:var(--bg2);color:var(--ink2);">${l.type}</span>
-          <span style="color:var(--ink3);">${l.created_at?.replace('T',' ').slice(0,16) ?? ''}</span>
-          <span style="font-weight:500;color:var(--ink2);">${l.auteur ?? ''}</span>
-        </div>
-        <div style="color:var(--ink);word-break:break-word;">${l.description}</div>
+      <div style="padding:.5rem 0;border-bottom:1px solid var(--border);font-size:.78rem;line-height:1.6;display:flex;flex-wrap:wrap;align-items:baseline;gap:.3rem .4rem;">
+        <span style="padding:1px 6px;border-radius:10px;color:#fff;background:${actionColor[l.action]??'#888'};">${l.action}</span>
+        ${l.auteur ? `<span style="font-weight:500;color:var(--ink2);">${l.auteur}</span>` : ''}
+        <span style="padding:1px 6px;border-radius:10px;background:var(--bg2);color:var(--ink2);">${l.type}</span>
+        <span style="color:var(--ink);word-break:break-word;">${l.description}</span>
+        <span style="color:var(--ink3);white-space:nowrap;margin-left:auto;">${l.created_at?.replace('T',' ').slice(0,16) ?? ''}</span>
       </div>`).join('');
 
     if (offset === 0) {
