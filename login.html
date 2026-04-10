@@ -52,7 +52,7 @@ input:focus{border-color:var(--accent2);}
     const r = await fetch(`api/auth.php?action=autologin&token=${encodeURIComponent(token)}`);
     const d = await r.json();
     if (!r.ok) throw new Error(d.error || 'Lien invalide');
-    window.location.href = './';
+    window.location.replace('./index.html');
   } catch(e) {
     const err = document.getElementById('err');
     err.textContent = e.message; err.classList.add('show');
@@ -74,7 +74,7 @@ async function login() {
     });
     const d = await r.json();
     if (!r.ok) throw new Error(d.error || 'Erreur');
-    window.location.href = './';
+    window.location.replace('./index.html');
   } catch(e) {
     err.textContent = e.message; err.classList.add('show');
     btn.textContent = 'Se connecter'; btn.disabled = false;

@@ -48,7 +48,9 @@ async function loadArbres() {
     const nb = b.prenom_b ? `${b.prenom_a} ${b.prenom_b}` : b.prenom_a;
     return na.localeCompare(nb, undefined, {sensitivity:'base'});
   });
-  _currentArbreId = _arbres[0]?.id || null;
+  if (!_currentArbreId || !_arbres.find(a => a.id === _currentArbreId)) {
+    _currentArbreId = _arbres[0]?.id || null;
+  }
   _applyArbre();
   _renderArbreCombo();
 }
@@ -131,6 +133,7 @@ function clearSubtree() {
 }
 
 function setCurrentArbre(id) {
+  if (!_arbres.find(a => a.id === id)) return; // arbre non accessible à cet utilisateur
   _subtreeRootId = null;
   const banner = document.getElementById('subtree-banner');
   if (banner) banner.style.display = 'none';
