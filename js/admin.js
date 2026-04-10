@@ -259,6 +259,22 @@ async function _deleteOrphan(path) {
 // ══════════════════════════════════════════════════════════════
 //  CONTRÔLE QUALITÉ
 // ══════════════════════════════════════════════════════════════
+async function copyMarriageDate(lienId, personId, date) {
+  try {
+    // Récupérer le lien existant pour préserver type/notes
+    const p = await api('GET', `api/personnes.php?id=${personId}`);
+    const lien = (p.liens || []).find(l => Number(l.lien_id) === Number(lienId));
+    await api('PUT', `api/personnes.php?id=${personId}&sub=liens&subid=${lienId}`, {
+      type:       lien?.type || 'conjoint',
+      date_debut: date,
+      date_fin:   lien?.date_fin || null,
+      notes:      lien?.notes || null,
+    });
+    toast('✅ Date reportée');
+    loadQualityCheck();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
 async function loadQualityCheck() {
   const el = document.getElementById('quality-result');
   el.innerHTML = `<p style="font-size:.8rem;color:var(--ink3);">${T('admin_quality_loading')}</p>`;
@@ -267,88 +283,116 @@ async function loadQualityCheck() {
 
     let html = '';
 
+    // Filtrer par arbre courant si applicable
+    const _inTree = p => inCurrentTree(p.id);
+    const _inTreeById = id => inCurrentTree(id);
+
+    const _alpha = key => (a, b) => String(a[key]||'').localeCompare(String(b[key]||''), undefined, {sensitivity:'base'});
+    const _alphaFull = (a, b) => `${a.prenom} ${a.nom||''}`.localeCompare(`${b.prenom} ${b.nom||''}`, undefined, {sensitivity:'base'});
+    const _section = (title, items, rowsFn) => {
+      if (!items.length) return '';
+      return `<h3 style="font-size:.9rem;font-weight:600;margin:1.2rem 0 .5rem;">${title} (${items.length})</h3>`
+           + `<div style="display:flex;flex-direction:column;gap:.3rem;">${items.map(rowsFn).join('')}</div>`;
+    };
+
     // ── Membres ──
-    html += `<h3 style="font-size:.9rem;font-weight:600;margin:1rem 0 .5rem;">${T('admin_quality_members')} (${d.personnes.length})</h3>`;
-    if (!d.personnes.length) {
-      html += `<p style="font-size:.8rem;color:var(--ink3);font-style:italic;">${T('admin_quality_ok')}</p>`;
-    } else {
-      html += `<div style="display:flex;flex-direction:column;gap:.3rem;">`;
-      html += d.personnes.map(p => {
-        const issues = [];
-        if (!p.nom || p.nom.includes('?'))           issues.push(T('admin_quality_nom'));
-        if (!p.naissance || p.naissance.includes('?')) issues.push(T('admin_quality_naissance'));
-        if (!p.lieu_naiss || p.lieu_naiss.includes('?')) issues.push(T('admin_quality_lieu_naiss'));
-        return `<div class="user-row" style="cursor:pointer;" onclick="showPersonForm(${p.id})">
-          <div style="flex:1;">
-            <div style="font-size:.85rem;font-weight:500;">${p.prenom} ${p.nom||'?'}</div>
-            <div style="font-size:.72rem;color:#b45309;">${issues.join(' · ')}</div>
-          </div>
-          <span style="font-size:.7rem;color:var(--ink3);">✏️</span>
-        </div>`;
-      }).join('');
-      html += `</div>`;
-    }
+    const personnesFilt = d.personnes.filter(_inTree).sort(_alphaFull);
+    html += _section(T('admin_quality_members'), personnesFilt, p => {
+      const issues = [];
+      if (!p.nom || p.nom.includes('?'))              issues.push(T('admin_quality_nom'));
+      if (!p.naissance || p.naissance.includes('?'))  issues.push(T('admin_quality_naissance'));
+      if (!p.lieu_naiss || p.lieu_naiss.includes('?')) issues.push(T('admin_quality_lieu_naiss'));
+      return `<div class="user-row" style="cursor:pointer;" onclick="showPersonForm(${p.id})">
+        <div style="flex:1;">
+          <div style="font-size:.85rem;font-weight:500;">${p.prenom} ${p.nom||'?'}</div>
+          <div style="font-size:.72rem;color:#b45309;">${issues.join(' · ')}</div>
+        </div>
+        <span style="font-size:.7rem;color:var(--ink3);">✏️</span>
+      </div>`;
+    });
 
     // ── Réunions ──
-    html += `<h3 style="font-size:.9rem;font-weight:600;margin:1.2rem 0 .5rem;">${T('admin_quality_reunions')} (${d.reunions.length})</h3>`;
-    if (!d.reunions.length) {
-      html += `<p style="font-size:.8rem;color:var(--ink3);font-style:italic;">${T('admin_quality_ok')}</p>`;
-    } else {
-      html += `<div style="display:flex;flex-direction:column;gap:.3rem;">`;
-      html += d.reunions.map(r => {
-        const issues = [];
-        if (!r.date_debut || r.date_debut.includes('?')) issues.push(T('admin_quality_no_date'));
-        if (!r.lieu || r.lieu.includes('?'))             issues.push(T('admin_quality_no_lieu'));
-        return `<div class="user-row" style="cursor:pointer;" onclick="showReunionForm(${r.id})">
-          <div style="flex:1;">
-            <div style="font-size:.85rem;font-weight:500;">${r.titre}</div>
-            <div style="font-size:.72rem;color:#b45309;">${issues.join(' · ')}</div>
-          </div>
-          <span style="font-size:.7rem;color:var(--ink3);">✏️</span>
-        </div>`;
-      }).join('');
-      html += `</div>`;
-    }
+    html += _section(T('admin_quality_reunions'), [...d.reunions].sort(_alpha('titre')), r => {
+      const issues = [];
+      if (!r.date_debut || r.date_debut.includes('?')) issues.push(T('admin_quality_no_date'));
+      if (!r.lieu || r.lieu.includes('?'))             issues.push(T('admin_quality_no_lieu'));
+      return `<div class="user-row" style="cursor:pointer;" onclick="showReunionForm(${r.id})">
+        <div style="flex:1;">
+          <div style="font-size:.85rem;font-weight:500;">${r.titre}</div>
+          <div style="font-size:.72rem;color:#b45309;">${issues.join(' · ')}</div>
+        </div>
+        <span style="font-size:.7rem;color:var(--ink3);">✏️</span>
+      </div>`;
+    });
 
     // ── Événements ──
-    html += `<h3 style="font-size:.9rem;font-weight:600;margin:1.2rem 0 .5rem;">${T('admin_quality_events')} (${d.evenements.length})</h3>`;
-    if (!d.evenements.length) {
-      html += `<p style="font-size:.8rem;color:var(--ink3);font-style:italic;">${T('admin_quality_ok')}</p>`;
-    } else {
-      html += `<div style="display:flex;flex-direction:column;gap:.3rem;">`;
-      html += d.evenements.map(e => {
-        const issues = [];
-        if (!e.nb_personnes || e.nb_personnes == 0)   issues.push(T('admin_quality_no_persons'));
-        if (!e.date_debut || e.date_debut.includes('?')) issues.push(T('admin_quality_no_date'));
-        if (!e.lieu || e.lieu.includes('?'))           issues.push(T('admin_quality_no_lieu'));
-        return `<div class="user-row" style="cursor:pointer;" onclick="showEventForm(${e.id})">
-          <div style="flex:1;">
-            <div style="font-size:.85rem;font-weight:500;">${EVT_ICONS[e.type]||'📌'} ${e.titre}</div>
-            <div style="font-size:.72rem;color:#b45309;">${issues.join(' · ')}</div>
-          </div>
-          <span style="font-size:.7rem;color:var(--ink3);">✏️</span>
-        </div>`;
-      }).join('');
-      html += `</div>`;
-    }
+    html += _section(T('admin_quality_events'), [...d.evenements].sort(_alpha('titre')), e => {
+      const issues = [];
+      if (!e.nb_personnes || e.nb_personnes == 0)      issues.push(T('admin_quality_no_persons'));
+      if (!e.date_debut || e.date_debut.includes('?'))  issues.push(T('admin_quality_no_date'));
+      if (!e.lieu || e.lieu.includes('?'))              issues.push(T('admin_quality_no_lieu'));
+      return `<div class="user-row" style="cursor:pointer;" onclick="showEventForm(${e.id})">
+        <div style="flex:1;">
+          <div style="font-size:.85rem;font-weight:500;">${EVT_ICONS[e.type]||'📌'} ${e.titre}</div>
+          <div style="font-size:.72rem;color:#b45309;">${issues.join(' · ')}</div>
+        </div>
+        <span style="font-size:.7rem;color:var(--ink3);">✏️</span>
+      </div>`;
+    });
+
+    // ── Membres isolés ──
+    html += _section(T('admin_quality_isoles'), [...d.isoles].sort(_alphaFull), p =>
+      `<div class="user-row" style="cursor:pointer;" onclick="openPerson(${p.id})">
+        <div style="flex:1;"><div style="font-size:.85rem;font-weight:500;">${p.prenom} ${p.nom||'?'}</div>
+        <div style="font-size:.72rem;color:#b45309;">${T('admin_quality_no_links')}</div></div>
+        <span style="font-size:.7rem;color:var(--ink3);">✏️</span></div>`);
+
+    // ── Membres sans photo ──
+    const sansPhotoFilt = d.sans_photo.filter(_inTree).sort(_alphaFull);
+    html += _section(T('admin_quality_sans_photo'), sansPhotoFilt, p =>
+      `<div class="user-row" style="cursor:pointer;" onclick="openPerson(${p.id})">
+        <div style="flex:1;"><div style="font-size:.85rem;font-weight:500;">${p.prenom} ${p.nom||'?'}</div>
+        <div style="font-size:.72rem;color:#b45309;">${T('admin_quality_no_photo')}</div></div>
+        <span style="font-size:.7rem;color:var(--ink3);">✏️</span></div>`);
+
+    // ── Conjoints sans date de mariage ──
+    const sansDateFilt = d.sans_date_mariage
+      .filter(l => _inTreeById(l.id_a) || _inTreeById(l.id_b ?? l.id_a))
+      .sort((a, b) => `${a.prenom_a} ${a.nom_a||''}`.localeCompare(`${b.prenom_a} ${b.nom_a||''}`, undefined, {sensitivity:'base'}));
+    html += _section(T('admin_quality_no_marriage_date'), sansDateFilt, l => {
+      const copyBtn = l.date_evt
+        ? `<button class="btn-sm" style="font-size:.7rem;padding:2px 8px;white-space:nowrap;" onclick="event.stopPropagation();copyMarriageDate(${l.lien_id},${l.id_a},'${l.date_evt}')">📅 ${l.date_evt.substring(0,4)}</button>`
+        : '';
+      return `<div class="user-row" style="cursor:pointer;" onclick="openPerson(${l.id_a})">
+        <div style="flex:1;"><div style="font-size:.85rem;font-weight:500;">${l.prenom_a} ${l.nom_a||''} & ${l.prenom_b} ${l.nom_b||''}</div>
+        <div style="font-size:.72rem;color:#b45309;">${T('admin_quality_no_date')}</div></div>
+        ${copyBtn}<span style="font-size:.7rem;color:var(--ink3);">✏️</span></div>`;
+    });
+
+    // ── Incohérences de dates ──
+    html += _section(T('admin_quality_incoherences'), [...d.incoherences].sort(_alphaFull), p => {
+      const detail = p.parent_prenom
+        ? `${T('admin_quality_born_before_parent')} ${p.parent_prenom} ${p.parent_nom||''}`
+        : T('admin_quality_death_before_birth');
+      return `<div class="user-row" style="cursor:pointer;" onclick="openPerson(${p.id})">
+        <div style="flex:1;"><div style="font-size:.85rem;font-weight:500;">${p.prenom} ${p.nom||'?'}</div>
+        <div style="font-size:.72rem;color:#b45309;">${detail}</div></div>
+        <span style="font-size:.7rem;color:var(--ink3);">✏️</span></div>`;
+    });
 
     // ── Lieux non géocodés ──
     const lieux = await api('GET', 'api/lieux.php?action=collect');
-    const nonGeo = lieux.filter(l => l.lat == null);
-    html += `<h3 style="font-size:.9rem;font-weight:600;margin:1.2rem 0 .5rem;">${T('admin_quality_lieux')} (${nonGeo.length})</h3>`;
-    if (!nonGeo.length) {
-      html += `<p style="font-size:.8rem;color:var(--ink3);font-style:italic;">${T('admin_quality_ok')}</p>`;
-    } else {
-      html += `<div style="display:flex;flex-direction:column;gap:.3rem;">`;
-      html += nonGeo.map(l => `<div class="user-row" style="cursor:pointer;" onclick="showView('admin-lieux')">
+    const nonGeo = lieux.filter(l => l.lat == null).sort(_alpha('nom_approx'));
+    html += _section(T('admin_quality_lieux'), nonGeo, l =>
+      `<div class="user-row" style="cursor:pointer;" onclick="showView('admin-lieux')">
         <div style="flex:1;">
           <div style="font-size:.85rem;font-weight:500;">📍 ${l.nom_approx}</div>
           <div style="font-size:.72rem;color:#b45309;">${T('lieux_not_geocoded')}</div>
         </div>
         <span style="font-size:.7rem;color:var(--ink3);">→</span>
-      </div>`).join('');
-      html += `</div>`;
-    }
+      </div>`);
+
+    if (!html) html = `<p style="font-size:.85rem;color:var(--ink3);font-style:italic;padding:1rem 0;">${T('admin_quality_ok')}</p>`;
 
     el.innerHTML = html;
   } catch(e) { el.innerHTML = ''; toast(e.message, 'error'); }

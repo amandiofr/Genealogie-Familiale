@@ -69,6 +69,14 @@ const LANGS = {
     admin_quality_no_persons:'Aucun participant',
     admin_quality_no_date:'Date manquante',
     admin_quality_no_lieu:'Lieu manquant',
+    admin_quality_isoles:'Membres sans lien familial',
+    admin_quality_no_links:'Aucun lien familial',
+    admin_quality_sans_photo:'Membres sans photo',
+    admin_quality_no_photo:'Aucune photo',
+    admin_quality_no_marriage_date:'Couples sans date de mariage',
+    admin_quality_incoherences:'Incohérences de dates',
+    admin_quality_born_before_parent:'Né avant son parent',
+    admin_quality_death_before_birth:'Décès avant la naissance',
     admin_nav_comptes:'Comptes', admin_nav_export:'Export', admin_nav_import:'Import',
     admin_nav_notif:'Notifications', admin_nav_password:'Mot de passe',
     admin_nav_orphans:'Fichiers', admin_nav_logs:'Logs', admin_nav_quality:'Qualité',
@@ -279,6 +287,14 @@ const LANGS = {
     admin_quality_no_persons:'Sem participantes',
     admin_quality_no_date:'Data em falta',
     admin_quality_no_lieu:'Local em falta',
+    admin_quality_isoles:'Membros sem ligação familiar',
+    admin_quality_no_links:'Sem ligação familiar',
+    admin_quality_sans_photo:'Membros sem foto',
+    admin_quality_no_photo:'Sem foto',
+    admin_quality_no_marriage_date:'Casais sem data de casamento',
+    admin_quality_incoherences:'Incoerências de datas',
+    admin_quality_born_before_parent:'Nascido antes do progenitor',
+    admin_quality_death_before_birth:'Falecimento antes do nascimento',
     admin_nav_comptes:'Contas', admin_nav_export:'Exportar', admin_nav_import:'Importar',
     admin_nav_notif:'Notificações', admin_nav_password:'Palavra-passe',
     admin_nav_orphans:'Ficheiros', admin_nav_logs:'Registos', admin_nav_quality:'Qualidade',
@@ -482,6 +498,14 @@ const LANGS = {
     admin_quality_no_persons:'No participants',
     admin_quality_no_date:'Missing date',
     admin_quality_no_lieu:'Missing location',
+    admin_quality_isoles:'Members without family links',
+    admin_quality_no_links:'No family links',
+    admin_quality_sans_photo:'Members without photo',
+    admin_quality_no_photo:'No photo',
+    admin_quality_no_marriage_date:'Couples without marriage date',
+    admin_quality_incoherences:'Date inconsistencies',
+    admin_quality_born_before_parent:'Born before parent',
+    admin_quality_death_before_birth:'Death before birth',
     admin_nav_comptes:'Accounts', admin_nav_export:'Export', admin_nav_import:'Import',
     admin_nav_notif:'Notifications', admin_nav_password:'Password',
     admin_nav_orphans:'Files', admin_nav_logs:'Logs', admin_nav_quality:'Quality',
@@ -675,6 +699,14 @@ const LANGS = {
     admin_quality_no_persons:'Keine Teilnehmer',
     admin_quality_no_date:'Datum fehlt',
     admin_quality_no_lieu:'Ort fehlt',
+    admin_quality_isoles:'Mitglieder ohne Familienverbindung',
+    admin_quality_no_links:'Keine Familienverbindung',
+    admin_quality_sans_photo:'Mitglieder ohne Foto',
+    admin_quality_no_photo:'Kein Foto',
+    admin_quality_no_marriage_date:'Paare ohne Hochzeitsdatum',
+    admin_quality_incoherences:'Datumsinkonsistenzen',
+    admin_quality_born_before_parent:'Vor Elternteil geboren',
+    admin_quality_death_before_birth:'Tod vor Geburt',
     admin_nav_comptes:'Konten', admin_nav_export:'Export', admin_nav_import:'Import',
     admin_nav_notif:'Benachrichtigungen', admin_nav_password:'Passwort',
     admin_nav_orphans:'Dateien', admin_nav_logs:'Protokoll', admin_nav_quality:'Qualität',
@@ -868,6 +900,14 @@ const LANGS = {
     admin_quality_no_persons:'هیچ شرکت‌کننده‌ای وجود ندارد',
     admin_quality_no_date:'تاریخ موجود نیست',
     admin_quality_no_lieu:'مکان موجود نیست',
+    admin_quality_isoles:'اعضا بدون پیوند خانوادگی',
+    admin_quality_no_links:'بدون پیوند خانوادگی',
+    admin_quality_sans_photo:'اعضا بدون عکس',
+    admin_quality_no_photo:'بدون عکس',
+    admin_quality_no_marriage_date:'زوج‌ها بدون تاریخ ازدواج',
+    admin_quality_incoherences:'ناسازگاری‌های تاریخی',
+    admin_quality_born_before_parent:'تولد قبل از والدین',
+    admin_quality_death_before_birth:'مرگ قبل از تولد',
     admin_nav_comptes:'حساب‌ها', admin_nav_export:'خروجی', admin_nav_import:'ورودی',
     admin_nav_notif:'اعلان‌ها', admin_nav_password:'رمز عبور',
     admin_nav_orphans:'فایل‌ها', admin_nav_logs:'گزارش‌ها', admin_nav_quality:'کیفیت',
@@ -1056,7 +1096,7 @@ function applyLang() {
   const badge = document.getElementById('user-badge');
   if (badge && currentUser) badge.textContent = currentUser.nom + ' (' + T('role_' + currentUser.role) + ')';
   // Nav buttons
-  const navMap = {tree:'nav_tree',list:'nav_list',events:'nav_events',reunions:'nav_reunions',anecdotes:'nav_anecdotes',tresors:'nav_tresors',recettes:'nav_recettes',autos:'nav_autos',timeline:'nav_timeline',carte:'nav_carte',admin:'nav_admin'};
+  const navMap = {tree:'nav_tree',list:'nav_list',events:'nav_events',reunions:'nav_reunions',anecdotes:'nav_anecdotes',tresors:'nav_tresors',recettes:'nav_recettes',autos:'nav_autos',timeline:'nav_timeline',carte:'nav_carte',admin:'nav_admin','quality':'admin_quality'};
   document.querySelectorAll('nav button[data-view]').forEach(b => { b.textContent = T(navMap[b.dataset.view]||b.dataset.view); });
   // Logout
   const logoutBtn = document.getElementById('btn-logout');
@@ -1119,7 +1159,7 @@ function applyLang() {
     'view-admin-password-heading': 'admin_password',
     'view-admin-orphans-heading':  'admin_orphans',
     'view-admin-logs-heading':     'admin_logs',
-    'view-admin-quality-heading':  'admin_quality',
+    'view-quality-heading':  'admin_quality',
     'view-carte-heading':          'h_carte',
     'view-admin-lieux-heading':    'admin_lieux',
   };
@@ -1188,7 +1228,7 @@ function applyLang() {
   if (activeView?.id === 'view-anecdotes')    loadAnecdotes();
   if (activeView?.id === 'view-tresors')      loadTresors();
   if (activeView?.id === 'view-recettes')     loadRecettes();
-  if (activeView?.id === 'view-admin-quality') loadQualityCheck();
+  if (activeView?.id === 'view-quality') loadQualityCheck();
   if (activeView?.id === 'view-autos')     loadAutos();
   if (activeView?.id === 'view-timeline')  loadTimeline();
   if (typeof _renderArbreCombo === 'function') _renderArbreCombo();

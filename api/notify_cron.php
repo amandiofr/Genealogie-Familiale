@@ -32,29 +32,18 @@ try {
         $recipientsBd = $db->query("SELECT email FROM notification_emails")->fetchAll();
         if (!empty($recipientsBd)) {
             $linesBdFr = '';
-            $linesBdPt = '';
             foreach ($birthdays as $p) {
                 $age = (int)date('Y') - (int)substr($p['naissance'], 0, 4);
                 $linesBdFr .= "🎂 {$p['prenom']} {$p['nom']} — {$age} ans\n";
-                $linesBdPt .= "🎂 {$p['prenom']} {$p['nom']} — {$age} anos\n";
             }
             $bdBody = <<<BODY
-🌿 Nossa Família / Notre Famille
+🌿 Notre Famille — Anniversaires du jour
 ────────────────────────
-
-── Português ────────────
-
-Aniversários de hoje :
-
-{$linesBdPt}
-── Français ─────────────
-
-Anniversaires du jour :
 
 {$linesBdFr}
 ────────────────────────
 BODY;
-            $bdSubject = '=?UTF-8?B?' . base64_encode('🎂 Anniversaires — Nossa Família / Notre Famille') . '?=';
+            $bdSubject = '=?UTF-8?B?' . base64_encode('🎂 Anniversaires — Notre Famille') . '?=';
             $bdHeaders  = "MIME-Version: 1.0\r\n";
             $bdHeaders .= "Content-Type: text/plain; charset=UTF-8\r\n";
             $bdHeaders .= "Content-Transfer-Encoding: base64\r\n";
@@ -110,53 +99,31 @@ $typesFr = [
     'reunion'   => 'Réunions',
     'lien'      => 'Membres',
 ];
-$typesPt = [
-    'personne'  => 'Membros',
-    'evenement' => 'Eventos',
-    'anecdote'  => 'Anedotas',
-    'reunion'   => 'Reuniões',
-    'lien'      => 'Membros',
-];
 $actionsFr = ['ajout' => 'Ajout', 'modification' => 'Modification', 'suppression' => 'Suppression'];
-$actionsPt = ['ajout' => 'Adição', 'modification' => 'Modificação', 'suppression' => 'Eliminação'];
 
 $linesFr = '';
-$linesPt = '';
 foreach ($logs as $log) {
     $date     = date('d/m H:i', strtotime($log['created_at']));
     $typeFr   = $typesFr[$log['type']]   ?? $log['type'];
-    $typePt   = $typesPt[$log['type']]   ?? $log['type'];
     $actionFr = $actionsFr[$log['action']] ?? $log['action'];
-    $actionPt = $actionsPt[$log['action']] ?? $log['action'];
     $auteur   = $log['auteur'] ? "\n    par {$log['auteur']}" : '';
-    $auteurPt = $log['auteur'] ? "\n    por {$log['auteur']}" : '';
-
     $linesFr .= "• {$date} — {$typeFr} — {$actionFr}\n  {$log['description']}{$auteur}\n\n";
-    $linesPt .= "• {$date} — {$typePt} — {$actionPt}\n  {$log['description']}{$auteurPt}\n\n";
 }
 
 $nbModifs = count($logs);
 $bodyText = <<<BODY
-🌿 Nossa Família / Notre Famille
+🌿 Notre Famille — Mises à jour
 ────────────────────────
-
-── Português ────────────
-
-{$nbModifs} alteração(ões) :
-
-{$linesPt}
-── Français ─────────────
 
 {$nbModifs} modification(s) :
 
 {$linesFr}
 ────────────────────────
-Subscrito às notificações /
 Abonné aux notifications.
 BODY;
 
 // ── Envoyer le mail à chaque destinataire ─────────────────────────────────────
-$subject = '=?UTF-8?B?' . base64_encode('🌿 Atualização — Nossa Família / Mise à jour — Notre Famille') . '?=';
+$subject = '=?UTF-8?B?' . base64_encode('🌿 Mise à jour — Notre Famille') . '?=';
 $headers  = "MIME-Version: 1.0\r\n";
 $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
 $headers .= "Content-Transfer-Encoding: base64\r\n";

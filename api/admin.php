@@ -70,6 +70,7 @@ if ($action === 'logs' && method_is('GET')) {
 if ($action === 'quality_check' && method_is('GET')) {
     $db = pdo();
     try {
+    $db->exec("SET SESSION sql_mode = ''"); // permettre les dates vides héritées
 
     $personnes = $db->query("
         SELECT id, prenom, nom, naissance, lieu_naiss
@@ -100,7 +101,69 @@ if ($action === 'quality_check' && method_is('GET')) {
         ORDER BY titre
     ")->fetchAll();
 
-    json_out(['personnes' => $personnes, 'evenements' => $evenements, 'reunions' => $reunions]);
+    // Membres isolés (aucun lien familial)
+    $isoles = $db->query("
+        SELECT id, prenom, nom FROM personnes
+        WHERE id NOT IN (SELECT personne_a FROM liens UNION SELECT personne_b FROM liens)
+        ORDER BY nom, prenom
+    ")->fetchAll();
+
+    // Membres sans photo
+    $sansPhoto = $db->query("
+        SELECT id, prenom, nom FROM personnes
+        WHERE id NOT IN (SELECT DISTINCT personne_id FROM photos)
+        ORDER BY nom, prenom
+    ")->fetchAll();
+
+    // Conjoints sans date de mariage — avec date de l'événement mariage si disponible
+    $sansDateMariage = $db->query("
+        SELECT l.id AS lien_id, pa.id AS id_a, pa.prenom AS prenom_a, pa.nom AS nom_a,
+               pb.id AS id_b, pb.prenom AS prenom_b, pb.nom AS nom_b,
+               (
+                 SELECT e.date_debut FROM evenements e
+                 JOIN evenement_personnes ep1 ON ep1.evenement_id = e.id AND ep1.personne_id = pa.id
+                 JOIN evenement_personnes ep2 ON ep2.evenement_id = e.id AND ep2.personne_id = pb.id
+                 WHERE e.type = 'mariage' AND e.date_debut IS NOT NULL
+                 ORDER BY e.date_debut ASC LIMIT 1
+               ) AS date_evt
+        FROM liens l
+        JOIN personnes pa ON pa.id = l.personne_a
+        JOIN personnes pb ON pb.id = l.personne_b
+        WHERE l.type IN ('conjoint','fiancailles')
+          AND (l.date_debut IS NULL OR l.date_debut = '0000-00-00')
+        ORDER BY pa.nom, pa.prenom
+    ")->fetchAll();
+
+    // Dates incohérentes : enfant né avant un parent, ou décès avant naissance
+    $incoherences = $db->query("
+        SELECT p.id, p.prenom, p.nom, p.naissance, p.deces,
+               par.prenom AS parent_prenom, par.nom AS parent_nom, par.naissance AS parent_naiss
+        FROM personnes p
+        JOIN liens l ON l.personne_b = p.id AND l.type = 'parent_enfant'
+        JOIN personnes par ON par.id = l.personne_a
+        WHERE p.naissance IS NOT NULL AND par.naissance IS NOT NULL
+          AND p.naissance != '0000-00-00' AND par.naissance != '0000-00-00'
+          AND YEAR(p.naissance) < YEAR(par.naissance)
+        ORDER BY p.nom, p.prenom
+    ")->fetchAll();
+
+    $decesAvantNaiss = $db->query("
+        SELECT id, prenom, nom, naissance, deces FROM personnes
+        WHERE naissance IS NOT NULL AND deces IS NOT NULL
+          AND naissance != '0000-00-00' AND deces != '0000-00-00'
+          AND YEAR(deces) < YEAR(naissance)
+        ORDER BY nom, prenom
+    ")->fetchAll();
+
+    json_out([
+        'personnes'       => $personnes,
+        'evenements'      => $evenements,
+        'reunions'        => $reunions,
+        'isoles'          => $isoles,
+        'sans_photo'      => $sansPhoto,
+        'sans_date_mariage' => $sansDateMariage,
+        'incoherences'    => array_merge($incoherences, $decesAvantNaiss),
+    ]);
     } catch (\PDOException $e) { json_error($e->getMessage()); }
 }
 

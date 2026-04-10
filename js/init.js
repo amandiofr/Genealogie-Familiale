@@ -155,6 +155,7 @@ async function init() {
     currentUser = r.user;
     document.getElementById('user-badge').textContent = r.user.nom + ' (' + T('role_' + r.user.role) + ')';
     if (r.user.role === 'admin') document.getElementById('nav-admin-wrap').style.display = '';
+    if (r.user.role === 'admin' || r.user.role === 'editeur') document.getElementById('nav-quality').style.display = '';
     // Masquer bouton ajouter pour lecteurs
     if (r.user.role === 'lecteur') {
       document.getElementById('btn-add-person').style.display='none';
@@ -210,10 +211,11 @@ async function init() {
 
   // Deep linking via URL hash
   const hash = window.location.hash.slice(1);
-  const adminViews = ['admin-comptes','admin-export','admin-import','admin-notif','admin-password','admin-orphans','admin-logs','admin-quality'];
-  const validViews = ['tree','list','events','reunions','anecdotes','tresors','recettes','autos','timeline',...adminViews];
+  const adminViews = ['admin-comptes','admin-export','admin-import','admin-notif','admin-password','admin-orphans','admin-logs'];
+  const editorViews = ['quality'];
+  const validViews = ['tree','list','events','reunions','anecdotes','tresors','recettes','autos','timeline','carte',...adminViews,...editorViews];
   if (hash && validViews.includes(hash)) {
-    if (!adminViews.includes(hash) || currentUser.role === 'admin') {
+    if ((!adminViews.includes(hash) && !editorViews.includes(hash)) || currentUser.role === 'admin' || (editorViews.includes(hash) && currentUser.role === 'editeur')) {
       showView(hash);
     }
   }
@@ -246,7 +248,7 @@ function showView(name) {
   // Marquer le bouton nav actif
   const navBtn = document.querySelector(`nav button[data-view="${name}"]`);
   if (navBtn) navBtn.classList.add('active');
-  if (name.startsWith('admin-')) document.getElementById('nav-admin').classList.add('active');
+  if (name.startsWith('admin-') && name !== 'quality') document.getElementById('nav-admin').classList.add('active');
   // Charger les données
   if (name==='tree')             { centerTree(); }
   if (name==='list')             { renderList(); }
@@ -261,7 +263,7 @@ function showView(name) {
   if (name==='admin-comptes')    { loadUsers(); }
   if (name==='admin-notif')      { loadNotifEmails(); }
   if (name==='admin-logs')       { loadModificationLog(); }
-  if (name==='admin-quality')    { loadQualityCheck(); }
+  if (name==='quality')    { loadQualityCheck(); }
   if (name==='admin-lieux')      { loadLieux(); }
 }
 
