@@ -400,6 +400,37 @@ async function loadQualityCheck() {
 //  MISC
 // ══════════════════════════════════════════════════════════════
 function closeOverlay(id){ document.getElementById(id).classList.remove('open'); }
+
+// Z-index dynamique : le dernier ouvert est devant
+const _Z_FRONT = 310, _Z_BACK = 298;
+function _lbBringFront(who) { // 'lightbox' | 'overlay'
+  const lb = document.getElementById('lightbox');
+  const ov = document.getElementById('modal-person-view-overlay');
+  lb.style.zIndex = who === 'lightbox' ? _Z_FRONT : _Z_BACK;
+  ov.style.zIndex = who === 'overlay'  ? _Z_FRONT : _Z_BACK;
+}
+
+// _lbPersonStacked  : fiche ouverte par-dessus la lightbox (overlay devant)
+// _lbOpenedFromPerson: lightbox ouverte par-dessus la fiche (lightbox devant)
+let _lbPersonStacked = false, _lbOpenedFromPerson = false;
+
+function closePersonModal() {
+  const ov = document.getElementById('modal-person-view-overlay');
+  ov.classList.remove('open');
+  ov.style.zIndex = '';
+  document.getElementById('lightbox').style.zIndex = '';
+  _lbPersonStacked = false;
+  // Si la photo était derrière, elle revient naturellement devant (z CSS par défaut)
+}
+
+// Ouvre une fiche depuis un tag de lightbox (lightbox reste ouverte derrière)
+function _lbOpenPersonFromTag(personId) {
+  _lbPersonStacked = true;
+  _lbOpenedFromPerson = false;
+  _lbBringFront('overlay');
+  openPerson(personId);
+}
+
 let _lbGallery = [], _lbIdx = 0;
 let _lbGalleryMeta = []; // parallel: [{photoId, source}] or null per entry
 let _lbTagMode = false, _lbTags = [];
@@ -445,6 +476,14 @@ function _lbGetNaturalRect() {
 function openLightbox(idx) {
   _lbIdx = idx; _lbShow();
   document.getElementById('lightbox').classList.add('open');
+  const personVisible = document.getElementById('modal-person-view-overlay').classList.contains('open');
+  if (personVisible) {
+    _lbOpenedFromPerson = true;
+    _lbPersonStacked = false;
+    _lbBringFront('lightbox');
+  } else {
+    _lbOpenedFromPerson = false;
+  }
   requestAnimationFrame(() => {
     const img = document.getElementById('lightbox-img');
     if (img.complete && img.naturalWidth > 0) _lbNaturalRect = img.getBoundingClientRect();
@@ -500,10 +539,23 @@ function lbZoomOut() {
 function closeLightbox() {
   const lb = document.getElementById('lightbox');
   lb.classList.remove('open','lb-idle');
+  lb.style.zIndex = '';
   clearTimeout(_lbIdleTimer);
   lbZoomOut();
   _lbTagMode = false;
   document.getElementById('lb-person-picker')?.remove();
+  if (_lbOpenedFromPerson) {
+    // La fiche reprend le premier plan, z redevient CSS par défaut
+    _lbOpenedFromPerson = false;
+    document.getElementById('modal-person-view-overlay').style.zIndex = '';
+  }
+  if (_lbPersonStacked) {
+    // La lightbox était derrière la fiche et se ferme : on ferme aussi la fiche
+    _lbPersonStacked = false;
+    const ov = document.getElementById('modal-person-view-overlay');
+    ov.classList.remove('open');
+    ov.style.zIndex = '';
+  }
 }
 
 // Setup zoom + drag + pinch
@@ -716,9 +768,11 @@ function _lbSyncOverlayTransform() {
   if (_lbZoomed) {
     overlay.style.transformOrigin = '0 0';
     overlay.style.transform = `translate(${_lbTx}px,${_lbTy}px) scale(${_lbScale})`;
+    overlay.style.setProperty('--lb-inv-scale', (1 / _lbScale).toFixed(4));
   } else {
     overlay.style.transform = '';
     overlay.style.transformOrigin = '';
+    overlay.style.removeProperty('--lb-inv-scale');
   }
 }
 
@@ -740,8 +794,8 @@ function _lbRenderTags() {
       ? `<button class="lb-tag-del-btn" onclick="event.stopPropagation();_lbDeleteTag(${t.id})">✕</button>`
       : '';
     return `<div class="lb-face-tag" style="left:${t.x}%;top:${t.y}%;width:${t.w}%;height:${t.h}%;"
-      onclick="event.stopPropagation();closeLightbox();openPerson(${t.personne_id})">
-      <div class="lb-face-label">${encodeHTML(t.prenom + ' ' + t.nom)}</div>${delBtn}
+      onclick="event.stopPropagation();_lbOpenPersonFromTag(${t.personne_id})">
+      <div class="lb-face-label">${encodeHTML(t.prenom)}</div>${delBtn}
     </div>`;
   }).join('');
   overlay.classList.toggle('tag-mode', _lbTagMode && canEdit);
@@ -771,7 +825,7 @@ function lbToggleTagMode() {
     if (!banner) {
       banner = document.createElement('div');
       banner.id = 'lb-tag-banner';
-      banner.style.cssText = 'position:absolute;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(200,169,110,.9);color:#1a1814;font-size:.8rem;padding:6px 16px;border-radius:20px;pointer-events:none;z-index:2;white-space:normal;text-align:center;max-width:calc(100% - 32px);box-sizing:border-box;';
+      banner.style.cssText = 'position:absolute;bottom:0;left:0;right:0;background:rgba(200,169,110,.9);color:#1a1814;font-size:.8rem;padding:8px 16px;pointer-events:none;z-index:2;white-space:normal;text-align:center;box-sizing:border-box;';
       document.getElementById('lightbox').appendChild(banner);
     }
     const canEdit = currentUser && (currentUser.role === 'admin' || currentUser.role === 'editeur');
@@ -789,9 +843,10 @@ function lbToggleTagMode() {
 // Le rectangle est dessiné dans un div fixed (espace écran) pour éviter les problèmes de transform.
 // Les coordonnées sont converties en % de l'image naturelle uniquement à la fin.
 function _lbInitDrawing(overlay) {
-  let drawing = false, startX, startY, drawEl, multiTouch = false;
+  let drawing = false, startX, startY, drawEl;
+  const activePointers = new Set(); // tous les pointeurs actuellement pressés
+  let hadMultiTouch = false;        // vrai si ≥2 doigts simultanés dans ce geste
 
-  // Div de dessin en espace écran (position:fixed, z-index élevé, pas de transform)
   function _getDrawContainer() {
     let c = document.getElementById('lb-draw-container');
     if (!c) {
@@ -803,7 +858,6 @@ function _lbInitDrawing(overlay) {
     return c;
   }
 
-  // Convertit des coordonnées écran en % de l'image naturelle (espace overlay sans transform)
   function _toPercent(screenX, screenY) {
     const baseLeft = parseFloat(overlay.style.left) || 0;
     const baseTop  = parseFloat(overlay.style.top)  || 0;
@@ -822,8 +876,14 @@ function _lbInitDrawing(overlay) {
   overlay.addEventListener('pointerdown', e => {
     if (!_lbTagMode) return;
     if (e.target.closest('.lb-face-tag,.lb-tag-del-btn,.lb-person-picker')) return;
-    if (drawing) { multiTouch = true; drawEl?.remove(); drawEl = null; drawing = false; return; }
-    multiTouch = false;
+    activePointers.add(e.pointerId);
+    if (activePointers.size > 1) {
+      // 2e doigt = pinch : annuler le dessin en cours
+      hadMultiTouch = true;
+      if (drawing) { drawing = false; drawEl?.remove(); drawEl = null; }
+      return;
+    }
+    if (hadMultiTouch) return; // encore dans le geste multi-touch
     e.stopPropagation(); e.preventDefault();
     drawing = true;
     overlay.setPointerCapture(e.pointerId);
@@ -845,22 +905,27 @@ function _lbInitDrawing(overlay) {
   });
 
   overlay.addEventListener('pointerup', e => {
+    activePointers.delete(e.pointerId);
+    if (activePointers.size === 0) hadMultiTouch = false; // tous les doigts levés : réinitialiser
     if (!drawing) return;
     drawing = false;
-    if (multiTouch || !drawEl) { multiTouch = false; drawEl?.remove(); drawEl = null; return; }
+    if (hadMultiTouch || !drawEl) { drawEl?.remove(); drawEl = null; return; }
     const cx = e.clientX, cy = e.clientY;
     const sw = Math.abs(cx - startX), sh = Math.abs(cy - startY);
     drawEl.remove(); drawEl = null;
     e.stopPropagation();
     document.addEventListener('click', ev => ev.stopPropagation(), { capture: true, once: true });
     if (sw < 10 || sh < 10) return;
-    // Convertir les 4 coins en %
     const p1 = _toPercent(Math.min(startX, cx), Math.min(startY, cy));
     const p2 = _toPercent(Math.max(startX, cx), Math.max(startY, cy));
     _lbShowPersonPicker(p1.px, p1.py, p2.px - p1.px, p2.py - p1.py, e.clientX, e.clientY);
   });
 
-  overlay.addEventListener('pointercancel', () => { drawing = false; drawEl?.remove(); drawEl = null; });
+  overlay.addEventListener('pointercancel', e => {
+    activePointers.delete(e.pointerId);
+    if (activePointers.size === 0) hadMultiTouch = false;
+    drawing = false; drawEl?.remove(); drawEl = null;
+  });
 }
 
 function _lbShowPersonPicker(px, py, pw, ph, screenX, screenY) {
@@ -1057,8 +1122,22 @@ async function editLieuSearch(i) {
 // ══════════════════════════════════════════════════════════════
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
-    document.querySelectorAll('.overlay.open').forEach(el => el.classList.remove('open'));
-    closeLightbox();
+    const lbOpen = document.getElementById('lightbox').classList.contains('open');
+    const ovOpen = document.getElementById('modal-person-view-overlay').classList.contains('open');
+    if (lbOpen && _lbOpenedFromPerson) {
+      // Photo ouverte depuis fiche : fermer la photo, révéler la fiche
+      closeLightbox();
+    } else if (ovOpen && _lbPersonStacked) {
+      // Fiche ouverte depuis photo : fermer la fiche, révéler la photo
+      closePersonModal();
+    } else {
+      // Pas d'empilement : tout fermer
+      document.querySelectorAll('.overlay.open').forEach(el => {
+        el.classList.remove('open');
+        el.style.zIndex = '';
+      });
+      closeLightbox();
+    }
   }
   if (document.getElementById('lightbox').classList.contains('open')) {
     if (e.key === 'ArrowLeft')  lbNav(-1);

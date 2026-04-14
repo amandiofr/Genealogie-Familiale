@@ -74,7 +74,7 @@ async function openPerson(id) {
   let html=`<div class="modal-hd">`;
   if(av) html+=`<div class="modal-av ${p.genre}"><img src="${imgUrl(av.chemin)}" alt=""></div>`;
   else   html+=`<div class="modal-av ${p.genre}">${initials(p)}</div>`;
-  html+=`<div class="modal-ti"><div class="modal-name">${p.prenom} ${p.nom}</div>${p.nom_naiss?`<div class="modal-maiden">${T('nee_label')} ${p.nom_naiss}</div>`:''}<div class="modal-gen">${genLabel(p.generation)}</div></div><button class="modal-close" onclick="closeOverlay('modal-person-view-overlay')">✕</button></div>`;
+  html+=`<div class="modal-ti"><div class="modal-name">${p.prenom} ${p.nom}</div>${p.nom_naiss?`<div class="modal-maiden">${T('nee_label')} ${p.nom_naiss}</div>`:''}<div class="modal-gen">${genLabel(p.generation)}</div></div><button class="modal-close" onclick="closePersonModal()">✕</button></div>`;
   html+=`<div class="modal-bd">`;
 
   // Infos
