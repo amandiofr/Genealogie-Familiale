@@ -502,17 +502,16 @@ function _lbShow() {
   document.getElementById('lb-prev').style.display = multi ? '' : 'none';
   document.getElementById('lb-next').style.display = multi ? '' : 'none';
   // ── Face tags ──
-  _lbTagMode = false;
   document.getElementById('lb-person-picker')?.remove();
-  document.getElementById('lb-tag-banner')?.remove();
   const _ov = document.getElementById('lb-face-overlay');
   if (_ov) { _ov.innerHTML = ''; _ov.className = 'lb-face-overlay'; _ov.style.display = 'none'; }
   const _tagBtn = document.getElementById('lb-tag-btn');
   const _meta = _lbGalleryMeta[_lbIdx];
   if (_tagBtn) _tagBtn.style.display = _meta ? '' : 'none';
-  if (_tagBtn) { _tagBtn.style.background = ''; _tagBtn.classList.remove('active'); }
-  // Précharger les tags en arrière-plan (sans afficher l'overlay)
+  if (_tagBtn) { _tagBtn.style.background = ''; _tagBtn.classList.toggle('active', _lbTagMode); }
+  // Recharger les tags (et réafficher l'overlay si mode tag actif)
   if (_meta) { _lbLoadTags(); }
+  else if (_lbTagMode) { _lbTags = []; _lbRenderTags(); }
 }
 function lbNav(dir) { _lbIdx = (_lbIdx + dir + _lbGallery.length) % _lbGallery.length; _lbShow(); }
 function lbZoomIn(e) {
@@ -799,6 +798,7 @@ function _lbRenderTags() {
     </div>`;
   }).join('');
   overlay.classList.toggle('tag-mode', _lbTagMode && canEdit);
+  if (_lbTagMode) _lbPositionFaceOverlay();
 }
 
 async function _lbDeleteTag(tagId) {
