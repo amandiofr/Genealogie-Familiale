@@ -777,17 +777,17 @@ function _lbPositionFaceOverlay() {
   if (!overlay) return;
   if (_lbNavAnimating) { overlay.style.display = 'none'; return; }
   if (!_lbTags.length && !_lbTagMode) { overlay.style.display = 'none'; return; }
-  // Calcul mathématique : indépendant de toute animation en cours
+  // Mesurer la position réelle de l'image sans transform
   const img = document.getElementById('lightbox-img');
-  const nw = img.naturalWidth, nh = img.naturalHeight;
-  if (!nw || !nh) { overlay.style.display = 'none'; return; }
-  const vw = window.innerWidth, vh = window.innerHeight;
-  const scale = Math.min(vw / nw, vh / nh);
-  const W = nw * scale, H = nh * scale;
-  overlay.style.left   = ((vw - W) / 2) + 'px';
-  overlay.style.top    = ((vh - H) / 2) + 'px';
-  overlay.style.width  = W + 'px';
-  overlay.style.height = H + 'px';
+  const t = img.style.transform, o = img.style.transformOrigin;
+  img.style.transform = ''; img.style.transformOrigin = '';
+  const rect = img.getBoundingClientRect();
+  img.style.transform = t; img.style.transformOrigin = o;
+  if (!rect.width || !rect.height) { overlay.style.display = 'none'; return; }
+  overlay.style.left   = rect.left + 'px';
+  overlay.style.top    = rect.top + 'px';
+  overlay.style.width  = rect.width + 'px';
+  overlay.style.height = rect.height + 'px';
   overlay.style.display = '';
   _lbSyncOverlayTransform();
 }
