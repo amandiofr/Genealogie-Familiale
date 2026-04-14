@@ -51,6 +51,7 @@ async function openEvent(id){
   if((e.photos||[]).length){
     html+=`<div class="modal-section"><div class="sec-title">${T('sec_photos')}</div><div class="photos-strip">`;
     _lbGallery = e.photos.map(p=>imgUrl(p.chemin));
+    _lbGalleryMeta = e.photos.map(p=>({photoId:p.id, source:'evenement'}));
     const _evEffId = e.photo_id || e.photos[0]?.id;
     e.photos.forEach((ph,i)=>{
       const isMain = ph.id == _evEffId;
@@ -212,6 +213,7 @@ async function openAnecdote(id){
   if((a.photos||[]).length){
     html+=`<div class="modal-section"><div class="sec-title">${T('sec_photos')}</div><div class="photos-strip">`;
     _lbGallery = a.photos.map(p=>imgUrl(p.chemin));
+    _lbGalleryMeta = a.photos.map(p=>({photoId:p.id, source:'anecdote'}));
     const _anEffId = a.photo_id || a.photos[0]?.id;
     a.photos.forEach((ph,i)=>{
       const isMain = ph.id == _anEffId;

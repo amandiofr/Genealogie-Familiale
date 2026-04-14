@@ -51,6 +51,7 @@ async function openRecette(id){
   if((r.photos||[]).length){
     html+=`<div class="modal-section"><div class="sec-title">${T('sec_photos')}</div><div class="photos-strip">`;
     _lbGallery = r.photos.map(p=>imgUrl(p.chemin));
+    _lbGalleryMeta = r.photos.map(p=>({photoId:p.id, source:'recette'}));
     const mainId = r.photo_id || r.photos[0]?.id;
     r.photos.forEach((ph,i)=>{
       const isMain = ph.id == mainId;

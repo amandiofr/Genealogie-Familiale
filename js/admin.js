@@ -401,6 +401,8 @@ async function loadQualityCheck() {
 // ══════════════════════════════════════════════════════════════
 function closeOverlay(id){ document.getElementById(id).classList.remove('open'); }
 let _lbGallery = [], _lbIdx = 0;
+let _lbGalleryMeta = []; // parallel: [{photoId, source}] or null per entry
+let _lbTagMode = false, _lbTags = [];
 let _lbZoomed = false, _lbTx = 0, _lbTy = 0;
 let _lbScale = 1, _lbNaturalRect = null;
 let _lbIdleTimer = null, _lbMouseX = -1, _lbMouseY = -1;
@@ -460,6 +462,18 @@ function _lbShow() {
   const multi = _lbGallery.length > 1;
   document.getElementById('lb-prev').style.display = multi ? '' : 'none';
   document.getElementById('lb-next').style.display = multi ? '' : 'none';
+  // ── Face tags ──
+  _lbTagMode = false;
+  document.getElementById('lb-person-picker')?.remove();
+  document.getElementById('lb-tag-banner')?.remove();
+  const _ov = document.getElementById('lb-face-overlay');
+  if (_ov) { _ov.innerHTML = ''; _ov.className = 'lb-face-overlay'; _ov.style.display = 'none'; }
+  const _tagBtn = document.getElementById('lb-tag-btn');
+  const _meta = _lbGalleryMeta[_lbIdx];
+  if (_tagBtn) _tagBtn.style.display = _meta ? '' : 'none';
+  if (_tagBtn) { _tagBtn.style.background = ''; _tagBtn.classList.remove('active'); }
+  // Précharger les tags en arrière-plan (sans afficher l'overlay)
+  if (_meta) { _lbLoadTags(); }
 }
 function lbNav(dir) { _lbIdx = (_lbIdx + dir + _lbGallery.length) % _lbGallery.length; _lbShow(); }
 function lbZoomIn(e) {
@@ -474,18 +488,22 @@ function lbZoomIn(e) {
   img.style.cursor = 'grab'; _lbZoomed = true;
   clearTimeout(_lbIdleTimer);
   document.getElementById('lightbox').classList.remove('lb-idle');
+  _lbSyncOverlayTransform();
 }
 function lbZoomOut() {
   const img = document.getElementById('lightbox-img');
   img.style.transform = ''; img.style.transformOrigin = ''; img.style.cursor = 'zoom-in';
   _lbZoomed = false; _lbTx = 0; _lbTy = 0; _lbScale = 1;
   if (!window.matchMedia('(pointer:coarse)').matches) _lbResetIdle();
+  _lbPositionFaceOverlay();
 }
 function closeLightbox() {
   const lb = document.getElementById('lightbox');
   lb.classList.remove('open','lb-idle');
   clearTimeout(_lbIdleTimer);
   lbZoomOut();
+  _lbTagMode = false;
+  document.getElementById('lb-person-picker')?.remove();
 }
 
 // Setup zoom + drag + pinch
@@ -511,6 +529,7 @@ function closeLightbox() {
     _lbTx += e.movementX; _lbTy += e.movementY;
     _lbClamp();
     img.style.transform = `translate(${_lbTx}px,${_lbTy}px) scale(${_lbScale})`;
+    _lbSyncOverlayTransform();
   });
   img.addEventListener('pointerup', e => {
     if (!_lbDragging) return;
@@ -529,7 +548,7 @@ function closeLightbox() {
   // Pinch-to-zoom
   lb.addEventListener('touchstart', e => {
     if (e.target.closest('.lb-nav,.lightbox-close,.lb-download')) return;
-    if (e.touches.length === 1 && !_lbZoomed) {
+    if (e.touches.length === 1 && !_lbZoomed && !_lbTagMode) {
       _swipeStartX = e.touches[0].clientX;
       _swipeStartY = e.touches[0].clientY;
       _swipeOffset = 0; _swipeOffsetY = 0; _swipeDir = null;
@@ -549,6 +568,7 @@ function closeLightbox() {
 
   lb.addEventListener('touchmove', e => {
     if (!_pinching && !_lbZoomed && e.touches.length === 1) {
+      if (_lbTagMode) return; // bloquer swipe 1 doigt en mode tag
       const dx = e.touches[0].clientX - _swipeStartX;
       const dy = e.touches[0].clientY - _swipeStartY;
       if (!_swipeDir) {
@@ -587,6 +607,7 @@ function closeLightbox() {
       img.style.transform = `translate(${_lbTx}px,${_lbTy}px) scale(${_lbScale})`;
       img.style.cursor = 'grab'; _lbZoomed = true;
     }
+    _lbSyncOverlayTransform();
   }, { passive: false });
 
   lb.addEventListener('touchend', e => {
@@ -669,6 +690,256 @@ function closeLightbox() {
     }
   });
 })();
+
+// ── Face tag overlay ──────────────────────────────────────────────────────────
+function _lbPositionFaceOverlay() {
+  const overlay = document.getElementById('lb-face-overlay');
+  if (!overlay) return;
+  if (!_lbTagMode) { overlay.style.display = 'none'; return; }
+  // Mesurer la position de l'image SANS transform
+  const img = document.getElementById('lightbox-img');
+  const t = img.style.transform, o = img.style.transformOrigin;
+  img.style.transform = ''; img.style.transformOrigin = '';
+  const rect = img.getBoundingClientRect();
+  img.style.transform = t; img.style.transformOrigin = o;
+  overlay.style.left   = rect.left + 'px';
+  overlay.style.top    = rect.top + 'px';
+  overlay.style.width  = rect.width + 'px';
+  overlay.style.height = rect.height + 'px';
+  overlay.style.display = '';
+  _lbSyncOverlayTransform();
+}
+
+function _lbSyncOverlayTransform() {
+  const overlay = document.getElementById('lb-face-overlay');
+  if (!overlay) return;
+  if (_lbZoomed) {
+    overlay.style.transformOrigin = '0 0';
+    overlay.style.transform = `translate(${_lbTx}px,${_lbTy}px) scale(${_lbScale})`;
+  } else {
+    overlay.style.transform = '';
+    overlay.style.transformOrigin = '';
+  }
+}
+
+async function _lbLoadTags() {
+  const meta = _lbGalleryMeta[_lbIdx];
+  if (!meta) return;
+  try {
+    _lbTags = await api('GET', `api/photo_tags.php?source=${meta.source}&id=${meta.photoId}`);
+    _lbRenderTags();
+  } catch { _lbTags = []; }
+}
+
+function _lbRenderTags() {
+  const overlay = document.getElementById('lb-face-overlay');
+  if (!overlay) return;
+  const canEdit = currentUser && (currentUser.role === 'admin' || currentUser.role === 'editeur');
+  overlay.innerHTML = _lbTags.map(t => {
+    const delBtn = (canEdit)
+      ? `<button class="lb-tag-del-btn" onclick="event.stopPropagation();_lbDeleteTag(${t.id})">✕</button>`
+      : '';
+    return `<div class="lb-face-tag" style="left:${t.x}%;top:${t.y}%;width:${t.w}%;height:${t.h}%;"
+      onclick="event.stopPropagation();closeLightbox();openPerson(${t.personne_id})">
+      <div class="lb-face-label">${encodeHTML(t.prenom + ' ' + t.nom)}</div>${delBtn}
+    </div>`;
+  }).join('');
+  overlay.classList.toggle('tag-mode', _lbTagMode && canEdit);
+}
+
+async function _lbDeleteTag(tagId) {
+  if (!confirm(T('lb_tag_del_confirm'))) return;
+  try {
+    await api('DELETE', `api/photo_tags.php?id=${tagId}`);
+    _lbTags = _lbTags.filter(t => t.id !== tagId);
+    _lbRenderTags();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+function lbToggleTagMode() {
+  _lbTagMode = !_lbTagMode;
+  const btn = document.getElementById('lb-tag-btn');
+  if (btn) {
+    btn.style.background = '';
+    btn.classList.toggle('active', _lbTagMode);
+    btn.title = _lbTagMode ? T('lb_tag_btn_on') : T('lb_tag_btn_off');
+  }
+  document.getElementById('lb-person-picker')?.remove();
+  // Bannière
+  let banner = document.getElementById('lb-tag-banner');
+  if (_lbTagMode) {
+    if (!banner) {
+      banner = document.createElement('div');
+      banner.id = 'lb-tag-banner';
+      banner.style.cssText = 'position:absolute;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(200,169,110,.9);color:#1a1814;font-size:.8rem;padding:6px 16px;border-radius:20px;pointer-events:none;z-index:2;white-space:normal;text-align:center;max-width:calc(100% - 32px);box-sizing:border-box;';
+      document.getElementById('lightbox').appendChild(banner);
+    }
+    const canEdit = currentUser && (currentUser.role === 'admin' || currentUser.role === 'editeur');
+    banner.textContent = T(canEdit ? 'lb_tag_banner' : 'lb_tag_banner_read');
+    _lbNaturalRect = null;
+    _lbPositionFaceOverlay();
+    _lbLoadTags();
+  } else {
+    banner?.remove();
+    _lbPositionFaceOverlay(); // cache l'overlay (_lbTagMode=false)
+  }
+}
+
+// Dessin de rectangle en mode tag
+// Le rectangle est dessiné dans un div fixed (espace écran) pour éviter les problèmes de transform.
+// Les coordonnées sont converties en % de l'image naturelle uniquement à la fin.
+function _lbInitDrawing(overlay) {
+  let drawing = false, startX, startY, drawEl, multiTouch = false;
+
+  // Div de dessin en espace écran (position:fixed, z-index élevé, pas de transform)
+  function _getDrawContainer() {
+    let c = document.getElementById('lb-draw-container');
+    if (!c) {
+      c = document.createElement('div');
+      c.id = 'lb-draw-container';
+      c.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:350;';
+      document.body.appendChild(c);
+    }
+    return c;
+  }
+
+  // Convertit des coordonnées écran en % de l'image naturelle (espace overlay sans transform)
+  function _toPercent(screenX, screenY) {
+    const baseLeft = parseFloat(overlay.style.left) || 0;
+    const baseTop  = parseFloat(overlay.style.top)  || 0;
+    const W = overlay.offsetWidth, H = overlay.offsetHeight;
+    let lx, ly;
+    if (_lbZoomed) {
+      lx = (screenX - baseLeft - _lbTx) / _lbScale;
+      ly = (screenY - baseTop  - _lbTy) / _lbScale;
+    } else {
+      lx = screenX - baseLeft;
+      ly = screenY - baseTop;
+    }
+    return { px: (lx / W) * 100, py: (ly / H) * 100 };
+  }
+
+  overlay.addEventListener('pointerdown', e => {
+    if (!_lbTagMode) return;
+    if (e.target.closest('.lb-face-tag,.lb-tag-del-btn,.lb-person-picker')) return;
+    if (drawing) { multiTouch = true; drawEl?.remove(); drawEl = null; drawing = false; return; }
+    multiTouch = false;
+    e.stopPropagation(); e.preventDefault();
+    drawing = true;
+    overlay.setPointerCapture(e.pointerId);
+    startX = e.clientX; startY = e.clientY;
+    drawEl = document.createElement('div');
+    drawEl.className = 'lb-tag-draw';
+    drawEl.style.cssText = `left:${startX}px;top:${startY}px;width:0;height:0;`;
+    _getDrawContainer().appendChild(drawEl);
+  });
+
+  overlay.addEventListener('pointermove', e => {
+    if (!drawing || !drawEl) return;
+    e.preventDefault();
+    const cx = e.clientX, cy = e.clientY;
+    drawEl.style.left   = Math.min(startX, cx) + 'px';
+    drawEl.style.top    = Math.min(startY, cy) + 'px';
+    drawEl.style.width  = Math.abs(cx - startX) + 'px';
+    drawEl.style.height = Math.abs(cy - startY) + 'px';
+  });
+
+  overlay.addEventListener('pointerup', e => {
+    if (!drawing) return;
+    drawing = false;
+    if (multiTouch || !drawEl) { multiTouch = false; drawEl?.remove(); drawEl = null; return; }
+    const cx = e.clientX, cy = e.clientY;
+    const sw = Math.abs(cx - startX), sh = Math.abs(cy - startY);
+    drawEl.remove(); drawEl = null;
+    e.stopPropagation();
+    document.addEventListener('click', ev => ev.stopPropagation(), { capture: true, once: true });
+    if (sw < 10 || sh < 10) return;
+    // Convertir les 4 coins en %
+    const p1 = _toPercent(Math.min(startX, cx), Math.min(startY, cy));
+    const p2 = _toPercent(Math.max(startX, cx), Math.max(startY, cy));
+    _lbShowPersonPicker(p1.px, p1.py, p2.px - p1.px, p2.py - p1.py, e.clientX, e.clientY);
+  });
+
+  overlay.addEventListener('pointercancel', () => { drawing = false; drawEl?.remove(); drawEl = null; });
+}
+
+function _lbShowPersonPicker(px, py, pw, ph, screenX, screenY) {
+  document.getElementById('lb-person-picker')?.remove();
+  const div = document.createElement('div');
+  div.id = 'lb-person-picker';
+  const pickerW = Math.min(220, window.innerWidth - 16);
+  div.style.cssText = `position:fixed;left:-9999px;top:-9999px;z-index:400;background:#1a1814;border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:.6rem;width:${pickerW}px;box-shadow:0 4px 24px rgba(0,0,0,.8);`;
+  const taggedIds = new Set(_lbTags.map(t => t.personne_id));
+  const sorted = [...people]
+    .filter(p => inCurrentTree(p.id) && !taggedIds.has(p.id))
+    .sort((a, b) => `${a.prenom} ${a.nom}`.localeCompare(`${b.prenom} ${b.nom}`, undefined, {sensitivity:'base'}));
+  div.innerHTML = `<div style="font-size:.75rem;color:rgba(255,255,255,.55);margin-bottom:.4rem;">${T('lb_tag_who')}</div>
+    <input id="lb-picker-input" type="text" placeholder="${T('lb_tag_search')}" autocomplete="off"
+      style="width:100%;font-size:.82rem;padding:.35rem .5rem;border:1px solid rgba(255,255,255,.2);border-radius:5px;background:rgba(255,255,255,.1);color:#fff;margin-bottom:.4rem;box-sizing:border-box;outline:none;"
+      oninput="filterLbPicker(this.value)">
+    <div id="lb-picker-list" style="max-height:200px;overflow-y:auto;">
+      ${sorted.map(p => `<div class="lb-picker-item" data-name="${encodeHTML((p.prenom+' '+p.nom).toLowerCase())}"
+        data-id="${p.id}" data-px="${px}" data-py="${py}" data-pw="${pw}" data-ph="${ph}"
+        onmouseenter="this.style.background='rgba(255,255,255,.12)'" onmouseleave="this.style.background=''"
+        style="font-size:14px;line-height:20px;padding:6px 8px;border-radius:4px;cursor:pointer;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;box-sizing:border-box;"
+        >${encodeHTML(p.prenom+' '+p.nom)}</div>`).join('')}
+    </div>
+    <button id="lb-picker-cancel"
+      style="margin-top:.5rem;width:100%;font-size:.75rem;padding:.3rem;border:none;background:rgba(255,255,255,.1);color:#fff;border-radius:5px;cursor:pointer;">${T('lb_tag_cancel')}</button>`;
+  document.body.appendChild(div);
+  // Position after insertion so we know the real height
+  const ph2 = div.offsetHeight;
+  const left = Math.min(Math.max(8, screenX + 8), window.innerWidth - pickerW - 8);
+  const top  = Math.min(Math.max(8, screenY + 8), window.innerHeight - ph2 - 8);
+  div.style.left = left + 'px';
+  div.style.top  = top + 'px';
+  // Attach events with pointerdown so they fire before keyboard-dismiss layout shifts on mobile
+  div.querySelectorAll('.lb-picker-item').forEach(el => {
+    el.addEventListener('pointerdown', e => {
+      e.preventDefault();
+      document.addEventListener('click', ev => ev.stopPropagation(), { capture: true, once: true });
+      _lbSaveTag(+el.dataset.id, +el.dataset.px, +el.dataset.py, +el.dataset.pw, +el.dataset.ph);
+    });
+  });
+  document.getElementById('lb-picker-cancel').addEventListener('pointerdown', e => {
+    e.preventDefault();
+    document.addEventListener('click', ev => ev.stopPropagation(), { capture: true, once: true });
+    document.getElementById('lb-person-picker')?.remove();
+  });
+  // Only auto-focus on non-touch devices (touch keyboard causes layout shifts that break taps)
+  if (!('ontouchstart' in window)) {
+    setTimeout(() => document.getElementById('lb-picker-input')?.focus(), 50);
+  }
+}
+
+function filterLbPicker(q) {
+  const lq = q.toLowerCase();
+  document.querySelectorAll('.lb-picker-item').forEach(el => {
+    el.style.display = el.dataset.name.includes(lq) ? '' : 'none';
+  });
+}
+
+async function _lbSaveTag(personId, px, py, pw, ph) {
+  document.getElementById('lb-person-picker')?.remove();
+  const meta = _lbGalleryMeta[_lbIdx];
+  if (!meta) return;
+  const person = people.find(p => p.id === personId);
+  try {
+    const r = await api('POST', 'api/photo_tags.php', {
+      source: meta.source, photo_id: meta.photoId,
+      personne_id: personId, x: px, y: py, w: pw, h: ph
+    });
+    _lbTags.push({ ...r, prenom: person?.prenom||'', nom: person?.nom||'' });
+    _lbRenderTags();
+    toast(`${person?.prenom||''} ${person?.nom||''} ${T('lb_tag_identified')}`);
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+window.addEventListener('resize', () => { if (!_lbZoomed) _lbPositionFaceOverlay(); });
+document.addEventListener('DOMContentLoaded', () => {
+  const ov = document.getElementById('lb-face-overlay');
+  if (ov) _lbInitDrawing(ov);
+});
 
 function toast(msg,type='ok'){
   const el=document.getElementById('toast');

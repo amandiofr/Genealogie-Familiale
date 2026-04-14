@@ -42,6 +42,7 @@ async function openTresor(id){
   if((t.photos||[]).length){
     html+=`<div class="modal-section"><div class="sec-title">${T('sec_photos')}</div><div class="photos-strip">`;
     _lbGallery = t.photos.map(p=>imgUrl(p.chemin));
+    _lbGalleryMeta = t.photos.map(p=>({photoId:p.id, source:'tresor'}));
     const mainId = t.photo_id || t.photos[0]?.id;
     t.photos.forEach((ph,i)=>{
       const isMain = ph.id == mainId;

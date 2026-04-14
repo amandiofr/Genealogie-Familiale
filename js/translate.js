@@ -2,13 +2,19 @@
 //  TRADUCTION AUTOMATIQUE
 // ══════════════════════════════════════════════════════════════
 let autoTranslate = localStorage.getItem('autoTranslate') !== '0';
-const _translateCache = {}; // key: "text|lang" → translated string
+
+// Cache persisté dans localStorage
+const _CACHE_KEY = 'genealogie_translate_cache';
+let _translateCache = {};
+try { _translateCache = JSON.parse(localStorage.getItem(_CACHE_KEY) || '{}'); } catch { _translateCache = {}; }
+function _saveTrCache() { try { localStorage.setItem(_CACHE_KEY, JSON.stringify(_translateCache)); } catch {} }
 
 function setAutoTranslate(val) {
   autoTranslate = val;
   localStorage.setItem('autoTranslate', val ? '1' : '0');
   // Vider le cache pour forcer une nouvelle traduction
-  Object.keys(_translateCache).forEach(k => delete _translateCache[k]);
+  _translateCache = {};
+  localStorage.removeItem(_CACHE_KEY);
   // Recharger la vue active
   const active = document.querySelector('.view.active')?.id?.replace('view-', '');
   if (active) showView(active);
@@ -23,6 +29,7 @@ async function translateText(text) {
   try {
     const d = await api('POST', 'api/translate.php', { text, target: currentLang });
     _translateCache[key] = d.translation.trim().replace(/\n{2,}/g, '\n');
+    _saveTrCache();
     return _translateCache[key];
   } catch {
     return text; // en cas d'erreur, afficher l'original

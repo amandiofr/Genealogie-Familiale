@@ -49,6 +49,7 @@ async function openReunion(id){
   if((e.photos||[]).length){
     html+=`<div class="modal-section"><div class="sec-title">${T('sec_photos')}</div><div class="photos-strip">`;
     _lbGallery = e.photos.map(p=>imgUrl(p.chemin));
+    _lbGalleryMeta = e.photos.map(p=>({photoId:p.id, source:'reunion'}));
     const _reEffId = e.photo_id || e.photos[0]?.id;
     e.photos.forEach((ph,i)=>{
       const isMain = ph.id == _reEffId;

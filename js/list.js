@@ -132,6 +132,7 @@ async function openPerson(id) {
   if((p.photos||[]).length){
     html+=`<div class="modal-section"><div class="sec-title">${T('sec_photos')}</div><div class="photos-strip">`;
     _lbGallery = p.photos.map(ph=>imgUrl(ph.chemin));
+    _lbGalleryMeta = p.photos.map(ph=>({photoId:ph.id, source:'person'}));
     const _pEffId = p.photo_id || p.photos[0]?.id;
     p.photos.forEach((ph,i)=>{
       const isMain = ph.id == _pEffId;
