@@ -414,13 +414,22 @@ function _lbBringFront(who) { // 'lightbox' | 'overlay'
 // _lbOpenedFromPerson: lightbox ouverte par-dessus la fiche (lightbox devant)
 let _lbPersonStacked = false, _lbOpenedFromPerson = false;
 
+// Ferme uniquement la fiche, révèle ce qui est derrière
 function closePersonModal() {
   const ov = document.getElementById('modal-person-view-overlay');
   ov.classList.remove('open');
   ov.style.zIndex = '';
   document.getElementById('lightbox').style.zIndex = '';
   _lbPersonStacked = false;
-  // Si la photo était derrière, elle revient naturellement devant (z CSS par défaut)
+  // Si la photo était derrière, elle reprend naturellement le premier plan (z CSS)
+}
+
+// Ferme la fiche ET ce qui est empilé derrière (clic backdrop)
+function closePersonModalAll() {
+  const hadStack = _lbPersonStacked || _lbOpenedFromPerson;
+  _lbOpenedFromPerson = false;
+  closePersonModal();
+  if (hadStack) closeLightbox();
 }
 
 // Ouvre une fiche depuis un tag de lightbox (lightbox reste ouverte derrière)
@@ -433,7 +442,7 @@ function _lbOpenPersonFromTag(personId) {
 
 let _lbGallery = [], _lbIdx = 0;
 let _lbGalleryMeta = []; // parallel: [{photoId, source}] or null per entry
-let _lbTagMode = false, _lbTags = [];
+let _lbTagMode = false, _lbTags = [], _lbNavAnimating = false;
 let _lbZoomed = false, _lbTx = 0, _lbTy = 0;
 let _lbScale = 1, _lbNaturalRect = null;
 let _lbIdleTimer = null, _lbMouseX = -1, _lbMouseY = -1;
@@ -446,10 +455,12 @@ function _lbResetIdle(e) {
   if (!lb.classList.contains('open')) return;
   lb.classList.remove('lb-idle');
   clearTimeout(_lbIdleTimer);
-  if (!_lbZoomed) _lbIdleTimer = setTimeout(() => lb.classList.add('lb-idle'), 2000);
+  _lbIdleTimer = setTimeout(() => lb.classList.add('lb-idle'), 2000);
 }
 document.addEventListener('mousemove', _lbResetIdle);
 document.addEventListener('mousedown', _lbResetIdle);
+document.addEventListener('touchstart', _lbResetIdle, { passive: true });
+document.addEventListener('touchend',   _lbResetIdle, { passive: true });
 let _lbDragging = false, _lbDragMoved = false, _lbSkipNextClick = false;
 const _LB_SCALE = 2.5;
 
@@ -507,7 +518,8 @@ function _lbShow() {
   if (_ov) { _ov.innerHTML = ''; _ov.className = 'lb-face-overlay'; _ov.style.display = 'none'; }
   const _tagBtn = document.getElementById('lb-tag-btn');
   const _meta = _lbGalleryMeta[_lbIdx];
-  if (_tagBtn) _tagBtn.style.display = _meta ? '' : 'none';
+  const _canEdit = currentUser && (currentUser.role === 'admin' || currentUser.role === 'editeur');
+  if (_tagBtn) _tagBtn.style.display = (_meta && _canEdit) ? '' : 'none';
   if (_tagBtn) { _tagBtn.style.background = ''; _tagBtn.classList.toggle('active', _lbTagMode); }
   // Recharger les tags (et réafficher l'overlay si mode tag actif)
   if (_meta) { _lbLoadTags(); }
@@ -524,8 +536,7 @@ function lbZoomIn(e) {
   img.style.transformOrigin = '0 0';
   img.style.transform = `translate(${_lbTx}px,${_lbTy}px) scale(${_lbScale})`;
   img.style.cursor = 'grab'; _lbZoomed = true;
-  clearTimeout(_lbIdleTimer);
-  document.getElementById('lightbox').classList.remove('lb-idle');
+  _lbResetIdle();
   _lbSyncOverlayTransform();
 }
 function lbZoomOut() {
@@ -535,6 +546,7 @@ function lbZoomOut() {
   if (!window.matchMedia('(pointer:coarse)').matches) _lbResetIdle();
   _lbPositionFaceOverlay();
 }
+// Ferme uniquement la photo, révèle ce qui est derrière
 function closeLightbox() {
   const lb = document.getElementById('lightbox');
   lb.classList.remove('open','lb-idle');
@@ -543,14 +555,16 @@ function closeLightbox() {
   lbZoomOut();
   _lbTagMode = false;
   document.getElementById('lb-person-picker')?.remove();
-  if (_lbOpenedFromPerson) {
-    // La fiche reprend le premier plan, z redevient CSS par défaut
-    _lbOpenedFromPerson = false;
-    document.getElementById('modal-person-view-overlay').style.zIndex = '';
-  }
-  if (_lbPersonStacked) {
-    // La lightbox était derrière la fiche et se ferme : on ferme aussi la fiche
-    _lbPersonStacked = false;
+  _lbOpenedFromPerson = false;
+  // La fiche derrière (si présente) reprend naturellement le premier plan
+}
+
+// Ferme la photo ET ce qui est empilé derrière (clic backdrop lightbox)
+function closeLightboxAll() {
+  const hadStack = _lbPersonStacked || _lbOpenedFromPerson;
+  _lbPersonStacked = false;
+  closeLightbox();
+  if (hadStack) {
     const ov = document.getElementById('modal-person-view-overlay');
     ov.classList.remove('open');
     ov.style.zIndex = '';
@@ -625,6 +639,10 @@ function closeLightbox() {
       if (!_swipeDir) {
         if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
         _swipeDir = Math.abs(dx) >= Math.abs(dy) ? 'h' : 'v';
+        // Cacher l'overlay dès que le swipe commence
+        _lbNavAnimating = true;
+        const _ov = document.getElementById('lb-face-overlay');
+        if (_ov) _ov.style.display = 'none';
       }
       e.preventDefault();
       if (_swipeDir === 'h') {
@@ -672,6 +690,10 @@ function closeLightbox() {
       const vw = window.innerWidth;
       if (_lbGallery.length > 1 && Math.abs(dx) > Math.min(80, vw * 0.25)) {
         const dir = dx < 0 ? 1 : -1;
+        // Cacher l'overlay pendant toute l'animation de navigation
+        _lbNavAnimating = true;
+        const _ov = document.getElementById('lb-face-overlay');
+        if (_ov) _ov.style.display = 'none';
         img.style.transition = 'transform 0.2s ease';
         img.style.transform = `translateX(${-dir * vw}px)`;
         img.addEventListener('transitionend', function slideOut() {
@@ -685,6 +707,9 @@ function closeLightbox() {
             img.addEventListener('transitionend', function slideIn() {
               img.removeEventListener('transitionend', slideIn);
               img.style.transition = '';
+              _lbNavAnimating = false;
+              // Repositionner l'overlay après l'animation
+              _lbPositionFaceOverlay();
             });
           }));
         });
@@ -695,6 +720,8 @@ function closeLightbox() {
         img.addEventListener('transitionend', function snapBack() {
           img.removeEventListener('transitionend', snapBack);
           img.style.transition = '';
+          _lbNavAnimating = false;
+          _lbPositionFaceOverlay();
         });
       }
       return;
@@ -725,6 +752,8 @@ function closeLightbox() {
         img.addEventListener('transitionend', function snapBack() {
           img.removeEventListener('transitionend', snapBack);
           img.style.transition = ''; lb.style.transition = '';
+          _lbNavAnimating = false;
+          _lbPositionFaceOverlay();
         });
       }
       return;
@@ -746,17 +775,19 @@ function closeLightbox() {
 function _lbPositionFaceOverlay() {
   const overlay = document.getElementById('lb-face-overlay');
   if (!overlay) return;
-  if (!_lbTagMode) { overlay.style.display = 'none'; return; }
-  // Mesurer la position de l'image SANS transform
+  if (_lbNavAnimating) { overlay.style.display = 'none'; return; }
+  if (!_lbTags.length && !_lbTagMode) { overlay.style.display = 'none'; return; }
+  // Calcul mathématique : indépendant de toute animation en cours
   const img = document.getElementById('lightbox-img');
-  const t = img.style.transform, o = img.style.transformOrigin;
-  img.style.transform = ''; img.style.transformOrigin = '';
-  const rect = img.getBoundingClientRect();
-  img.style.transform = t; img.style.transformOrigin = o;
-  overlay.style.left   = rect.left + 'px';
-  overlay.style.top    = rect.top + 'px';
-  overlay.style.width  = rect.width + 'px';
-  overlay.style.height = rect.height + 'px';
+  const nw = img.naturalWidth, nh = img.naturalHeight;
+  if (!nw || !nh) { overlay.style.display = 'none'; return; }
+  const vw = window.innerWidth, vh = window.innerHeight;
+  const scale = Math.min(vw / nw, vh / nh);
+  const W = nw * scale, H = nh * scale;
+  overlay.style.left   = ((vw - W) / 2) + 'px';
+  overlay.style.top    = ((vh - H) / 2) + 'px';
+  overlay.style.width  = W + 'px';
+  overlay.style.height = H + 'px';
   overlay.style.display = '';
   _lbSyncOverlayTransform();
 }
@@ -780,6 +811,14 @@ async function _lbLoadTags() {
   if (!meta) return;
   try {
     _lbTags = await api('GET', `api/photo_tags.php?source=${meta.source}&id=${meta.photoId}`);
+    // Attendre que l'image soit chargée avant de positionner l'overlay
+    const img = document.getElementById('lightbox-img');
+    if (!img.complete || !img.naturalWidth) {
+      await new Promise(resolve => {
+        img.addEventListener('load', resolve, { once: true });
+        img.addEventListener('error', resolve, { once: true });
+      });
+    }
     _lbRenderTags();
   } catch { _lbTags = []; }
 }
@@ -789,7 +828,7 @@ function _lbRenderTags() {
   if (!overlay) return;
   const canEdit = currentUser && (currentUser.role === 'admin' || currentUser.role === 'editeur');
   overlay.innerHTML = _lbTags.map(t => {
-    const delBtn = (canEdit)
+    const delBtn = (canEdit && _lbTagMode)
       ? `<button class="lb-tag-del-btn" onclick="event.stopPropagation();_lbDeleteTag(${t.id})">✕</button>`
       : '';
     return `<div class="lb-face-tag" style="left:${t.x}%;top:${t.y}%;width:${t.w}%;height:${t.h}%;"
@@ -798,7 +837,7 @@ function _lbRenderTags() {
     </div>`;
   }).join('');
   overlay.classList.toggle('tag-mode', _lbTagMode && canEdit);
-  if (_lbTagMode) _lbPositionFaceOverlay();
+  _lbPositionFaceOverlay();
 }
 
 async function _lbDeleteTag(tagId) {
@@ -828,14 +867,13 @@ function lbToggleTagMode() {
       banner.style.cssText = 'position:absolute;bottom:0;left:0;right:0;background:rgba(200,169,110,.9);color:#1a1814;font-size:.8rem;padding:8px 16px;pointer-events:none;z-index:2;white-space:normal;text-align:center;box-sizing:border-box;';
       document.getElementById('lightbox').appendChild(banner);
     }
-    const canEdit = currentUser && (currentUser.role === 'admin' || currentUser.role === 'editeur');
-    banner.textContent = T(canEdit ? 'lb_tag_banner' : 'lb_tag_banner_read');
+    banner.textContent = T('lb_tag_banner');
     _lbNaturalRect = null;
     _lbPositionFaceOverlay();
     _lbLoadTags();
   } else {
     banner?.remove();
-    _lbPositionFaceOverlay(); // cache l'overlay (_lbTagMode=false)
+    _lbRenderTags(); // met à jour delete buttons + repositionne overlay
   }
 }
 
