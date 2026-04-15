@@ -23,7 +23,7 @@ async function loadRecettes(){
     if(!r.auteur) return true;
     return people.some(p=>inCurrentTreeDirect(p.id)&&_nameSimilar(p.prenom,r.auteur));
   });
-  const rows=await Promise.all(filtered.map(r=>translateFields(r,['titre','description'])));
+  const rows=await Promise.all(filtered.map(r=>translateFields(r,['description'])));
   const el=document.getElementById('recettes-list');
   if(!rows.length){el.innerHTML=`<div class="empty"><div class="empty-icon">🍽️</div><div class="empty-title">${T('empty_recettes')}</div><div class="empty-sub">${T('empty_recettes_sub')}</div></div>`;return;}
   el.innerHTML=rows.map(r=>`
@@ -39,7 +39,7 @@ async function loadRecettes(){
 
 async function openRecette(id){
   let r=await api('GET',`api/recettes.php?id=${id}`);
-  r=await translateFields(r,['titre','description','ingredients','contenu']);
+  r=await translateFields(r,['description','ingredients','contenu']);
   let html=`<div class="modal-hd" style="padding:1.2rem 1.4rem .8rem;">
     <div style="font-size:1.5rem;">🍽️</div>
     <div class="modal-ti"><div class="modal-name">${r.titre}</div>${r.date_recette||r.auteur?`<div class="modal-maiden">${[r.date_recette,r.auteur?T('lbl_by')+' '+r.auteur:''].filter(Boolean).join(' · ')}</div>`:''}</div>

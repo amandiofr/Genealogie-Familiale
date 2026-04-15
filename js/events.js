@@ -153,7 +153,8 @@ async function uploadEventPhotos(eventId) {
   pendingEventFiles = [];
   toast(T('toast_photos_added'));
   closeOverlay('modal-form-event-overlay');
-  loadEvents();
+  await loadEvents();
+  openEvent(eventId);
 }
 
 async function saveEvent(id){

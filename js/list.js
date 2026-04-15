@@ -464,6 +464,7 @@ function showPhotoUpload(personId){
         <button class="btn-secondary" onclick="closeOverlay('modal-person-edit-overlay')">${T('form_cancel')}</button>
       </div>
     </div>`;
+  document.getElementById('modal-person-view-overlay').style.zIndex = '';
   document.getElementById('modal-person-edit-overlay').classList.add('open');
 }
 
