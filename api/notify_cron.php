@@ -28,7 +28,11 @@ try {
          AND DATE_FORMAT(naissance, '--%m-%d') = " . $db->quote($todayMD)
     )->fetchAll();
 
-    if (!empty($birthdays) && $hourEurope >= 8 && $hourEurope < 22) {
+    // Vérifier si les anniversaires ont déjà été envoyés aujourd'hui
+    $bdState = $db->query("SELECT birthday_sent_date FROM notification_state WHERE id=1")->fetch();
+    $alreadySentToday = ($bdState && $bdState['birthday_sent_date'] === date('Y-m-d'));
+
+    if (!empty($birthdays) && $hourEurope >= 8 && $hourEurope < 22 && !$alreadySentToday) {
         $recipientsBd = $db->query("SELECT email FROM notification_emails")->fetchAll();
         if (!empty($recipientsBd)) {
             $linesBdFr = '';
@@ -38,10 +42,8 @@ try {
             }
             $bdBody = <<<BODY
 🌿 Notre Famille — Anniversaires du jour
-────────────────────────
 
 {$linesBdFr}
-────────────────────────
 BODY;
             $bdSubject = '=?UTF-8?B?' . base64_encode('🎂 Anniversaires — Notre Famille') . '?=';
             $bdHeaders  = "MIME-Version: 1.0\r\n";
@@ -52,6 +54,8 @@ BODY;
             foreach ($recipientsBd as $r) {
                 mail($r['email'], $bdSubject, chunk_split(base64_encode($bdBody)), $bdHeaders);
             }
+            // Enregistrer la date d'envoi pour éviter les doublons
+            $db->prepare("UPDATE notification_state SET birthday_sent_date=CURDATE() WHERE id=1")->execute();
             echo count($birthdays) . " anniversaire(s) notifié(s).\n";
         }
     }
@@ -113,12 +117,10 @@ foreach ($logs as $log) {
 $nbModifs = count($logs);
 $bodyText = <<<BODY
 🌿 Notre Famille — Mises à jour
-────────────────────────
 
 {$nbModifs} modification(s) :
 
 {$linesFr}
-────────────────────────
 Abonné aux notifications.
 BODY;
 

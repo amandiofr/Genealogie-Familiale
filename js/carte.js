@@ -169,6 +169,18 @@ async function loadCarte() {
   if (allPositions.length) {
     const bounds = new google.maps.LatLngBounds();
     allPositions.forEach(pos => bounds.extend(pos));
+    // Garantir une étendue minimale de ~10 km x 10 km (≈ 0.045° de chaque côté)
+    const MIN_DELTA = 0.045;
+    const ne = bounds.getNorthEast(), sw = bounds.getSouthWest();
+    const cLat = (ne.lat() + sw.lat()) / 2, cLng = (ne.lng() + sw.lng()) / 2;
+    if (ne.lat() - sw.lat() < MIN_DELTA * 2) {
+      bounds.extend({ lat: cLat + MIN_DELTA, lng: cLng });
+      bounds.extend({ lat: cLat - MIN_DELTA, lng: cLng });
+    }
+    if (ne.lng() - sw.lng() < MIN_DELTA * 2) {
+      bounds.extend({ lat: cLat, lng: cLng + MIN_DELTA });
+      bounds.extend({ lat: cLat, lng: cLng - MIN_DELTA });
+    }
     await new Promise(resolve => {
       google.maps.event.addListenerOnce(_carteMap, 'idle', resolve);
       _carteMap.fitBounds(bounds, 60);

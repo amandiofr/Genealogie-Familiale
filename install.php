@@ -280,9 +280,10 @@ CREATE TABLE IF NOT EXISTS modification_log (
 
 'notification_state' => "
 CREATE TABLE IF NOT EXISTS notification_state (
-  id         INT UNSIGNED NOT NULL DEFAULT 1,
-  send_after DATETIME     DEFAULT NULL,
-  last_sent  DATETIME     DEFAULT NULL,
+  id                  INT UNSIGNED NOT NULL DEFAULT 1,
+  send_after          DATETIME     DEFAULT NULL,
+  last_sent           DATETIME     DEFAULT NULL,
+  birthday_sent_date  DATE         DEFAULT NULL,
   PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;",
 
@@ -302,6 +303,20 @@ CREATE TABLE IF NOT EXISTS lieux_geocodes (
   lng           DOUBLE       DEFAULT NULL,
   updated_at    DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (nom_approx)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;",
+
+'photo_tags' => "
+CREATE TABLE IF NOT EXISTS photo_tags (
+  id           INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  photo_source VARCHAR(50)  NOT NULL,
+  photo_id     INT UNSIGNED NOT NULL,
+  personne_id  INT UNSIGNED NOT NULL,
+  x            FLOAT        NOT NULL,
+  y            FLOAT        NOT NULL,
+  w            FLOAT        NOT NULL,
+  h            FLOAT        NOT NULL,
+  created_at   DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (personne_id) REFERENCES personnes(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;",
 
 ];
@@ -351,6 +366,17 @@ try {
         }
     } catch (PDOException $e) {
         $errors[] = 'Migration autologin_token : ' . $e->getMessage();
+    }
+
+    // Migration : birthday_sent_date sur notification_state
+    try {
+        $cols = $db->query("SHOW COLUMNS FROM notification_state LIKE 'birthday_sent_date'")->fetchAll();
+        if (empty($cols)) {
+            $db->exec("ALTER TABLE notification_state ADD COLUMN birthday_sent_date DATE DEFAULT NULL");
+            $done[] = '→ Migration : colonne birthday_sent_date ajoutée à notification_state';
+        }
+    } catch (PDOException $e) {
+        $errors[] = 'Migration birthday_sent_date : ' . $e->getMessage();
     }
 
     // Compte admin par défaut

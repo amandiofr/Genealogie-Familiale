@@ -96,8 +96,7 @@ async function openPerson(id) {
     if(!a.naissance) return 1; if(!b.naissance) return -1;
     return a.naissance.localeCompare(b.naissance);
   });
-  const freressoeurs = (p.freres_soeurs||[]).map(l=>({...l,personne_a:l.id,personne_b:l.id,role:l.genre==='male'?'🧑':'👧',_computed:true}));
-  const groupA = [...conjoints.map(l=>({...l,role:'💍'})),...fiancailles.map(l=>({...l,role:'💑'})),...sortedParents.map(l=>({...l,role:'👨‍👩‍👧'})),...freressoeurs];
+  const groupA = [...conjoints.map(l=>({...l,role:'💍'})),...fiancailles.map(l=>({...l,role:'💑'})),...sortedParents.map(l=>({...l,role:'👨‍👩‍👧'}))];
   const groupB = sortedEnfants.map(l=>({...l,role:l.genre==='male'?'👦':'👧'}));
   const allFamily = [...groupA,...groupB];
   const renderFL = (l) => {
@@ -119,7 +118,6 @@ async function openPerson(id) {
   if(allFamily.length){
     html+=`<div class="modal-section"><div class="sec-title">${T('sec_famille')}</div>`;
     groupA.forEach(l=>{ html+=renderFL(l); });
-    if(groupA.length && groupB.length) html+=`<div style="display:flex;align-items:center;gap:8px;margin:6px 0;"><span style="flex:1;border-top:1px solid var(--border2);"></span><span style="font-size:.63rem;text-transform:uppercase;letter-spacing:.1em;color:var(--ink3);font-weight:500;">${T('lbl_enfants')}</span><span style="flex:1;border-top:1px solid var(--border2);"></span></div>`;
     groupB.forEach(l=>{ html+=renderFL(l); });
     // Bouton ajouter un lien
     if(currentUser.role!=='lecteur') html+=`<button class="btn-secondary" style="width:100%;margin-top:8px;font-size:.75rem;" onclick="showLienForm(${id})">${T('btn_add_link')}</button>`;
