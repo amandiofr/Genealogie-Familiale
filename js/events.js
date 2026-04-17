@@ -19,7 +19,9 @@ async function loadEvents(){
       <div class="ev-type">${EVT_ICONS[e.type]||''} ${evtLabel(e.type)}</div>
       <div class="ev-title">${e.titre}</div>
       <div class="ev-meta">${[fmtDate(e.date_debut),e.lieu].filter(Boolean).join(' · ')}${e.nb_personnes>0?` · ${e.nb_personnes} ${T('nb_personnes_label')}`:''}</div>
+      <div id="react-evenement-${e.id}"></div>
     </div>`).join('');
+  rows.forEach(e => loadReactions('evenement', e.id, `react-evenement-${e.id}`, true));
 }
 
 async function openEvent(id){
@@ -62,6 +64,7 @@ async function openEvent(id){
     });
     html+=`</div></div>`;
   }
+  html+=`<div id="react-evenement-detail-${id}"></div>`;
   if(currentUser.role!=='lecteur'){
     html+=`<div style="display:flex;gap:8px;margin-top:1rem;">
       <button class="btn-secondary" style="flex:1;font-size:.78rem;" onclick="showEventForm(${id});closeOverlay('modal-person-view-overlay')">${T('btn_edit')}</button>
@@ -69,11 +72,10 @@ async function openEvent(id){
     </div>`;
   }
   html+=`</div>`;
-  // Utiliser modal-form-event-overlay pour pleine largeur sur mobile
   document.getElementById('modal-person-view').innerHTML=html;
   document.getElementById('modal-person-view-overlay').classList.add('open');
-  // Forcer max-width plus large pour les événements
   document.getElementById('modal-person-view').style.maxWidth='640px';
+  loadReactions('evenement', id, `react-evenement-detail-${id}`);
 }
 
 async function showEventForm(id){
@@ -191,8 +193,10 @@ async function loadAnecdotes(){
         <div class="an-title">${a.titre}</div>
         <div class="an-meta">${[a.date_anec,a.auteur?T('lbl_by')+' '+a.auteur:'',a.personnes_noms?T('lbl_with')+' '+a.personnes_noms:''].filter(Boolean).join(' · ')}</div>
         <div class="an-excerpt">${a.contenu.replace(/\n/g,'<br>')}</div>
+        <div id="react-anecdote-${a.id}"></div>
       </div>
     </div>`).join('');
+  rows.forEach(a => loadReactions('anecdote', a.id, `react-anecdote-${a.id}`, true));
 }
 
 async function openAnecdote(id){
@@ -225,10 +229,12 @@ async function openAnecdote(id){
     });
     html+=`</div></div>`;
   }
+  html+=`<div id="react-anecdote-detail-${id}"></div>`;
   if(currentUser.role!=='lecteur') html+=`<div style="display:flex;gap:8px;margin-top:1rem;"><button class="btn-secondary" style="flex:1;font-size:.78rem;" onclick="showAnecdoteForm(${id});closeOverlay('modal-person-view-overlay')">${T('btn_edit')}</button><button class="btn-danger" style="font-size:.78rem;" onclick="deleteAnecdote(${id})">🗑</button></div>`;
   html+=`</div>`;
   document.getElementById('modal-person-view').innerHTML=html;
   document.getElementById('modal-person-view-overlay').classList.add('open');
+  loadReactions('anecdote', id, `react-anecdote-detail-${id}`);
 }
 
 async function showAnecdoteForm(id){

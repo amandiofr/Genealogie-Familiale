@@ -19,8 +19,10 @@ async function loadTresors(){
         <div class="an-title">${t.titre}</div>
         <div class="an-meta">${[t.date_tresor,t.auteur?T('lbl_by')+' '+t.auteur:'',t.personnes_noms?T('lbl_with')+' '+t.personnes_noms:''].filter(Boolean).join(' · ')}</div>
         <div class="an-excerpt">${t.contenu.replace(/\n/g,'<br>')}</div>
+        <div id="react-tresor-${t.id}"></div>
       </div>
     </div>`).join('');
+  rows.forEach(t => loadReactions('tresor', t.id, `react-tresor-${t.id}`, true));
 }
 
 async function openTresor(id){
@@ -53,10 +55,12 @@ async function openTresor(id){
     });
     html+=`</div></div>`;
   }
+  html+=`<div id="react-tresor-detail-${id}"></div>`;
   if(currentUser.role!=='lecteur') html+=`<div style="display:flex;gap:8px;margin-top:1rem;"><button class="btn-secondary" style="flex:1;font-size:.78rem;" onclick="showTresorForm(${id});closeOverlay('modal-person-view-overlay')">${T('btn_edit')}</button><button class="btn-danger" style="font-size:.78rem;" onclick="deleteTresor(${id})">🗑</button></div>`;
   html+=`</div>`;
   document.getElementById('modal-person-view').innerHTML=html;
   document.getElementById('modal-person-view-overlay').classList.add('open');
+  loadReactions('tresor', id, `react-tresor-detail-${id}`);
 }
 
 async function showTresorForm(id){

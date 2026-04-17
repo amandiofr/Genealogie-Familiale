@@ -305,6 +305,17 @@ CREATE TABLE IF NOT EXISTS lieux_geocodes (
   PRIMARY KEY (nom_approx)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;",
 
+'reactions' => "
+CREATE TABLE IF NOT EXISTS reactions (
+  id           INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  source       ENUM('anecdote','evenement','tresor','recette') NOT NULL,
+  source_id    INT UNSIGNED NOT NULL,
+  display_name VARCHAR(100) NOT NULL,
+  emoji        VARCHAR(10)  NOT NULL,
+  created_at   DATETIME DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uniq_reaction (source, source_id, display_name)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;",
+
 'photo_tags' => "
 CREATE TABLE IF NOT EXISTS photo_tags (
   id           INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -366,6 +377,17 @@ try {
         }
     } catch (PDOException $e) {
         $errors[] = 'Migration autologin_token : ' . $e->getMessage();
+    }
+
+    // Migration : display_name sur reactions
+    try {
+        $cols = $db->query("SHOW COLUMNS FROM reactions LIKE 'display_name'")->fetchAll();
+        if (empty($cols)) {
+            $db->exec("ALTER TABLE reactions ADD COLUMN display_name VARCHAR(100) DEFAULT NULL AFTER user_id");
+            $done[] = '→ Migration : colonne display_name ajoutée à reactions';
+        }
+    } catch (PDOException $e) {
+        $errors[] = 'Migration display_name reactions : ' . $e->getMessage();
     }
 
     // Migration : birthday_sent_date sur notification_state
