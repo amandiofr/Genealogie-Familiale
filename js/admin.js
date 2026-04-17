@@ -378,6 +378,21 @@ async function loadQualityCheck() {
         <span style="font-size:.7rem;color:var(--ink3);">✏️</span></div>`;
     });
 
+    // ── Anecdotes invisibles (aucun participant membre direct d'un arbre) ──
+    const allAnec = await api('GET', 'api/anecdotes.php');
+    const invisibles = allAnec.filter(a =>
+      a.personne_ids.length > 0 &&
+      !a.personne_ids.some(id => _isDirectInAnyTree(id))
+    ).sort(_alpha('titre'));
+    html += _section('Anecdotes invisibles', invisibles, a =>
+      `<div class="user-row" style="cursor:pointer;" onclick="openAnecdote(${a.id})">
+        <div style="flex:1;">
+          <div style="font-size:.85rem;font-weight:500;">📖 ${encodeHTML(a.titre)}</div>
+          <div style="font-size:.72rem;color:#b45309;">Aucun participant dans aucun arbre</div>
+        </div>
+        <span style="font-size:.7rem;color:var(--ink3);">→</span>
+      </div>`);
+
     // ── Lieux non géocodés ──
     const lieux = await api('GET', 'api/lieux.php?action=collect');
     const nonGeo = lieux.filter(l => l.lat == null).sort(_alpha('nom_approx'));

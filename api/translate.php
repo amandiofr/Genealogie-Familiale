@@ -16,7 +16,7 @@ if (!in_array($target, $validLangs)) $target = 'fr';
 
 $url = 'https://translation.googleapis.com/language/translate/v2?key=' . urlencode(GOOGLE_API_KEY);
 
-$payload = json_encode(['q' => $text, 'target' => $target, 'format' => 'text']);
+$payload = json_encode(['q' => $text, 'target' => $target, 'format' => 'html']);
 
 $ctx = stream_context_create(['http' => [
     'method'  => 'POST',

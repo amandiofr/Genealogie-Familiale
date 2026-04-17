@@ -21,19 +21,35 @@ function setAutoTranslate(val) {
 }
 
 // Traduit un texte vers currentLang, avec cache
+// Les portions entre "..." sont protégées de la traduction (affichées telles quelles, avec les guillemets)
 // Retourne une Promise<string>
 async function translateText(text) {
   if (!autoTranslate || !text) return text;
-  const key = text + '|' + currentLang;
-  if (_translateCache[key]) return _translateCache[key];
-  try {
-    const d = await api('POST', 'api/translate.php', { text, target: currentLang });
-    _translateCache[key] = d.translation.trim().replace(/\n{2,}/g, '\n');
-    _saveTrCache();
-    return _translateCache[key];
-  } catch {
-    return text; // en cas d'erreur, afficher l'original
+
+  // Remplacer "texte protégé" par un span notranslate que Google Translate respecte
+  const prepared = text.replace(/"([^"]+)"/g, (_, inner) =>
+    `<span class="notranslate">"${inner}"</span>`
+  );
+
+  const key = prepared + '|' + currentLang;
+  let translated;
+  if (_translateCache[key]) {
+    translated = _translateCache[key];
+  } else {
+    try {
+      const d = await api('POST', 'api/translate.php', { text: prepared, target: currentLang });
+      // Supprimer les balises span ajoutées, conserver uniquement le contenu
+      translated = d.translation.trim()
+        .replace(/<span[^>]*>/gi, '')
+        .replace(/<\/span>/gi, '')
+        .replace(/\n{2,}/g, '\n');
+      _translateCache[key] = translated;
+      _saveTrCache();
+    } catch {
+      translated = text;
+    }
   }
+  return translated;
 }
 
 // Traduit plusieurs champs d'un objet et retourne un nouvel objet avec les champs traduits

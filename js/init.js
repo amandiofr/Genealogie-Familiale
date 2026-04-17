@@ -37,6 +37,10 @@ function _inAnyTree(personId) {
   }
   return _allTreeMembers.has(Number(personId)) || _allTreeSpouses.has(Number(personId));
 }
+function _isDirectInAnyTree(personId) {
+  _inAnyTree(personId); // ensure cache populated
+  return !!_allTreeMembers?.has(Number(personId));
+}
 
 async function loadArbres() {
   try { _arbres = await api('GET', 'api/arbres.php'); } catch { _arbres = []; }

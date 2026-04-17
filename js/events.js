@@ -244,8 +244,8 @@ async function showAnecdoteForm(id){
       <button class="modal-close" onclick="closeOverlay('modal-form-anecdote-overlay')">✕</button>
     </div>
     <div class="modal-bd">
-      <div class="fg"><label>${T('form_titre')} *</label><input id="fa-titre" value="${a?.titre||''}" placeholder="${T('ph_titre_anec')}"></div>
-      <div class="fg"><label>${T('form_contenu')} *</label><textarea id="fa-contenu" style="min-height:160px;" placeholder="${T('ph_contenu_anec')}">${a?.contenu||''}</textarea></div>
+      <div class="fg"><label>${T('form_titre')} *</label><input id="fa-titre" value="${encodeHTML(a?.titre||'')}" placeholder="${T('ph_titre_anec')}"></div>
+      <div class="fg"><label>${T('form_contenu')} *</label><textarea id="fa-contenu" style="min-height:160px;" placeholder="${T('ph_contenu_anec')}">${encodeHTML(a?.contenu||'')}</textarea></div>
       <div class="form-grid">
         <div class="fg"><label>${T('form_date_approx')}</label><input id="fa-date" value="${a?.date_anec||''}" placeholder="${T('ph_date_anec')}"></div>
         <div class="fg"><label>${T('form_written_by')}</label><input id="fa-auteur" value="${a?.auteur ?? authorName ?? ''}" placeholder="${T('author_placeholder')}"></div>
