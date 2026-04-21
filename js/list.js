@@ -213,7 +213,7 @@ async function openPerson(id) {
   // Actions
   if(currentUser.role!=='lecteur'){
     html+=`<div style="display:flex;gap:8px;margin-top:1rem;flex-wrap:wrap;">
-      <button class="btn-secondary" style="flex:1;min-width:0;font-size:.78rem;padding:6px 14px;" onclick="showPersonForm(${id});closeOverlay('modal-person-view-overlay')">${T('btn_edit')}</button>
+      <button class="btn-secondary" style="flex:1;min-width:0;font-size:.78rem;padding:6px 14px;" onclick="editPersonFromView(${id})">${T('btn_edit')}</button>
       <button class="btn-secondary" style="flex:1;min-width:0;font-size:.78rem;padding:6px 14px;" onclick="showPhotoUpload(${id})">${T('btn_photos')}</button>
       ${currentUser.role==='admin' ? `<button class="btn-danger" style="font-size:.78rem;padding:6px 11px;" onclick="deletePerson(${id})">🗑</button>` : ''}
     </div>`;
@@ -250,6 +250,14 @@ function openTaggedPhotoByIndex(i) {
   _lbGallery     = _lbTaggedGallery;
   _lbGalleryMeta = _lbTaggedMeta;
   openLightbox(i);
+}
+
+async function editPersonFromView(id) {
+  // Close lightbox first (before overlay resets its z-index), then close the person view
+  if (typeof closeLightbox === 'function') closeLightbox();
+  if (typeof closePersonModalAll === 'function') closePersonModalAll();
+  else closeOverlay('modal-person-view-overlay');
+  await showPersonForm(id);
 }
 
 function calcAge(p){
