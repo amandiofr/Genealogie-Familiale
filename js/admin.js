@@ -536,6 +536,8 @@ function _lbShow() {
   const _canEdit = currentUser && (currentUser.role === 'admin' || currentUser.role === 'editeur');
   if (_tagBtn) _tagBtn.style.display = (_meta && _canEdit) ? '' : 'none';
   if (_tagBtn) { _tagBtn.style.background = ''; _tagBtn.classList.toggle('active', _lbTagMode); }
+  // URL deep link
+  if (_meta) history.replaceState(null, '', '#photo/' + _meta.source + '/' + _meta.photoId);
   // Recharger les tags (et réafficher l'overlay si mode tag actif)
   _lbTags = [];
   if (_meta) { _lbLoadTags(); }
@@ -572,6 +574,7 @@ function closeLightbox() {
   _lbTagMode = false;
   document.getElementById('lb-person-picker')?.remove();
   _lbOpenedFromPerson = false;
+  if (window.location.hash.startsWith('#photo/')) history.replaceState(null, '', window.location.pathname + window.location.search);
   // La fiche derrière (si présente) reprend naturellement le premier plan
 }
 

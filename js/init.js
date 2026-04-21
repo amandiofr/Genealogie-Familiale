@@ -222,6 +222,20 @@ async function init() {
     if ((!adminViews.includes(hash) && !editorViews.includes(hash)) || currentUser.role === 'admin' || (editorViews.includes(hash) && currentUser.role === 'editeur')) {
       showView(hash);
     }
+  } else {
+    const photoMatch = hash.match(/^photo\/([^/]+)\/(\d+)$/);
+    if (photoMatch) {
+      const [, photoSrc, photoIdStr] = photoMatch;
+      try {
+        const data = await api('GET', `api/tagged_photo.php?source=${encodeURIComponent(photoSrc)}&photo_id=${photoIdStr}`);
+        if (data.photos && data.photos.length) {
+          _lbGallery = data.photos.map(p => imgUrl(p.chemin));
+          _lbGalleryMeta = data.photos.map(p => ({photoId: p.id, source: photoSrc}));
+          const idx = data.photos.findIndex(p => p.id === parseInt(photoIdStr));
+          openLightbox(idx >= 0 ? idx : 0);
+        }
+      } catch (e) { console.warn('Photo deep link failed:', e); }
+    }
   }
 }
 
