@@ -27,8 +27,8 @@ $conjointRows = $db->query("
            pa.id AS id_a, pa.prenom AS prenom_a, pa.genre AS genre_a,
            pb.id AS id_b, pb.prenom AS prenom_b, pb.genre AS genre_b
     FROM liens l
-    JOIN personnes pa ON pa.id = l.personne_a
-    JOIN personnes pb ON pb.id = l.personne_b
+    JOIN personnes pa ON pa.id = l.personne_a AND pa.hors_arbre = 0
+    JOIN personnes pb ON pb.id = l.personne_b AND pb.hors_arbre = 0
     WHERE l.type IN ('conjoint', 'fiancailles')
     ORDER BY l.id ASC
 ")->fetchAll();
@@ -56,7 +56,7 @@ foreach ($conjointRows as $c) {
 }
 
 // 2. Célibataires-racines : pas de parents, pas dans un couple-racine, pas conjoint d'un enfant
-$allPersonnes = $db->query("SELECT id, prenom FROM personnes ORDER BY id ASC")->fetchAll();
+$allPersonnes = $db->query("SELECT id, prenom FROM personnes WHERE hors_arbre = 0 ORDER BY id ASC")->fetchAll();
 $singles = array_values(array_filter($allPersonnes, fn($p) =>
     !isset($hasParent[(int)$p['id']]) &&
     !isset($inCouple[(int)$p['id']]) &&

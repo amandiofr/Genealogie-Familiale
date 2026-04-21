@@ -357,6 +357,17 @@ try {
         $errors[] = 'Migration photo_id anecdotes : ' . $e->getMessage();
     }
 
+    // Migration : hors_arbre sur personnes
+    try {
+        $cols = $db->query("SHOW COLUMNS FROM personnes LIKE 'hors_arbre'")->fetchAll();
+        if (empty($cols)) {
+            $db->exec("ALTER TABLE personnes ADD COLUMN hors_arbre TINYINT(1) NOT NULL DEFAULT 0");
+            $done[] = '→ Migration : colonne hors_arbre ajoutée à personnes';
+        }
+    } catch (PDOException $e) {
+        $errors[] = 'Migration hors_arbre : ' . $e->getMessage();
+    }
+
     // Migration : ajouter photo_id à evenements si absent (installations existantes)
     try {
         $cols = $db->query("SHOW COLUMNS FROM evenements LIKE 'photo_id'")->fetchAll();

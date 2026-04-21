@@ -89,7 +89,7 @@ async function showAutoForm(id) {
 
   // Pre-select owner: existing record > authorName picker > none
   const defaultOwner = a ? a.personne_id : (people.find(p => p.prenom === authorName)?.id ?? null);
-  const sortedPeople = [...people].sort((x,y) => x.prenom.localeCompare(y.prenom, 'fr'));
+  const sortedPeople = [...people].sort((x,y) => `${x.prenom} ${x.nom}`.localeCompare(`${y.prenom} ${y.nom}`, undefined, {sensitivity:'base'}));
   const ownerOptions = `<option value="">${T('form_owner_none')}</option>` +
     sortedPeople.map(p => `<option value="${p.id}"${p.id == defaultOwner ? ' selected' : ''}>${p.prenom}</option>`).join('');
 

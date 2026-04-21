@@ -2,6 +2,7 @@
 //  LIST
 // ══════════════════════════════════════════════════════════════
 let currentSort = 'date';
+let _horsArbrePeople = null;
 
 function _refreshActiveView() {
   const active = document.querySelector('.view.active')?.id?.replace('view-', '');
@@ -48,18 +49,39 @@ async function filterList() {
     if(!b.naissance) return -1;
     return a.naissance<b.naissance?-1:a.naissance>b.naissance?1:0;
   });
+  // Lazy-load hors_arbre members once
+  if (_horsArbrePeople === null) {
+    try { _horsArbrePeople = await api('GET', 'api/personnes.php?hors_arbre=1'); } catch { _horsArbrePeople = []; }
+  }
+  let horsFiltered = _horsArbrePeople.slice().sort((a,b) => `${a.prenom} ${a.nom}`.localeCompare(`${b.prenom} ${b.nom}`, undefined, {sensitivity:'base'}));
+  if (q) horsFiltered = horsFiltered.filter(p => [p.prenom, p.nom].filter(Boolean).join(' ').toLowerCase().includes(q));
+
   const heading=document.getElementById('view-list-heading');
   if(heading) heading.textContent=`${filtered.length} ${T('h_membres')}`;
   const el=document.getElementById('person-list');
-  if(!filtered.length){el.innerHTML=`<div class="empty"><div class="empty-icon">🔍</div><div class="empty-title">${T('empty_search')}</div></div>`;return;}
-  const rows = await Promise.all(filtered.map(p => translateFields(p, ['profession'])));
-  el.innerHTML=rows.map(p=>{
-    const naiss = p.naissance ? fmtDate(p.naissance) : '?';
-    const deces = p.deces ? ' – ' + fmtDate(p.deces) : '';
-    const sub=[p.profession, naiss+deces].filter(Boolean).join(' · ');
-    const av=p.chemin_thumb?`<div class="li-avatar ${p.genre}"><img src="${imgUrl(p.chemin_thumb)}" alt=""></div>`:`<div class="li-avatar ${p.genre}">${initials(p)}</div>`;
-    return `<div class="list-item" onclick="openPerson(${p.id})">${av}<div class="li-info"><div class="li-name">${fullName(p)}${p.nom_naiss?` <span style="color:var(--ink3);font-size:.8em;font-style:italic;">${T('nee_label')} ${p.nom_naiss}</span>`:''}</div><div class="li-sub">${sub}</div></div><span class="li-arrow">›</span></div>`;
-  }).join('');
+  if(!filtered.length && !horsFiltered.length){el.innerHTML=`<div class="empty"><div class="empty-icon">🔍</div><div class="empty-title">${T('empty_search')}</div></div>`;return;}
+
+  let html = '';
+  if (filtered.length) {
+    const rows = await Promise.all(filtered.map(p => translateFields(p, ['profession'])));
+    html = rows.map(p=>{
+      const naiss = p.naissance ? fmtDate(p.naissance) : '?';
+      const deces = p.deces ? ' – ' + fmtDate(p.deces) : '';
+      const sub=[p.profession, naiss+deces].filter(Boolean).join(' · ');
+      const av=p.chemin_thumb?`<div class="li-avatar ${p.genre}"><img src="${imgUrl(p.chemin_thumb)}" alt=""></div>`:`<div class="li-avatar ${p.genre}">${initials(p)}</div>`;
+      return `<div class="list-item" onclick="openPerson(${p.id})">${av}<div class="li-info"><div class="li-name">${fullName(p)}${p.nom_naiss?` <span style="color:var(--ink3);font-size:.8em;font-style:italic;">${T('nee_label')} ${p.nom_naiss}</span>`:''}</div><div class="li-sub">${sub}</div></div><span class="li-arrow">›</span></div>`;
+    }).join('');
+  }
+
+  // ── Section hors_arbre ──────────────────────────────────────────────────────
+  if (horsFiltered.length) {
+    html += `<div style="font-size:.72rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);padding:.9rem .5rem .3rem;">${T('lb_tag_others')}</div>`
+      + horsFiltered.map(p => {
+        const av = p.chemin_thumb ? `<div class="li-avatar ${p.genre||''}"><img src="${imgUrl(p.chemin_thumb)}" alt=""></div>` : `<div class="li-avatar ${p.genre||''}">${initials(p)}</div>`;
+        return `<div class="list-item" onclick="openPerson(${p.id})">${av}<div class="li-info"><div class="li-name">${fullName(p)}</div></div><span class="li-arrow">›</span></div>`;
+      }).join('');
+  }
+  el.innerHTML = html;
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -74,7 +96,7 @@ async function openPerson(id) {
   let html=`<div class="modal-hd">`;
   if(av) html+=`<div class="modal-av ${p.genre}"><img src="${imgUrl(av.chemin)}" alt=""></div>`;
   else   html+=`<div class="modal-av ${p.genre}">${initials(p)}</div>`;
-  html+=`<div class="modal-ti"><div class="modal-name">${p.prenom} ${p.nom}</div>${p.nom_naiss?`<div class="modal-maiden">${T('nee_label')} ${p.nom_naiss}</div>`:''}<div class="modal-gen">${genLabel(p.generation)}</div></div><button class="modal-close" onclick="closePersonModal()">✕</button></div>`;
+  html+=`<div class="modal-ti"><div class="modal-name">${p.prenom} ${(p.nom||'').toUpperCase()}</div>${p.nom_naiss?`<div class="modal-maiden">${T('nee_label')} ${p.nom_naiss.toUpperCase()}</div>`:''}<div class="modal-gen">${genLabel(p.generation)}</div></div><button class="modal-close" onclick="closePersonModal()">✕</button></div>`;
   html+=`<div class="modal-bd">`;
 
   // Infos
@@ -253,7 +275,7 @@ function showPersonForm(id) {
           <div class="fg"><label>${T('form_lien_with')}</label>
             <select id="fp-lien-other">
               <option value="">${T('form_lien_none')}</option>
-              ${people.filter(x=>inCurrentTree(x.id)).sort((a,b)=>a.prenom.localeCompare(b.prenom,undefined,{sensitivity:'base'})).map(x=>`<option value="${x.id}">${fullName(x)}</option>`).join('')}
+              ${people.filter(x=>inCurrentTree(x.id)).sort((a,b)=>`${a.prenom} ${a.nom}`.localeCompare(`${b.prenom} ${b.nom}`,undefined,{sensitivity:'base'})).map(x=>`<option value="${x.id}">${fullName(x)}</option>`).join('')}
             </select>
           </div>
         </div>` : ''}
@@ -327,7 +349,7 @@ function _showNoTreeDialog(personId, body) {
   _noTreeBody = body;
   const name = [body.prenom, body.nom].filter(Boolean).join(' ');
   const lienOptions = people.filter(x => _inAnyTree(x.id))
-    .sort((a,b) => a.prenom.localeCompare(b.prenom, undefined, {sensitivity:'base'}))
+    .sort((a,b) => `${a.prenom} ${a.nom}`.localeCompare(`${b.prenom} ${b.nom}`, undefined, {sensitivity:'base'}))
     .map(x => `<option value="${x.id}">${fullName(x)}</option>`).join('');
   const el = document.getElementById('modal-no-tree');
   if (!el) return;

@@ -11,12 +11,23 @@ $subid  = (int)($_GET['subid'] ?? 0);
 
 // ── GET liste ────────────────────────────────────────────────────────────────
 if ($method === 'GET' && !$id) {
-    $rows = $db->query("
-        SELECT p.*, ph.chemin_thumb
-        FROM   personnes p
-        LEFT JOIN photos ph ON ph.id = p.photo_id
-        ORDER BY p.generation, p.nom, p.prenom
-    ")->fetchAll();
+    if (!empty($_GET['hors_arbre'])) {
+        $rows = $db->query("
+            SELECT p.*, ph.chemin_thumb
+            FROM   personnes p
+            LEFT JOIN photos ph ON ph.id = p.photo_id
+            WHERE  p.hors_arbre = 1
+            ORDER BY p.nom, p.prenom
+        ")->fetchAll();
+    } else {
+        $rows = $db->query("
+            SELECT p.*, ph.chemin_thumb
+            FROM   personnes p
+            LEFT JOIN photos ph ON ph.id = p.photo_id
+            WHERE  p.hors_arbre = 0
+            ORDER BY p.generation, p.nom, p.prenom
+        ")->fetchAll();
+    }
     json_out($rows);
 }
 
@@ -88,9 +99,10 @@ if ($method === 'POST' && !$id) {
     if (empty($b['prenom'])) json_error('Prénom requis');
     if (!isset($b['nom'])) $b['nom'] = '';
 
+    $horsArbre = !empty($b['hors_arbre']) ? 1 : 0;
     $st = $db->prepare("
-        INSERT INTO personnes (prenom,nom,nom_naiss,genre,naissance,lieu_naiss,deces,lieu_deces,vivant,generation,profession,biographie)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
+        INSERT INTO personnes (prenom,nom,nom_naiss,genre,naissance,lieu_naiss,deces,lieu_deces,vivant,generation,profession,biographie,hors_arbre)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
     ");
     $st->execute([
         $b['prenom'], $b['nom'],
@@ -104,6 +116,7 @@ if ($method === 'POST' && !$id) {
         (int)($b['generation'] ?? 0),
         $b['profession'] ?: null,
         $b['biographie'] ?: null,
+        $horsArbre,
     ]);
     $newId = $db->lastInsertId();
     log_modification('personne', 'ajout', "{$b['prenom']} {$b['nom']}", $user['nom']);

@@ -537,8 +537,9 @@ function _lbShow() {
   if (_tagBtn) _tagBtn.style.display = (_meta && _canEdit) ? '' : 'none';
   if (_tagBtn) { _tagBtn.style.background = ''; _tagBtn.classList.toggle('active', _lbTagMode); }
   // Recharger les tags (et réafficher l'overlay si mode tag actif)
+  _lbTags = [];
   if (_meta) { _lbLoadTags(); }
-  else if (_lbTagMode) { _lbTags = []; _lbRenderTags(); }
+  else if (_lbTagMode) { _lbRenderTags(); }
 }
 function lbNav(dir) { _lbIdx = (_lbIdx + dir + _lbGallery.length) % _lbGallery.length; _lbShow(); }
 function lbZoomIn(e) {
@@ -967,7 +968,7 @@ function _lbInitDrawing(overlay) {
     const sw = Math.abs(cx - startX), sh = Math.abs(cy - startY);
     drawEl.remove(); drawEl = null;
     e.stopPropagation();
-    document.addEventListener('click', ev => ev.stopPropagation(), { capture: true, once: true });
+    document.addEventListener('click', ev => { if (!ev.target.closest('#lb-tag-btn')) ev.stopPropagation(); }, { capture: true, once: true });
     if (sw < 10 || sh < 10) return;
     const p1 = _toPercent(Math.min(startX, cx), Math.min(startY, cy));
     const p2 = _toPercent(Math.max(startX, cx), Math.max(startY, cy));
@@ -981,53 +982,125 @@ function _lbInitDrawing(overlay) {
   });
 }
 
-function _lbShowPersonPicker(px, py, pw, ph, screenX, screenY) {
+async function _lbShowPersonPicker(px, py, pw, ph, screenX, screenY) {
   document.getElementById('lb-person-picker')?.remove();
   const div = document.createElement('div');
   div.id = 'lb-person-picker';
   const pickerW = Math.min(220, window.innerWidth - 16);
   div.style.cssText = `position:fixed;left:-9999px;top:-9999px;z-index:400;background:#1a1814;border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:.6rem;width:${pickerW}px;box-shadow:0 4px 24px rgba(0,0,0,.8);`;
-  const taggedIds = new Set(_lbTags.map(t => t.personne_id));
-  const sorted = [...people]
-    .filter(p => inCurrentTree(p.id) && !taggedIds.has(p.id))
-    .sort((a, b) => `${a.prenom} ${a.nom}`.localeCompare(`${b.prenom} ${b.nom}`, undefined, {sensitivity:'base'}));
   div.innerHTML = `<div style="font-size:.75rem;color:rgba(255,255,255,.55);margin-bottom:.4rem;">${T('lb_tag_who')}</div>
     <input id="lb-picker-input" type="text" placeholder="${T('lb_tag_search')}" autocomplete="off"
       style="width:100%;font-size:.82rem;padding:.35rem .5rem;border:1px solid rgba(255,255,255,.2);border-radius:5px;background:rgba(255,255,255,.1);color:#fff;margin-bottom:.4rem;box-sizing:border-box;outline:none;"
       oninput="filterLbPicker(this.value)">
-    <div id="lb-picker-list" style="max-height:200px;overflow-y:auto;">
-      ${sorted.map(p => `<div class="lb-picker-item" data-name="${encodeHTML((p.prenom+' '+p.nom).toLowerCase())}"
-        data-id="${p.id}" data-px="${px}" data-py="${py}" data-pw="${pw}" data-ph="${ph}"
-        onmouseenter="this.style.background='rgba(255,255,255,.12)'" onmouseleave="this.style.background=''"
-        style="font-size:14px;line-height:20px;padding:6px 8px;border-radius:4px;cursor:pointer;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;box-sizing:border-box;"
-        >${encodeHTML(p.prenom+' '+p.nom)}</div>`).join('')}
-    </div>
+    <div id="lb-picker-list" style="max-height:200px;overflow-y:auto;"><div style="font-size:.8rem;color:rgba(255,255,255,.4);padding:.5rem 0;text-align:center;">…</div></div>
+    <button id="lb-picker-add"
+      style="margin-top:.4rem;width:100%;font-size:.75rem;padding:.3rem;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:rgba(255,255,255,.75);border-radius:5px;cursor:pointer;">+ ${T('lb_tag_add')}</button>
     <button id="lb-picker-cancel"
-      style="margin-top:.5rem;width:100%;font-size:.75rem;padding:.3rem;border:none;background:rgba(255,255,255,.1);color:#fff;border-radius:5px;cursor:pointer;">${T('lb_tag_cancel')}</button>`;
+      style="margin-top:.3rem;width:100%;font-size:.75rem;padding:.3rem;border:none;background:rgba(255,255,255,.1);color:#fff;border-radius:5px;cursor:pointer;">${T('lb_tag_cancel')}</button>`;
   document.body.appendChild(div);
-  // Position after insertion so we know the real height
   const ph2 = div.offsetHeight;
   const left = Math.min(Math.max(8, screenX + 8), window.innerWidth - pickerW - 8);
   const top  = Math.min(Math.max(8, screenY + 8), window.innerHeight - ph2 - 8);
   div.style.left = left + 'px';
   div.style.top  = top + 'px';
-  // Attach events with pointerdown so they fire before keyboard-dismiss layout shifts on mobile
-  div.querySelectorAll('.lb-picker-item').forEach(el => {
-    el.addEventListener('pointerdown', e => {
-      e.preventDefault();
-      document.addEventListener('click', ev => ev.stopPropagation(), { capture: true, once: true });
-      _lbSaveTag(+el.dataset.id, +el.dataset.px, +el.dataset.py, +el.dataset.pw, +el.dataset.ph);
-    });
+  // Attach fixed buttons synchronously
+  document.getElementById('lb-picker-add').addEventListener('pointerdown', e => {
+    e.preventDefault();
+    document.addEventListener('click', ev => { if (!ev.target.closest('#lb-tag-btn')) ev.stopPropagation(); }, { capture: true, once: true });
+    _lbShowCreateHorsArbreForm(px, py, pw, ph, screenX, screenY);
   });
   document.getElementById('lb-picker-cancel').addEventListener('pointerdown', e => {
     e.preventDefault();
-    document.addEventListener('click', ev => ev.stopPropagation(), { capture: true, once: true });
+    document.addEventListener('click', ev => { if (!ev.target.closest('#lb-tag-btn')) ev.stopPropagation(); }, { capture: true, once: true });
     document.getElementById('lb-person-picker')?.remove();
   });
-  // Only auto-focus on non-touch devices (touch keyboard causes layout shifts that break taps)
   if (!('ontouchstart' in window)) {
     setTimeout(() => document.getElementById('lb-picker-input')?.focus(), 50);
   }
+  // Fetch hors_arbre then merge with all people
+  let horsArbreList = [];
+  try { horsArbreList = await api('GET', `api/personnes.php?hors_arbre=1&_=${Date.now()}`); } catch(e) {}
+  const list = document.getElementById('lb-picker-list');
+  if (!list) return;
+  const taggedIds = new Set(_lbTags.map(t => +t.personne_id));
+  const allSorted = [...people.filter(p => !taggedIds.has(+p.id)),
+                     ...horsArbreList.filter(p => !taggedIds.has(+p.id))]
+    .sort((a, b) => `${a.prenom} ${a.nom}`.localeCompare(`${b.prenom} ${b.nom}`, undefined, {sensitivity:'base'}));
+  list.innerHTML = allSorted.map(p => `<div class="lb-picker-item" data-name="${encodeHTML((p.prenom+' '+p.nom).toLowerCase())}"
+    data-id="${p.id}"
+    onmouseenter="this.style.background='rgba(255,255,255,.12)'" onmouseleave="this.style.background=''"
+    style="font-size:14px;line-height:20px;padding:6px 8px;border-radius:4px;cursor:pointer;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;box-sizing:border-box;"
+    >${encodeHTML(p.prenom+' '+p.nom)}</div>`).join('') || `<div style="font-size:.8rem;color:rgba(255,255,255,.4);padding:.5rem 0;text-align:center;">—</div>`;
+  list.querySelectorAll('.lb-picker-item').forEach(el => {
+    el.addEventListener('pointerdown', e => {
+      e.preventDefault();
+      document.addEventListener('click', ev => { if (!ev.target.closest('#lb-tag-btn')) ev.stopPropagation(); }, { capture: true, once: true });
+      const p = allSorted.find(p => +p.id === +el.dataset.id);
+      _lbSaveTag(+el.dataset.id, px, py, pw, ph, p ? {prenom: p.prenom, nom: p.nom} : null);
+    });
+  });
+  const inp = document.getElementById('lb-picker-input');
+  if (inp?.value) filterLbPicker(inp.value);
+  if (div.isConnected) {
+    const newTop = Math.min(Math.max(8, screenY + 8), window.innerHeight - div.offsetHeight - 8);
+    div.style.top = newTop + 'px';
+  }
+}
+
+
+function _lbShowCreateHorsArbreForm(px, py, pw, ph, screenX, screenY) {
+  document.getElementById('lb-person-picker')?.remove();
+  const div = document.createElement('div');
+  div.id = 'lb-person-picker';
+  const pickerW = Math.min(220, window.innerWidth - 16);
+  div.style.cssText = `position:fixed;left:-9999px;top:-9999px;z-index:400;background:#1a1814;border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:.6rem;width:${pickerW}px;box-shadow:0 4px 24px rgba(0,0,0,.8);`;
+  div.innerHTML = `<div style="font-size:.75rem;color:rgba(255,255,255,.55);margin-bottom:.5rem;">${T('lb_tag_new_person')}</div>
+    <input id="lb-create-prenom" type="text" placeholder="Prénom" autocomplete="off"
+      style="width:100%;font-size:.82rem;padding:.35rem .5rem;border:1px solid rgba(255,255,255,.2);border-radius:5px;background:rgba(255,255,255,.1);color:#fff;margin-bottom:.3rem;box-sizing:border-box;outline:none;">
+    <input id="lb-create-nom" type="text" placeholder="Nom" autocomplete="off"
+      style="width:100%;font-size:.82rem;padding:.35rem .5rem;border:1px solid rgba(255,255,255,.2);border-radius:5px;background:rgba(255,255,255,.1);color:#fff;margin-bottom:.4rem;box-sizing:border-box;outline:none;">
+    <button id="lb-create-submit"
+      style="width:100%;font-size:.82rem;padding:.35rem;border:none;background:rgba(139,111,78,.85);color:#fff;border-radius:5px;cursor:pointer;margin-bottom:.3rem;">${T('lb_tag_create')}</button>
+    <button id="lb-create-back"
+      style="width:100%;font-size:.75rem;padding:.3rem;border:none;background:rgba(255,255,255,.1);color:#fff;border-radius:5px;cursor:pointer;">${T('lb_tag_back')}</button>`;
+  document.body.appendChild(div);
+  const ph2 = div.offsetHeight;
+  const left = Math.min(Math.max(8, screenX + 8), window.innerWidth - pickerW - 8);
+  const top  = Math.min(Math.max(8, screenY + 8), window.innerHeight - ph2 - 8);
+  div.style.left = left + 'px';
+  div.style.top  = top + 'px';
+
+  if (!('ontouchstart' in window)) {
+    setTimeout(() => document.getElementById('lb-create-prenom')?.focus(), 50);
+  }
+
+  const doSubmit = async () => {
+    const prenom = document.getElementById('lb-create-prenom')?.value.trim() || '';
+    const nom    = document.getElementById('lb-create-nom')?.value.trim()    || '';
+    if (!prenom) { document.getElementById('lb-create-prenom')?.focus(); return; }
+    try {
+      const r = await api('POST', 'api/personnes.php', { prenom, nom, hors_arbre: 1 });
+      if (typeof _horsArbrePeople !== 'undefined' && _horsArbrePeople !== null) _horsArbrePeople = null; // invalidate cache
+      _lbSaveTag(r.id, px, py, pw, ph, { prenom, nom });
+    } catch(err) { toast(err.message, 'error'); }
+  };
+
+  document.getElementById('lb-create-submit')?.addEventListener('pointerdown', e => {
+    e.preventDefault();
+    document.addEventListener('click', ev => { if (!ev.target.closest('#lb-tag-btn')) ev.stopPropagation(); }, { capture: true, once: true });
+    doSubmit();
+  });
+  document.getElementById('lb-create-nom')?.addEventListener('keydown', e => {
+    if (e.key === 'Enter') doSubmit();
+  });
+  document.getElementById('lb-create-prenom')?.addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('lb-create-nom')?.focus();
+  });
+  document.getElementById('lb-create-back')?.addEventListener('pointerdown', e => {
+    e.preventDefault();
+    document.addEventListener('click', ev => { if (!ev.target.closest('#lb-tag-btn')) ev.stopPropagation(); }, { capture: true, once: true });
+    _lbShowPersonPicker(px, py, pw, ph, screenX, screenY);
+  });
 }
 
 function filterLbPicker(q) {
@@ -1037,11 +1110,11 @@ function filterLbPicker(q) {
   });
 }
 
-async function _lbSaveTag(personId, px, py, pw, ph) {
+async function _lbSaveTag(personId, px, py, pw, ph, personHint = null) {
   document.getElementById('lb-person-picker')?.remove();
   const meta = _lbGalleryMeta[_lbIdx];
   if (!meta) return;
-  const person = people.find(p => p.id === personId);
+  const person = personHint || people.find(p => p.id === personId);
   try {
     const r = await api('POST', 'api/photo_tags.php', {
       source: meta.source, photo_id: meta.photoId,

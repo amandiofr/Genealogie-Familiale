@@ -81,10 +81,11 @@ if ($action === 'quality_check' && method_is('GET')) {
     $personnes = $db->query("
         SELECT id, prenom, nom, naissance, lieu_naiss
         FROM personnes
-        WHERE (nom        IS NULL OR nom        = '' OR nom        LIKE '%?%')
-           OR  naissance  IS NULL
-           OR (lieu_naiss IS NULL OR lieu_naiss = '' OR lieu_naiss LIKE '%?%')
-        ORDER BY nom, prenom
+        WHERE hors_arbre = 0
+          AND ((nom        IS NULL OR nom        = '' OR nom        LIKE '%?%')
+           OR   naissance  IS NULL
+           OR  (lieu_naiss IS NULL OR lieu_naiss = '' OR lieu_naiss LIKE '%?%'))
+        ORDER BY prenom, nom
     ")->fetchAll();
 
     $evenements = $db->query("
