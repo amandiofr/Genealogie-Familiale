@@ -244,6 +244,7 @@ async function openPerson(id) {
     }
   }, { once: true });
   document.getElementById('modal-person-view-overlay').classList.add('open');
+  history.replaceState(null, '', '#person/' + id);
 }
 
 function openTaggedPhotoByIndex(i) {

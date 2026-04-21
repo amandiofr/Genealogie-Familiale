@@ -60,6 +60,7 @@ async function openTresor(id){
   html+=`</div>`;
   document.getElementById('modal-person-view').innerHTML=html;
   document.getElementById('modal-person-view-overlay').classList.add('open');
+  history.replaceState(null, '', '#tresor/' + id);
   loadReactions('tresor', id, `react-tresor-detail-${id}`);
 }
 

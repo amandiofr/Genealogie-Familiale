@@ -69,6 +69,7 @@ async function openRecette(id){
   html+=`</div>`;
   document.getElementById('modal-person-view').innerHTML=html;
   document.getElementById('modal-person-view-overlay').classList.add('open');
+  history.replaceState(null, '', '#recette/' + id);
   loadReactions('recette', id, `react-recette-detail-${id}`);
 }
 

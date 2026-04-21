@@ -414,7 +414,14 @@ async function loadQualityCheck() {
 // ══════════════════════════════════════════════════════════════
 //  MISC
 // ══════════════════════════════════════════════════════════════
-function closeOverlay(id){ document.getElementById(id).classList.remove('open'); }
+function _clearEntityHash() {
+  if (/^#(person|event|anecdote|tresor|recette|auto)\/\d+$/.test(window.location.hash))
+    history.replaceState(null, '', window.location.pathname + window.location.search);
+}
+function closeOverlay(id) {
+  document.getElementById(id).classList.remove('open');
+  if (id === 'modal-person-view-overlay') _clearEntityHash();
+}
 
 // Z-index dynamique : le dernier ouvert est devant
 const _Z_FRONT = 310, _Z_BACK = 298;
@@ -436,6 +443,7 @@ function closePersonModal() {
   ov.style.zIndex = '';
   document.getElementById('lightbox').style.zIndex = '';
   _lbPersonStacked = false;
+  _clearEntityHash();
   // Si la photo était derrière, elle reprend naturellement le premier plan (z CSS)
 }
 

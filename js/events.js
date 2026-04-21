@@ -75,6 +75,7 @@ async function openEvent(id){
   document.getElementById('modal-person-view').innerHTML=html;
   document.getElementById('modal-person-view-overlay').classList.add('open');
   document.getElementById('modal-person-view').style.maxWidth='640px';
+  history.replaceState(null, '', '#event/' + id);
   loadReactions('evenement', id, `react-evenement-detail-${id}`);
 }
 
@@ -234,6 +235,7 @@ async function openAnecdote(id){
   html+=`</div>`;
   document.getElementById('modal-person-view').innerHTML=html;
   document.getElementById('modal-person-view-overlay').classList.add('open');
+  history.replaceState(null, '', '#anecdote/' + id);
   loadReactions('anecdote', id, `react-anecdote-detail-${id}`);
 }
 

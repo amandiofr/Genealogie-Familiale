@@ -214,28 +214,44 @@ async function init() {
   renderTree();
 
   // Deep linking via URL hash
-  const hash = window.location.hash.slice(1);
-  const adminViews = ['admin-comptes','admin-export','admin-import','admin-notif','admin-password','admin-orphans','admin-logs'];
-  const editorViews = ['quality'];
-  const validViews = ['tree','list','events','reunions','anecdotes','tresors','recettes','autos','timeline','carte',...adminViews,...editorViews];
-  if (hash && validViews.includes(hash)) {
-    if ((!adminViews.includes(hash) && !editorViews.includes(hash)) || currentUser.role === 'admin' || (editorViews.includes(hash) && currentUser.role === 'editeur')) {
+  await _handleHash(window.location.hash.slice(1));
+  window.addEventListener('hashchange', e => {
+    const hash = new URL(e.newURL).hash.slice(1);
+    _handleHash(hash);
+  });
+}
+
+const _adminViews = ['admin-comptes','admin-export','admin-import','admin-notif','admin-password','admin-orphans','admin-logs'];
+const _editorViews = ['quality'];
+const _validViews = ['tree','list','events','reunions','anecdotes','tresors','recettes','autos','timeline','carte',..._adminViews,..._editorViews];
+
+async function _handleHash(hash) {
+  if (!hash) return;
+  if (_validViews.includes(hash)) {
+    if ((!_adminViews.includes(hash) && !_editorViews.includes(hash)) || currentUser.role === 'admin' || (_editorViews.includes(hash) && currentUser.role === 'editeur')) {
       showView(hash);
     }
-  } else {
-    const photoMatch = hash.match(/^photo\/([^/]+)\/(\d+)$/);
-    if (photoMatch) {
-      const [, photoSrc, photoIdStr] = photoMatch;
-      try {
-        const data = await api('GET', `api/tagged_photo.php?source=${encodeURIComponent(photoSrc)}&photo_id=${photoIdStr}`);
-        if (data.photos && data.photos.length) {
-          _lbGallery = data.photos.map(p => imgUrl(p.chemin));
-          _lbGalleryMeta = data.photos.map(p => ({photoId: p.id, source: photoSrc}));
-          const idx = data.photos.findIndex(p => p.id === parseInt(photoIdStr));
-          openLightbox(idx >= 0 ? idx : 0);
-        }
-      } catch (e) { console.warn('Photo deep link failed:', e); }
-    }
+    return;
+  }
+  const entityMatch = hash.match(/^(person|event|anecdote|tresor|recette|auto)\/(\d+)$/);
+  if (entityMatch) {
+    const [, type, idStr] = entityMatch;
+    const openFns = { person: openPerson, event: openEvent, anecdote: openAnecdote, tresor: openTresor, recette: openRecette, auto: openAuto };
+    try { await openFns[type](parseInt(idStr)); } catch(e) { console.warn('Entity deep link failed:', e); }
+    return;
+  }
+  const photoMatch = hash.match(/^photo\/([^/]+)\/(\d+)$/);
+  if (photoMatch) {
+    const [, photoSrc, photoIdStr] = photoMatch;
+    try {
+      const data = await api('GET', `api/tagged_photo.php?source=${encodeURIComponent(photoSrc)}&photo_id=${photoIdStr}`);
+      if (data.photos && data.photos.length) {
+        _lbGallery = data.photos.map(p => imgUrl(p.chemin));
+        _lbGalleryMeta = data.photos.map(p => ({photoId: p.id, source: photoSrc}));
+        const idx = data.photos.findIndex(p => p.id === parseInt(photoIdStr));
+        openLightbox(idx >= 0 ? idx : 0);
+      }
+    } catch (e) { console.warn('Photo deep link failed:', e); }
   }
 }
 

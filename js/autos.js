@@ -81,6 +81,7 @@ async function openAuto(id) {
   document.getElementById('modal-person-view').innerHTML = html;
   document.getElementById('modal-person-view').style.maxWidth = '560px';
   document.getElementById('modal-person-view-overlay').classList.add('open');
+  history.replaceState(null, '', '#auto/' + id);
 }
 
 async function showAutoForm(id) {
