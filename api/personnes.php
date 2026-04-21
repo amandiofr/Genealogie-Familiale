@@ -89,6 +89,40 @@ if ($method === 'GET' && $id) {
     ");
     $an->execute([$id]); $p['anecdotes'] = $an->fetchAll();
 
+    // Photos où la personne est taguée (toutes sources sauf ses propres photos)
+    $tagged = $db->prepare("
+        SELECT pt.photo_source AS source, pt.photo_id,
+               COALESCE(
+                   ph_p.chemin_thumb,
+                   ph_e.chemin_thumb,
+                   ph_r.chemin_thumb,
+                   ph_a.chemin_thumb,
+                   ph_au.chemin_thumb,
+                   ph_t.chemin_thumb,
+                   ph_rc.chemin_thumb
+               ) AS chemin_thumb,
+               COALESCE(
+                   ph_p.chemin,
+                   ph_e.chemin,
+                   ph_r.chemin,
+                   ph_a.chemin,
+                   ph_au.chemin,
+                   ph_t.chemin,
+                   ph_rc.chemin
+               ) AS chemin
+        FROM photo_tags pt
+        LEFT JOIN photos             ph_p  ON pt.photo_source='person'    AND ph_p.id  = pt.photo_id
+        LEFT JOIN evenement_photos   ph_e  ON pt.photo_source='evenement' AND ph_e.id  = pt.photo_id
+        LEFT JOIN reunion_photos     ph_r  ON pt.photo_source='reunion'   AND ph_r.id  = pt.photo_id
+        LEFT JOIN anecdote_photos    ph_a  ON pt.photo_source='anecdote'  AND ph_a.id  = pt.photo_id
+        LEFT JOIN auto_photos        ph_au ON pt.photo_source='auto'      AND ph_au.id = pt.photo_id
+        LEFT JOIN tresor_photos      ph_t  ON pt.photo_source='tresor'    AND ph_t.id  = pt.photo_id
+        LEFT JOIN recette_photos     ph_rc ON pt.photo_source='recette'   AND ph_rc.id = pt.photo_id
+        WHERE pt.personne_id = ?
+          AND NOT (pt.photo_source = 'person' AND ph_p.personne_id = ?)
+    ");
+    $tagged->execute([$id, $id]); $p['photos_taggees'] = $tagged->fetchAll();
+
     json_out($p);
 }
 

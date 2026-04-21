@@ -3,6 +3,7 @@
 // ══════════════════════════════════════════════════════════════
 let currentSort = 'date';
 let _horsArbrePeople = null;
+let _lbTaggedGallery = [], _lbTaggedMeta = [];
 
 function _refreshActiveView() {
   const active = document.querySelector('.view.active')?.id?.replace('view-', '');
@@ -164,6 +165,21 @@ async function openPerson(id) {
     html+=`</div></div>`;
   }
 
+  // Photos taguées (autres galeries)
+  const taggees = (p.photos_taggees||[]).filter(ph => ph.chemin_thumb || ph.chemin);
+  _lbTaggedGallery = taggees.map(ph => imgUrl(ph.chemin));
+  _lbTaggedMeta    = taggees.map(ph => ({ photoId: ph.photo_id, source: ph.source }));
+  if (taggees.length) {
+    html += `<div class="modal-section"><div class="sec-title">${T('sec_photos_taggees')}</div><div class="photos-strip">`;
+    taggees.forEach((ph, i) => {
+      html += `<div style="position:relative;display:inline-block;">
+        <img class="photo-thumb" src="${imgUrl(ph.chemin_thumb||ph.chemin)}"
+          onclick="openTaggedPhotoByIndex(${i})">
+      </div>`;
+    });
+    html += `</div></div>`;
+  }
+
   // Biographie
   if(p.biographie) html+=`<div class="modal-section"><div class="sec-title">${T('sec_bio')}</div><div class="notes-box">${p.biographie.replace(/\n/g,'<br>')}</div></div>`;
 
@@ -228,6 +244,12 @@ async function openPerson(id) {
     }
   }, { once: true });
   document.getElementById('modal-person-view-overlay').classList.add('open');
+}
+
+function openTaggedPhotoByIndex(i) {
+  _lbGallery     = _lbTaggedGallery;
+  _lbGalleryMeta = _lbTaggedMeta;
+  openLightbox(i);
 }
 
 function calcAge(p){
