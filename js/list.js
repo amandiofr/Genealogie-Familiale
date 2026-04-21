@@ -239,8 +239,9 @@ function calcAge(p){
 // ══════════════════════════════════════════════════════════════
 //  PERSON FORM
 // ══════════════════════════════════════════════════════════════
-function showPersonForm(id) {
-  const p = id ? people.find(x=>x.id==id) : null;
+async function showPersonForm(id) {
+  let p = id ? people.find(x=>x.id==id) : null;
+  if (id && !p) { try { p = await api('GET', `api/personnes.php?id=${id}`); } catch {} }
   const t = p ? T('form_title_edit') : T('form_title_new_person');
   const genOptions = GEN_LABELS().map((l,i)=>`<option value="${i}"${(p?.generation||0)==i?' selected':''}>${i} — ${l}</option>`).join('');
   document.getElementById('modal-person-edit').innerHTML=`
