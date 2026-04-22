@@ -74,6 +74,8 @@ if ($sub === 'photos') {
         imagedestroy($src);
         $c = UPLOAD_URL.$name.'.jpg'; $ct = THUMB_URL.$name.'_thumb.jpg';
         $db->prepare('INSERT INTO recette_photos (recette_id,chemin,chemin_thumb,legende,ordre) VALUES (?,?,?,?,?)')->execute([$id, $c, $ct, $_POST['legende'] ?? null, (int)($_POST['ordre'] ?? 0)]);
+        $rc_name = $db->prepare('SELECT titre FROM recettes WHERE id=?'); $rc_name->execute([$id]); $rc_name = $rc_name->fetchColumn() ?: '';
+        log_modification('recette', 'ajout photo', $rc_name, $user['nom']);
         json_out(['id' => $db->lastInsertId(), 'chemin' => $c, 'chemin_thumb' => $ct]);
     }
     if ($method === 'PUT' && $subid) {

@@ -93,6 +93,9 @@ if ($sub === 'photos') {
         if ($count == 1) {
             $db->prepare('UPDATE autos SET photo_id=? WHERE id=?')->execute([$db->lastInsertId(), $id]);
         }
+        $au_row = $db->prepare('SELECT marque, modele FROM autos WHERE id=?'); $au_row->execute([$id]); $au_row = $au_row->fetch();
+        $au_name = trim(($au_row['marque'] ?? '') . ' ' . ($au_row['modele'] ?? ''));
+        log_modification('auto', 'ajout photo', $au_name, $user['nom']);
         json_out(['id' => $db->lastInsertId(), 'chemin' => $c, 'chemin_thumb' => $ct]);
     }
     if ($method === 'PUT' && $subid) {

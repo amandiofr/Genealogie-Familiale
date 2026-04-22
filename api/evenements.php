@@ -138,6 +138,8 @@ if ($sub === 'photos') {
         $chemin_thumb = THUMB_URL  . $name . '_thumb.jpg';
         $db->prepare('INSERT INTO evenement_photos (evenement_id,chemin,chemin_thumb,legende,ordre) VALUES (?,?,?,?,?)')
            ->execute([$id,$chemin,$chemin_thumb,$_POST['legende']??null,(int)($_POST['ordre']??0)]);
+        $ev_name = $db->prepare('SELECT titre FROM evenements WHERE id=?'); $ev_name->execute([$id]); $ev_name = $ev_name->fetchColumn() ?: '';
+        log_modification('evenement', 'ajout photo', $ev_name, $user['nom']);
         json_out(['id'=>$db->lastInsertId(),'chemin'=>$chemin,'chemin_thumb'=>$chemin_thumb]);
     }
 

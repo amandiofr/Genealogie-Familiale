@@ -96,6 +96,8 @@ if ($sub==='photos') {
         imagedestroy($src);
         $c=UPLOAD_URL.$name.'.jpg'; $ct=THUMB_URL.$name.'_thumb.jpg';
         $db->prepare('INSERT INTO anecdote_photos (anecdote_id,chemin,chemin_thumb,legende,ordre) VALUES (?,?,?,?,?)')->execute([$id,$c,$ct,$_POST['legende']??null,(int)($_POST['ordre']??0)]);
+        $an_name = $db->prepare('SELECT titre FROM anecdotes WHERE id=?'); $an_name->execute([$id]); $an_name = $an_name->fetchColumn() ?: '';
+        log_modification('anecdote', 'ajout photo', $an_name, $user['nom']);
         json_out(['id'=>$db->lastInsertId(),'chemin'=>$c,'chemin_thumb'=>$ct]);
     }
     if ($method==='PUT'&&$subid) {

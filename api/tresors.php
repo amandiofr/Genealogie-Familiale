@@ -96,6 +96,8 @@ if ($sub === 'photos') {
         imagedestroy($src);
         $c = UPLOAD_URL.$name.'.jpg'; $ct = THUMB_URL.$name.'_thumb.jpg';
         $db->prepare('INSERT INTO tresor_photos (tresor_id,chemin,chemin_thumb,legende,ordre) VALUES (?,?,?,?,?)')->execute([$id, $c, $ct, $_POST['legende'] ?? null, (int)($_POST['ordre'] ?? 0)]);
+        $tr_name = $db->prepare('SELECT titre FROM tresors WHERE id=?'); $tr_name->execute([$id]); $tr_name = $tr_name->fetchColumn() ?: '';
+        log_modification('tresor', 'ajout photo', $tr_name, $user['nom']);
         json_out(['id' => $db->lastInsertId(), 'chemin' => $c, 'chemin_thumb' => $ct]);
     }
     if ($method === 'PUT' && $subid) {
