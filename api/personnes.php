@@ -121,6 +121,7 @@ if ($method === 'GET' && $id) {
         LEFT JOIN recettes           rc    ON pt.photo_source='recette'   AND rc.id    = ph_rc.recette_id
         WHERE pt.personne_id = ?
           AND NOT (pt.photo_source = 'person' AND ph_p.personne_id = ?)
+        ORDER BY COALESCE(ev.date_debut, an.date_anec, tr.date_tresor, rc.date_recette, CAST(au.annee AS CHAR)) DESC
     ");
     $tagged->execute([$id, $id]); $p['photos_taggees'] = $tagged->fetchAll();
 

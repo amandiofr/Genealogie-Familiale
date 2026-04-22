@@ -915,12 +915,16 @@ function lbToggleTagMode() {
     }
     banner.textContent = T('lb_tag_banner');
     lb.classList.add('lb-has-banner');
+    const titleEl = document.getElementById('lb-title');
+    if (titleEl) titleEl.style.bottom = banner.offsetHeight + 'px';
     _lbNaturalRect = null;
     _lbPositionFaceOverlay();
     _lbLoadTags();
   } else {
     banner?.remove();
     lb.classList.remove('lb-has-banner');
+    const titleEl = document.getElementById('lb-title');
+    if (titleEl) titleEl.style.bottom = '';
     _lbRenderTags(); // met à jour delete buttons + repositionne overlay
   }
 }
@@ -982,6 +986,7 @@ function _lbInitDrawing(overlay) {
 
   overlay.addEventListener('pointermove', e => {
     if (!drawing || !drawEl) return;
+    _lbResetIdle();
     e.preventDefault();
     const cx = e.clientX, cy = e.clientY;
     drawEl.style.left   = Math.min(startX, cx) + 'px';
@@ -999,9 +1004,9 @@ function _lbInitDrawing(overlay) {
     const cx = e.clientX, cy = e.clientY;
     const sw = Math.abs(cx - startX), sh = Math.abs(cy - startY);
     drawEl.remove(); drawEl = null;
+    if (sw < 10 || sh < 10) return;
     e.stopPropagation();
     document.addEventListener('click', ev => { if (!ev.target.closest('#lb-tag-btn')) ev.stopPropagation(); }, { capture: true, once: true });
-    if (sw < 10 || sh < 10) return;
     const p1 = _toPercent(Math.min(startX, cx), Math.min(startY, cy));
     const p2 = _toPercent(Math.max(startX, cx), Math.max(startY, cy));
     _lbShowPersonPicker(p1.px, p1.py, p2.px - p1.px, p2.py - p1.py, e.clientX, e.clientY);
@@ -1038,12 +1043,10 @@ async function _lbShowPersonPicker(px, py, pw, ph, screenX, screenY) {
   // Attach fixed buttons synchronously
   document.getElementById('lb-picker-add').addEventListener('pointerdown', e => {
     e.preventDefault();
-    document.addEventListener('click', ev => { if (!ev.target.closest('#lb-tag-btn')) ev.stopPropagation(); }, { capture: true, once: true });
     _lbShowCreateHorsArbreForm(px, py, pw, ph, screenX, screenY);
   });
   document.getElementById('lb-picker-cancel').addEventListener('pointerdown', e => {
     e.preventDefault();
-    document.addEventListener('click', ev => { if (!ev.target.closest('#lb-tag-btn')) ev.stopPropagation(); }, { capture: true, once: true });
     document.getElementById('lb-person-picker')?.remove();
   });
   if (!('ontouchstart' in window)) {
@@ -1066,7 +1069,6 @@ async function _lbShowPersonPicker(px, py, pw, ph, screenX, screenY) {
   list.querySelectorAll('.lb-picker-item').forEach(el => {
     el.addEventListener('pointerdown', e => {
       e.preventDefault();
-      document.addEventListener('click', ev => { if (!ev.target.closest('#lb-tag-btn')) ev.stopPropagation(); }, { capture: true, once: true });
       const p = allSorted.find(p => +p.id === +el.dataset.id);
       _lbSaveTag(+el.dataset.id, px, py, pw, ph, p ? {prenom: p.prenom, nom: p.nom} : null);
     });
@@ -1119,7 +1121,6 @@ function _lbShowCreateHorsArbreForm(px, py, pw, ph, screenX, screenY) {
 
   document.getElementById('lb-create-submit')?.addEventListener('pointerdown', e => {
     e.preventDefault();
-    document.addEventListener('click', ev => { if (!ev.target.closest('#lb-tag-btn')) ev.stopPropagation(); }, { capture: true, once: true });
     doSubmit();
   });
   document.getElementById('lb-create-nom')?.addEventListener('keydown', e => {
@@ -1130,15 +1131,15 @@ function _lbShowCreateHorsArbreForm(px, py, pw, ph, screenX, screenY) {
   });
   document.getElementById('lb-create-back')?.addEventListener('pointerdown', e => {
     e.preventDefault();
-    document.addEventListener('click', ev => { if (!ev.target.closest('#lb-tag-btn')) ev.stopPropagation(); }, { capture: true, once: true });
     _lbShowPersonPicker(px, py, pw, ph, screenX, screenY);
   });
 }
 
+function _norm(s) { return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
 function filterLbPicker(q) {
-  const lq = q.toLowerCase();
+  const lq = _norm(q);
   document.querySelectorAll('.lb-picker-item').forEach(el => {
-    el.style.display = el.dataset.name.includes(lq) ? '' : 'none';
+    el.style.display = _norm(el.dataset.name).includes(lq) ? '' : 'none';
   });
 }
 
