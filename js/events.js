@@ -16,7 +16,6 @@ async function loadEvents(){
   el.innerHTML=rows.map(e=>`
     <div class="ev-card" onclick="openEvent(${e.id})">
       ${e.thumb?`<img class="ev-thumb" src="${imgUrl(e.thumb)}" alt="">`:''}
-      <div class="ev-type">${EVT_ICONS[e.type]||''} ${evtLabel(e.type)}</div>
       <div class="ev-title">${e.titre}</div>
       <div class="ev-meta">${[fmtDate(e.date_debut),e.lieu].filter(Boolean).join(' · ')}${e.nb_personnes>0?` · ${e.nb_personnes} ${T('nb_personnes_label')}`:''}</div>
       <div id="react-evenement-${e.id}"></div>
@@ -30,10 +29,10 @@ async function openEvent(id){
   // Avatar : photo préférée ou icône type
   const avatarHtml = e.thumb
     ? `<div class="modal-av" style="border-radius:10px;overflow:hidden;width:60px;height:60px;flex-shrink:0;"><img src="${imgUrl(e.thumb)}" style="width:100%;height:100%;object-fit:cover;" alt=""></div>`
-    : `<div style="font-size:1.8rem;line-height:1;">${EVT_ICONS[e.type]||'📌'}</div>`;
+    : `<div style="font-size:1.8rem;line-height:1;">📅</div>`;
   let html=`<div class="modal-hd" style="padding:1.2rem 1.4rem .8rem;">
     ${avatarHtml}
-    <div class="modal-ti"><div class="modal-name">${e.titre}</div><div class="modal-gen">${evtLabel(e.type)}</div></div>
+    <div class="modal-ti"><div class="modal-name">${e.titre}</div></div>
     <button class="modal-close" onclick="closeOverlay('modal-person-view-overlay')">✕</button>
   </div><div class="modal-bd">`;
   if(e.date_debut||e.lieu){
@@ -87,18 +86,15 @@ async function showEventForm(id){
   const participantIds = new Set((e?.personnes||[]).map(p=>String(p.id)));
   const peopleOptions = people.filter(p=>inCurrentTree(p.id)).map(p=>`<option value="${p.id}"${participantIds.has(String(p.id))?' selected':''}>${fullName(p)}</option>`).join('');
 
-  const typeOptions = ['mariage','reunion','autre']
-    .map(t => `<option value="${t}"${e?.type===t?' selected':''}>${EVT_ICONS[t]||''} ${evtLabel(t)}</option>`).join('');
-
   document.getElementById('modal-form-event').innerHTML=`
     <div class="modal-hd" style="padding:1.2rem 1.4rem .8rem;">
       <div style="flex:1;font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:500;">${id?T('form_title_edit'):T('form_title_new_event')}</div>
       <button class="modal-close" onclick="closeOverlay('modal-form-event-overlay')">✕</button>
     </div>
     <div class="modal-bd">
+      <input type="hidden" id="fe-type" value="${e?.type||'autre'}">
       <div class="form-grid">
         <div class="fg full"><label>${T('form_titre')} *</label><input id="fe-titre" value="${e?.titre||''}" placeholder="${T('ph_titre_event')}"></div>
-        <div class="fg"><label>${T('form_type')} *</label><select id="fe-type" onchange="checkDemenagementLieu()">${typeOptions}</select></div>
         <div class="fg"><label>${T('form_date_debut')}</label><input type="date" id="fe-date-debut" value="${e?.date_debut||''}"></div>
         <div class="fg"><label>${T('form_date_fin')}</label><input type="date" id="fe-date-fin" value="${e?.date_fin||''}"></div>
         <div class="fg full"><label>${T('form_lieu')}</label><input id="fe-lieu" value="${e?.lieu||''}" placeholder="${T('ph_lieu')}" oninput="checkDemenagementLieu()"><div id="fe-lieu-warn" style="display:none;font-size:.72rem;color:#b45309;margin-top:3px;">⚠️ <span></span></div></div>
