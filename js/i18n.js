@@ -214,6 +214,7 @@ const LANGS = {
     notif_confirm_delete:'Supprimer cette adresse de notification ?',
     btn_notif_add:'+ Ajouter',
     author_placeholder:'Prénom',
+    author_reminder:'💡 Pensez à choisir votre prénom dans le sélecteur en haut à droite',
     autologin_copy:'Générer un lien de connexion', autologin_copied:'Lien copié dans le presse-papiers',
     // Autos
     lbl_et:'et', arbre_all:'Tous les arbres',
@@ -431,6 +432,7 @@ const LANGS = {
     notif_confirm_delete:'Eliminar este endereço de notificação?',
     btn_notif_add:'+ Adicionar',
     author_placeholder:'Nome',
+    author_reminder:'💡 Lembre-se de escolher o seu nome no seletor acima à direita',
     autologin_copy:'Gerar link de acesso', autologin_copied:'Link copiado para a área de transferência',
     // Autos
     lbl_et:'e', arbre_all:'Todas as árvores',
@@ -632,6 +634,7 @@ const LANGS = {
     notif_confirm_delete:'Delete this notification address?',
     btn_notif_add:'+ Add',
     author_placeholder:'First name',
+    author_reminder:'💡 Please choose your first name in the selector at the top right',
     autologin_copy:'Generate login link', autologin_copied:'Link copied to clipboard',
     lbl_et:'and', arbre_all:'All trees',
     lbl_arbres:'Trees', lbl_acces_arbres:'Tree access', empty_arbres:'No trees available', toast_arbres_saved:'Access updated',
@@ -839,6 +842,7 @@ const LANGS = {
     notif_confirm_delete:'Diese Benachrichtigungsadresse löschen?',
     btn_notif_add:'+ Hinzufügen',
     author_placeholder:'Vorname',
+    author_reminder:'💡 Bitte wählen Sie Ihren Vornamen im Auswahlfeld oben rechts',
     autologin_copy:'Anmeldelink generieren', autologin_copied:'Link in die Zwischenablage kopiert',
     lbl_et:'und', arbre_all:'Alle Bäume',
     lbl_arbres:'Bäume', lbl_acces_arbres:'Baumzugang', empty_arbres:'Keine Bäume verfügbar', toast_arbres_saved:'Zugang aktualisiert',
@@ -1046,6 +1050,7 @@ const LANGS = {
     notif_confirm_delete:'این آدرس اعلان حذف شود؟',
     btn_notif_add:'+ افزودن',
     author_placeholder:'نام',
+    author_reminder:'💡 لطفاً نام خود را در منوی بالا سمت راست انتخاب کنید',
     autologin_copy:'ایجاد لینک ورود', autologin_copied:'لینک در کلیپ‌بورد کپی شد',
     lbl_et:'و', arbre_all:'همه درخت‌ها',
     lbl_arbres:'درخت‌ها', lbl_acces_arbres:'دسترسی به درخت‌ها', empty_arbres:'هیچ درختی موجود نیست', toast_arbres_saved:'دسترسی به‌روز شد',
@@ -1282,6 +1287,7 @@ let authorName = localStorage.getItem('authorName') || '';
 function setAuthorName(val) {
   authorName = val;
   localStorage.setItem('authorName', authorName);
+  if (val) localStorage.removeItem('genealogie_author_reminder');
   _resizeAuthorPicker();
 }
 

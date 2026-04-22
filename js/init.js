@@ -219,6 +219,21 @@ async function init() {
     const hash = new URL(e.newURL).hash.slice(1);
     _handleHash(hash);
   });
+
+  // Rappel choix de prénom (admins/éditeurs, 1 fois par semaine max)
+  if (['admin','editeur'].includes(currentUser?.role) && !authorName) {
+    const _WEEK = 7 * 24 * 60 * 60 * 1000;
+    const _4H   = 4 * 60 * 60 * 1000;
+    const _stored = localStorage.getItem('genealogie_author_reminder');
+    if (!_stored) {
+      // Première visite : grace period de 4h avant le premier rappel
+      localStorage.setItem('genealogie_author_reminder', Date.now() + _4H);
+    } else if (Date.now() >= parseInt(_stored)) {
+      // Heure d'afficher le rappel
+      localStorage.setItem('genealogie_author_reminder', Date.now() + _WEEK);
+      setTimeout(() => toast(T('author_reminder'), 'info', 6000), 2000);
+    }
+  }
 }
 
 const _adminViews = ['admin-comptes','admin-export','admin-import','admin-notif','admin-password','admin-orphans','admin-logs'];

@@ -1165,16 +1165,18 @@ document.addEventListener('DOMContentLoaded', () => {
   if (ov) _lbInitDrawing(ov);
 });
 
-function toast(msg,type='ok'){
+function toast(msg,type='ok',duration=2800){
   const el=document.getElementById('toast');
   el.textContent=msg;
-  el.style.background=type==='error'?'#c44':'var(--ink)';
+  el.style.background=type==='error'?'#c44':type==='info'?'#1a6eb5':'var(--ink)';
   el.classList.add('show');
-  setTimeout(()=>el.classList.remove('show'),2800);
+  setTimeout(()=>el.classList.remove('show'),duration);
 }
 
 async function logout(){
   await fetch('api/auth.php?action=logout',{method:'POST'});
+  localStorage.removeItem('authorName');
+  localStorage.setItem('genealogie_author_reminder', Date.now() + 7 * 24 * 60 * 60 * 1000);
   window.location.href='login.html';
 }
 
