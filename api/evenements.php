@@ -16,8 +16,8 @@ if ($method === 'GET' && !$id) {
           (SELECT COUNT(*) FROM evenement_personnes WHERE evenement_id=e.id) AS nb_personnes,
           (SELECT GROUP_CONCAT(DISTINCT personne_id) FROM evenement_personnes WHERE evenement_id=e.id) AS personne_ids,
           COALESCE(
-            (SELECT chemin_thumb FROM evenement_photos WHERE id=e.photo_id AND evenement_id=e.id LIMIT 1),
-            (SELECT chemin_thumb FROM evenement_photos WHERE evenement_id=e.id ORDER BY ordre LIMIT 1)
+            (SELECT chemin_thumb FROM evenement_photos WHERE id=e.photo_id LIMIT 1),
+            (SELECT chemin_thumb FROM evenement_photos WHERE evenement_id=e.id ORDER BY ordre ASC, id ASC LIMIT 1)
           ) AS thumb
         FROM evenements e ORDER BY e.date_debut ASC, e.created_at ASC
     ")->fetchAll();
@@ -138,9 +138,13 @@ if ($sub === 'photos') {
         $chemin_thumb = THUMB_URL  . $name . '_thumb.jpg';
         $db->prepare('INSERT INTO evenement_photos (evenement_id,chemin,chemin_thumb,legende,ordre) VALUES (?,?,?,?,?)')
            ->execute([$id,$chemin,$chemin_thumb,$_POST['legende']??null,(int)($_POST['ordre']??0)]);
+        $photo_id = $db->lastInsertId();
+        // Première photo → avatar automatique
+        $ev = $db->prepare('SELECT photo_id FROM evenements WHERE id=?'); $ev->execute([$id]); $ev = $ev->fetch();
+        if (!$ev['photo_id']) $db->prepare('UPDATE evenements SET photo_id=? WHERE id=?')->execute([$photo_id, $id]);
         $ev_name = $db->prepare('SELECT titre FROM evenements WHERE id=?'); $ev_name->execute([$id]); $ev_name = $ev_name->fetchColumn() ?: '';
-        log_modification('evenement', 'ajout photo', $ev_name, $user['nom']);
-        json_out(['id'=>$db->lastInsertId(),'chemin'=>$chemin,'chemin_thumb'=>$chemin_thumb]);
+        log_modification('evenement', 'ajout', 'Photo : ' . $ev_name, $user['nom']);
+        json_out(['id'=>$photo_id,'chemin'=>$chemin,'chemin_thumb'=>$chemin_thumb]);
     }
 
     if ($method === 'DELETE' && $subid) {

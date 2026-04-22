@@ -249,7 +249,7 @@ if ($sub === 'photos') {
         if (empty($_FILES['photo'])) json_error('Aucun fichier');
         $result = save_photo($_FILES['photo'], $id);
         $pn = $db->prepare('SELECT CONCAT(prenom, " ", COALESCE(nom,"")) FROM personnes WHERE id=?'); $pn->execute([$id]); $pn = trim($pn->fetchColumn() ?: '');
-        log_modification('personne', 'ajout photo', $pn, $user['nom']);
+        log_modification('personne', 'ajout', 'Photo : ' . $pn, $user['nom']);
         json_out($result);
     }
 

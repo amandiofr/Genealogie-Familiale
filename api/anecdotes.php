@@ -96,9 +96,13 @@ if ($sub==='photos') {
         imagedestroy($src);
         $c=UPLOAD_URL.$name.'.jpg'; $ct=THUMB_URL.$name.'_thumb.jpg';
         $db->prepare('INSERT INTO anecdote_photos (anecdote_id,chemin,chemin_thumb,legende,ordre) VALUES (?,?,?,?,?)')->execute([$id,$c,$ct,$_POST['legende']??null,(int)($_POST['ordre']??0)]);
+        $photo_id = $db->lastInsertId();
+        // Première photo → avatar automatique
+        $an = $db->prepare('SELECT photo_id FROM anecdotes WHERE id=?'); $an->execute([$id]); $an = $an->fetch();
+        if (!$an['photo_id']) $db->prepare('UPDATE anecdotes SET photo_id=? WHERE id=?')->execute([$photo_id, $id]);
         $an_name = $db->prepare('SELECT titre FROM anecdotes WHERE id=?'); $an_name->execute([$id]); $an_name = $an_name->fetchColumn() ?: '';
-        log_modification('anecdote', 'ajout photo', $an_name, $user['nom']);
-        json_out(['id'=>$db->lastInsertId(),'chemin'=>$c,'chemin_thumb'=>$ct]);
+        log_modification('anecdote', 'ajout', 'Photo : ' . $an_name, $user['nom']);
+        json_out(['id'=>$photo_id,'chemin'=>$c,'chemin_thumb'=>$ct]);
     }
     if ($method==='PUT'&&$subid) {
         require_role('admin','editeur');

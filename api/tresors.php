@@ -96,9 +96,13 @@ if ($sub === 'photos') {
         imagedestroy($src);
         $c = UPLOAD_URL.$name.'.jpg'; $ct = THUMB_URL.$name.'_thumb.jpg';
         $db->prepare('INSERT INTO tresor_photos (tresor_id,chemin,chemin_thumb,legende,ordre) VALUES (?,?,?,?,?)')->execute([$id, $c, $ct, $_POST['legende'] ?? null, (int)($_POST['ordre'] ?? 0)]);
+        $photo_id = $db->lastInsertId();
+        // Première photo → avatar automatique
+        $tr = $db->prepare('SELECT photo_id FROM tresors WHERE id=?'); $tr->execute([$id]); $tr = $tr->fetch();
+        if (!$tr['photo_id']) $db->prepare('UPDATE tresors SET photo_id=? WHERE id=?')->execute([$photo_id, $id]);
         $tr_name = $db->prepare('SELECT titre FROM tresors WHERE id=?'); $tr_name->execute([$id]); $tr_name = $tr_name->fetchColumn() ?: '';
-        log_modification('tresor', 'ajout photo', $tr_name, $user['nom']);
-        json_out(['id' => $db->lastInsertId(), 'chemin' => $c, 'chemin_thumb' => $ct]);
+        log_modification('tresor', 'ajout', 'Photo : ' . $tr_name, $user['nom']);
+        json_out(['id' => $photo_id, 'chemin' => $c, 'chemin_thumb' => $ct]);
     }
     if ($method === 'PUT' && $subid) {
         $db->prepare('UPDATE tresors SET photo_id=? WHERE id=?')->execute([$subid, $id]);

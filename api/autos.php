@@ -88,15 +88,16 @@ if ($sub === 'photos') {
         $c = UPLOAD_URL . $name . '.jpg'; $ct = THUMB_URL . $name . '_thumb.jpg';
         $db->prepare('INSERT INTO auto_photos (auto_id, chemin, chemin_thumb, legende, ordre) VALUES (?,?,?,?,?)')
            ->execute([$id, $c, $ct, $_POST['legende'] ?? null, (int)($_POST['ordre'] ?? 0)]);
+        $photo_id = $db->lastInsertId();
         // Set as favorite if first photo
         $count = $db->query("SELECT COUNT(*) FROM auto_photos WHERE auto_id=$id")->fetchColumn();
         if ($count == 1) {
-            $db->prepare('UPDATE autos SET photo_id=? WHERE id=?')->execute([$db->lastInsertId(), $id]);
+            $db->prepare('UPDATE autos SET photo_id=? WHERE id=?')->execute([$photo_id, $id]);
         }
         $au_row = $db->prepare('SELECT marque, modele FROM autos WHERE id=?'); $au_row->execute([$id]); $au_row = $au_row->fetch();
         $au_name = trim(($au_row['marque'] ?? '') . ' ' . ($au_row['modele'] ?? ''));
-        log_modification('auto', 'ajout photo', $au_name, $user['nom']);
-        json_out(['id' => $db->lastInsertId(), 'chemin' => $c, 'chemin_thumb' => $ct]);
+        log_modification('auto', 'ajout', 'Photo : ' . $au_name, $user['nom']);
+        json_out(['id' => $photo_id, 'chemin' => $c, 'chemin_thumb' => $ct]);
     }
     if ($method === 'PUT' && $subid) {
         $db->prepare('UPDATE autos SET photo_id=? WHERE id=?')->execute([$subid, $id]);
