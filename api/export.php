@@ -20,13 +20,24 @@ if ($action === 'json' && $method === 'GET') {
     header('Content-Disposition: attachment; filename="famille_' . date('Y-m-d') . '.json"');
     $data = [
         'exported_at'         => date('c'),
-        'version'             => '1.0',
+        'version'             => '2.0',
         'personnes'           => $db->query('SELECT * FROM personnes')->fetchAll(),
         'liens'               => $db->query('SELECT * FROM liens')->fetchAll(),
         'evenements'          => $db->query('SELECT * FROM evenements')->fetchAll(),
         'evenement_personnes' => $db->query('SELECT * FROM evenement_personnes')->fetchAll(),
+        'evenement_photos'    => $db->query('SELECT * FROM evenement_photos')->fetchAll(),
         'anecdotes'           => $db->query('SELECT * FROM anecdotes')->fetchAll(),
         'anecdote_personnes'  => $db->query('SELECT * FROM anecdote_personnes')->fetchAll(),
+        'anecdote_photos'     => $db->query('SELECT * FROM anecdote_photos')->fetchAll(),
+        'tresors'             => $db->query('SELECT * FROM tresors')->fetchAll(),
+        'tresor_personnes'    => $db->query('SELECT * FROM tresor_personnes')->fetchAll(),
+        'tresor_photos'       => $db->query('SELECT * FROM tresor_photos')->fetchAll(),
+        'recettes'            => $db->query('SELECT * FROM recettes')->fetchAll(),
+        'recette_photos'      => $db->query('SELECT * FROM recette_photos')->fetchAll(),
+        'autos'               => $db->query('SELECT * FROM autos')->fetchAll(),
+        'auto_photos'         => $db->query('SELECT * FROM auto_photos')->fetchAll(),
+        'reactions'           => $db->query('SELECT * FROM reactions')->fetchAll(),
+        'photo_tags'          => $db->query('SELECT * FROM photo_tags')->fetchAll(),
         'reunions'            => $db->query('SELECT * FROM reunions')->fetchAll(),
         'reunion_personnes'   => $db->query('SELECT * FROM reunion_personnes')->fetchAll(),
     ];
@@ -37,14 +48,25 @@ if ($action === 'json' && $method === 'GET') {
 // ── EXPORT CSV (ZIP multi-fichiers) ───────────────────────────────────────────
 if ($action === 'csv' && $method === 'GET') {
     $tables = [
-        'personnes' => ['id','prenom','nom','nom_naiss','genre','naissance','lieu_naiss','deces','lieu_deces','vivant','generation','profession','biographie'],
-        'liens'     => ['id','personne_a','personne_b','type','date_debut','date_fin','notes'],
-        'evenements'=> ['id','titre','type','date_debut','date_fin','lieu','description'],
+        'personnes'           => ['id','prenom','nom','nom_naiss','genre','naissance','lieu_naiss','deces','lieu_deces','vivant','generation','profession','biographie'],
+        'liens'               => ['id','personne_a','personne_b','type','date_debut','date_fin','notes'],
+        'evenements'          => ['id','titre','type','date_debut','date_fin','lieu','description'],
         'evenement_personnes' => ['evenement_id','personne_id','role'],
-        'reunions'  => ['id','titre','date_debut','date_fin','lieu','description'],
-        'reunion_personnes'   => ['reunion_id','personne_id','role'],
-        'anecdotes' => ['id','titre','contenu','date_anec','auteur'],
+        'evenement_photos'    => ['id','evenement_id','chemin','chemin_thumb','legende','ordre'],
+        'anecdotes'           => ['id','titre','contenu','date_anec','auteur'],
         'anecdote_personnes'  => ['anecdote_id','personne_id'],
+        'anecdote_photos'     => ['id','anecdote_id','chemin','chemin_thumb','legende','ordre'],
+        'tresors'             => ['id','titre','contenu','date_tresor','auteur'],
+        'tresor_personnes'    => ['tresor_id','personne_id'],
+        'tresor_photos'       => ['id','tresor_id','chemin','chemin_thumb','legende','ordre'],
+        'recettes'            => ['id','titre','description','ingredients','contenu','date_recette','auteur'],
+        'recette_photos'      => ['id','recette_id','chemin','chemin_thumb','legende','ordre'],
+        'autos'               => ['id','marque','modele','annee','couleur','description','personne_id'],
+        'auto_photos'         => ['id','auto_id','chemin','chemin_thumb','legende','ordre'],
+        'reactions'           => ['id','source','source_id','display_name','emoji','created_at'],
+        'photo_tags'          => ['id','photo_source','photo_id','personne_id','x','y','w','h'],
+        'reunions'            => ['id','titre','date_debut','date_fin','lieu','description'],
+        'reunion_personnes'   => ['reunion_id','personne_id','role'],
     ];
 
     $zip = new ZipArchive();
@@ -337,6 +359,15 @@ function import_json(array $data, PDO $db): int {
         foreach ($data['anecdotes']??[] as $a) { $insA->execute([$a['titre'],$a['contenu'],$a['date_anec']??null,$a['auteur']??null]); $anecMap[$a['id']]=$db->lastInsertId(); }
         $insAP=$db->prepare('INSERT IGNORE INTO anecdote_personnes (anecdote_id,personne_id) VALUES (?,?)');
         foreach ($data['anecdote_personnes']??[] as $ap) { $aid=$anecMap[$ap['anecdote_id']]??null;$pid=$idMap[$ap['personne_id']]??null; if($aid&&$pid) $insAP->execute([$aid,$pid]); }
+        $tresMap=[];
+        $insT=$db->prepare('INSERT INTO tresors (titre,contenu,date_tresor,auteur) VALUES (?,?,?,?)');
+        foreach ($data['tresors']??[] as $t) { $insT->execute([$t['titre'],$t['contenu'],$t['date_tresor']??null,$t['auteur']??null]); $tresMap[$t['id']]=$db->lastInsertId(); }
+        $insTP=$db->prepare('INSERT IGNORE INTO tresor_personnes (tresor_id,personne_id) VALUES (?,?)');
+        foreach ($data['tresor_personnes']??[] as $tp) { $tid=$tresMap[$tp['tresor_id']]??null;$pid=$idMap[$tp['personne_id']]??null; if($tid&&$pid) $insTP->execute([$tid,$pid]); }
+        $insRec=$db->prepare('INSERT INTO recettes (titre,description,ingredients,contenu,date_recette,auteur) VALUES (?,?,?,?,?,?)');
+        foreach ($data['recettes']??[] as $r) { $insRec->execute([$r['titre'],$r['description']??null,$r['ingredients']??null,$r['contenu'],$r['date_recette']??null,$r['auteur']??null]); }
+        $insAu=$db->prepare('INSERT INTO autos (marque,modele,annee,couleur,description,personne_id) VALUES (?,?,?,?,?,?)');
+        foreach ($data['autos']??[] as $a) { $pid=$idMap[$a['personne_id']??0]??null; $insAu->execute([$a['marque'],$a['modele']??null,$a['annee']??null,$a['couleur']??null,$a['description']??null,$pid]); }
         $reunMap=[];
         $insR=$db->prepare('INSERT INTO reunions (titre,date_debut,date_fin,lieu,description) VALUES (?,?,?,?,?)');
         foreach ($data['reunions']??[] as $r) { $insR->execute([$r['titre'],$r['date_debut']??null,$r['date_fin']??null,$r['lieu']??null,$r['description']??null]); $reunMap[$r['id']]=$db->lastInsertId(); }
