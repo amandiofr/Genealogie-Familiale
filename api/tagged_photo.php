@@ -32,4 +32,20 @@ $parentId = (int)$row[$fk];
 // 2. Return all photos for that parent entity
 $st2 = $db->prepare("SELECT * FROM `$table` WHERE `$fk` = ? ORDER BY ordre, id");
 $st2->execute([$parentId]);
-json_out(['photos' => $st2->fetchAll(), 'parent_id' => $parentId, 'source' => $source]);
+
+// 3. Fetch parent entity name
+$nameSql = [
+    'person'    => "SELECT CONCAT(prenom, ' ', nom) FROM personnes WHERE id = ?",
+    'evenement' => "SELECT titre FROM evenements WHERE id = ?",
+    'anecdote'  => "SELECT titre FROM anecdotes WHERE id = ?",
+    'auto'      => "SELECT CONCAT(marque, IFNULL(CONCAT(' ', NULLIF(modele, '')), '')) FROM autos WHERE id = ?",
+    'tresor'    => "SELECT titre FROM tresors WHERE id = ?",
+    'recette'   => "SELECT titre FROM recettes WHERE id = ?",
+];
+$parentName = '';
+if (isset($nameSql[$source])) {
+    $ns = $db->prepare($nameSql[$source]);
+    $ns->execute([$parentId]);
+    $parentName = $ns->fetchColumn() ?: '';
+}
+json_out(['photos' => $st2->fetchAll(), 'parent_id' => $parentId, 'parent_name' => $parentName, 'source' => $source]);

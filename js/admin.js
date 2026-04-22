@@ -546,6 +546,24 @@ function _lbShow() {
   if (_tagBtn) { _tagBtn.style.background = ''; _tagBtn.classList.toggle('active', _lbTagMode); }
   // URL deep link
   if (_meta) history.replaceState(null, '', '#photo/' + _meta.source + '/' + _meta.photoId);
+  // Titre cliquable (entité parente)
+  const _titleEl = document.getElementById('lb-title');
+  if (_titleEl) {
+    if (_meta?.parentId && _meta?.parentName) {
+      const _srcToFn = { person: openPerson, evenement: openEvent, anecdote: openAnecdote, tresor: openTresor, recette: openRecette, auto: openAuto };
+      _titleEl.textContent = _meta.parentName;
+      _titleEl.onclick = e => { e.stopPropagation(); const fn = _srcToFn[_meta.source]; if (fn) { closeLightboxAll(); fn(_meta.parentId); } };
+      _titleEl.style.display = '';
+      if (typeof translateText === 'function') {
+        const _snapMeta = _meta;
+        translateText(_meta.parentName).then(t => {
+          if (_lbGalleryMeta[_lbIdx] === _snapMeta) _titleEl.textContent = t;
+        });
+      }
+    } else {
+      _titleEl.style.display = 'none';
+    }
+  }
   // Recharger les tags (et réafficher l'overlay si mode tag actif)
   _lbTags = [];
   if (_meta) { _lbLoadTags(); }
@@ -887,19 +905,22 @@ function lbToggleTagMode() {
   document.getElementById('lb-person-picker')?.remove();
   // Bannière
   let banner = document.getElementById('lb-tag-banner');
+  const lb = document.getElementById('lightbox');
   if (_lbTagMode) {
     if (!banner) {
       banner = document.createElement('div');
       banner.id = 'lb-tag-banner';
       banner.style.cssText = 'position:absolute;bottom:0;left:0;right:0;background:rgba(200,169,110,.9);color:#1a1814;font-size:.8rem;padding:8px 16px;pointer-events:none;z-index:2;white-space:normal;text-align:center;box-sizing:border-box;';
-      document.getElementById('lightbox').appendChild(banner);
+      lb.appendChild(banner);
     }
     banner.textContent = T('lb_tag_banner');
+    lb.classList.add('lb-has-banner');
     _lbNaturalRect = null;
     _lbPositionFaceOverlay();
     _lbLoadTags();
   } else {
     banner?.remove();
+    lb.classList.remove('lb-has-banner');
     _lbRenderTags(); // met à jour delete buttons + repositionne overlay
   }
 }

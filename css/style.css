@@ -255,7 +255,11 @@ nav button.active{background:var(--ink);color:var(--bg);}
 .lb-nav:hover{background:rgba(255,255,255,.3);}
 .lb-prev{left:12px;}
 .lb-next{right:12px;}
-@media (pointer:fine){.lightbox.lb-idle .lightbox-close,.lightbox.lb-idle .lb-download,.lightbox.lb-idle #lb-tag-btn,.lightbox.lb-idle .lb-nav{opacity:0;pointer-events:none;}}
+#lb-title{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.55);color:#fff;font-size:.82rem;padding:8px 16px;z-index:2;text-align:center;cursor:pointer;transition:opacity .3s,bottom .2s;box-sizing:border-box;}
+#lb-title:hover{background:rgba(0,0,0,.78);}
+.lb-has-banner #lb-title{bottom:36px;}
+@media (pointer:fine){.lightbox.lb-idle .lightbox-close,.lightbox.lb-idle .lb-download,.lightbox.lb-idle #lb-tag-btn,.lightbox.lb-idle .lb-nav,.lightbox.lb-idle #lb-title{opacity:0;pointer-events:none;}}
+@media (pointer:coarse){.lightbox.lb-idle #lb-title{opacity:0;pointer-events:none;}}
 /* ── Face tags ───────────────────────────────────────────────── */
 .lb-face-overlay{position:absolute;pointer-events:none;z-index:0;box-sizing:border-box;transition:opacity .3s;}
 /* Mode édition : dessin possible, contenu toujours visible */

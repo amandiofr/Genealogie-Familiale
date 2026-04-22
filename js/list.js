@@ -153,7 +153,7 @@ async function openPerson(id) {
   if((p.photos||[]).length){
     html+=`<div class="modal-section"><div class="sec-title">${T('sec_photos')}</div><div class="photos-strip">`;
     _lbGallery = p.photos.map(ph=>imgUrl(ph.chemin));
-    _lbGalleryMeta = p.photos.map(ph=>({photoId:ph.id, source:'person'}));
+    _lbGalleryMeta = p.photos.map(ph=>({photoId:ph.id, source:'person', parentId:p.id, parentName:p.prenom+' '+(p.nom||'')}));
     const _pEffId = p.photo_id || p.photos[0]?.id;
     p.photos.forEach((ph,i)=>{
       const isMain = ph.id == _pEffId;
@@ -168,7 +168,7 @@ async function openPerson(id) {
   // Photos taguées (autres galeries)
   const taggees = (p.photos_taggees||[]).filter(ph => ph.chemin_thumb || ph.chemin);
   _lbTaggedGallery = taggees.map(ph => imgUrl(ph.chemin));
-  _lbTaggedMeta    = taggees.map(ph => ({ photoId: ph.photo_id, source: ph.source }));
+  _lbTaggedMeta    = taggees.map(ph => ({ photoId: ph.photo_id, source: ph.source, parentId: ph.parent_id, parentName: ph.parent_name }));
   if (taggees.length) {
     html += `<div class="modal-section"><div class="sec-title">${T('sec_photos_taggees')}</div><div class="photos-strip">`;
     taggees.forEach((ph, i) => {

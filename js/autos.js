@@ -59,7 +59,7 @@ async function openAuto(id) {
   if ((a.photos||[]).length) {
     html += `<div class="modal-section"><div class="sec-title">${T('sec_photos')}</div><div class="photos-strip">`;
     _lbGallery = a.photos.map(p => imgUrl(p.chemin));
-    _lbGalleryMeta = a.photos.map(p=>({photoId:p.id, source:'auto'}));
+    _lbGalleryMeta = a.photos.map(p=>({photoId:p.id, source:'auto', parentId:a.id, parentName:a.marque+(a.modele?' '+a.modele:'')}));
     const _auEffId = a.photo_id || a.photos[0]?.id;
     a.photos.forEach((ph, i) => {
       const isMain = ph.id == _auEffId;
