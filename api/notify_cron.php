@@ -63,22 +63,24 @@ BODY;
     echo "Erreur anniversaires : " . $e->getMessage() . "\n";
 }
 
+$dryRun = !empty($GLOBALS['_CRON_DRY_RUN']);
+
 // ── Vérifier l'état des notifications ────────────────────────────────────────
 $state = $db->query("SELECT * FROM notification_state WHERE id=1")->fetch();
 
-// Rien de prévu → on sort
-if (!$state || !$state['send_after']) {
-    echo "Aucune notification en attente.\n"; exit;
+// Rien de prévu → on sort (sauf simulation : on envoie quand même)
+if (!$dryRun && (!$state || !$state['send_after'])) {
+    echo "Aucune notification en attente.\n"; return;
 }
 
 // L'heure d'envoi n'est pas encore arrivée (debounce d'1h)
-if ($state['send_after'] > date('Y-m-d H:i:s')) {
-    echo "Envoi prévu après : {$state['send_after']}\n"; exit;
+if (!$dryRun && $state['send_after'] > date('Y-m-d H:i:s')) {
+    echo "Envoi prévu après : {$state['send_after']}\n"; return;
 }
 
 // Limite : 1 email par jour maximum
-if ($state['last_sent'] && $state['last_sent'] > date('Y-m-d H:i:s', time() - 86400)) {
-    echo "Dernier envoi trop récent : {$state['last_sent']}\n"; exit;
+if (!$dryRun && $state['last_sent'] && $state['last_sent'] > date('Y-m-d H:i:s', time() - 86400)) {
+    echo "Dernier envoi trop récent : {$state['last_sent']}\n"; return;
 }
 
 // ── Récupérer les modifications en attente ────────────────────────────────────
@@ -86,13 +88,13 @@ $logs = $db->query("SELECT * FROM modification_log ORDER BY created_at DESC")->f
 if (empty($logs)) {
     // Plus rien à envoyer, remettre l'état à zéro
     $db->prepare("UPDATE notification_state SET send_after=NULL WHERE id=1")->execute();
-    echo "Aucune modification à notifier.\n"; exit;
+    echo "Aucune modification à notifier.\n"; return;
 }
 
 // ── Récupérer les destinataires ───────────────────────────────────────────────
 $recipients = $db->query("SELECT email FROM notification_emails")->fetchAll();
 if (empty($recipients)) {
-    echo "Aucun destinataire configuré.\n"; exit;
+    echo "Aucun destinataire configuré.\n"; return;
 }
 
 // ── Construire le corps du mail (HTML) ───────────────────────────────────────
@@ -211,6 +213,7 @@ $bodyHtml = <<<HTML
 HTML;
 
 // ── Envoyer le mail à chaque destinataire ─────────────────────────────────────
+// ── Envoyer le mail à chaque destinataire ─────────────────────────────────────
 $subject = '=?UTF-8?B?' . base64_encode('🌿 Mise à jour — Notre Famille') . '?=';
 $headers  = "MIME-Version: 1.0\r\n";
 $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
@@ -226,7 +229,10 @@ foreach ($recipients as $r) {
 }
 
 // ── Mettre à jour l'état et vider le log ─────────────────────────────────────
-$db->prepare("UPDATE notification_state SET send_after=NULL, last_sent=NOW() WHERE id=1")->execute();
-$db->exec("DELETE FROM modification_log");
-
-echo "Mail envoyé à {$sent}/" . count($recipients) . " destinataire(s). {$nbModifs} modification(s) notifiée(s).\n";
+if (!$dryRun) {
+    $db->prepare("UPDATE notification_state SET send_after=NULL, last_sent=NOW() WHERE id=1")->execute();
+    $db->exec("DELETE FROM modification_log");
+    echo "Mail envoyé à {$sent}/" . count($recipients) . " destinataire(s). {$nbModifs} modification(s) notifiée(s).\n";
+} else {
+    echo "[simulation] Mail envoyé à {$sent}/" . count($recipients) . " destinataire(s). {$nbModifs} modification(s) — logs et état conservés.\n";
+}

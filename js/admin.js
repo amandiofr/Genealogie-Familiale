@@ -1334,6 +1334,35 @@ document.addEventListener('keydown', e => {
   }
 });
 
+// ══════════════════════════════════════════════════════════════
+//  DEV
+// ══════════════════════════════════════════════════════════════
+async function devRunCron(dry = true) {
+  const out = document.getElementById('dev-cron-output');
+  out.style.display = 'block';
+  out.textContent = '…';
+  try {
+    const url = 'api/dev.php?action=run_cron' + (dry ? '&dry=1' : '');
+    const res = await api('POST', url);
+    out.textContent = res.output || '(aucune sortie)';
+  } catch(e) { out.textContent = '❌ ' + e.message; }
+}
+
+async function devUploadSize() {
+  const el = document.getElementById('dev-upload-size');
+  el.style.display = 'block';
+  el.textContent = '…';
+  try {
+    const res = await api('GET', 'api/dev.php?action=upload_size');
+    const mb = (res.bytes / 1024 / 1024).toFixed(2);
+    el.textContent = `📁 ${mb} Mo — ${res.files} fichier(s)`;
+  } catch(e) { el.textContent = '❌ ' + e.message; }
+}
+
+function devDemoReminder() {
+  toast(T('author_reminder'), 'info', 6000);
+}
+
 init().catch(err => {
   document.body.innerHTML = '<div style="padding:2rem;font-family:monospace;color:red;background:#fff;position:fixed;inset:0;overflow:auto;z-index:9999;">'
     + '<h2>Erreur au démarrage</h2><pre>' + err.stack + '</pre></div>';

@@ -237,7 +237,7 @@ async function init() {
   }
 }
 
-const _adminViews = ['admin-comptes','admin-export','admin-import','admin-notif','admin-password','admin-orphans','admin-logs'];
+const _adminViews = ['admin-comptes','admin-export','admin-import','admin-notif','admin-password','admin-orphans','admin-logs','admin-dev'];
 const _editorViews = ['quality'];
 const _validViews = ['tree','list','events','reunions','anecdotes','tresors','recettes','autos','timeline','carte',..._adminViews,..._editorViews];
 

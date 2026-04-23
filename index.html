@@ -40,6 +40,7 @@
           <button data-view="admin-orphans"  id="nav-dd-orphans">Fichiers</button>
           <button data-view="admin-logs"     id="nav-dd-logs">Logs</button>
           <button data-view="admin-lieux"    id="nav-dd-lieux">Lieux</button>
+          <button data-view="admin-dev"     id="nav-dd-dev">Dev</button>
         </div>
       </div>
     </div>
@@ -332,6 +333,49 @@
         <span id="lieux-progress" style="font-size:.8rem;color:var(--ink3);align-self:center;"></span>
       </div>
       <div id="lieux-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── ADMIN : Dev ────────────────────────────────────────────── -->
+<div id="view-admin-dev" class="view">
+  <div class="view-inner">
+    <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:400;margin-bottom:1.2rem;">Outils développeur</h2>
+    <div class="form-card" style="display:flex;flex-direction:column;gap:1rem;">
+
+      <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+        <div style="flex:1;min-width:200px;">
+          <div style="font-size:.88rem;font-weight:500;">Exécution immédiate du cron</div>
+          <div style="font-size:.75rem;color:var(--ink3);margin-top:2px;">Déclenche l'envoi des notifications sans attendre la tâche planifiée.</div>
+        </div>
+        <div style="display:flex;gap:.5rem;">
+          <button class="btn-secondary" style="font-size:.78rem;white-space:nowrap;" onclick="devRunCron(true)">▶ Simuler</button>
+          <button class="btn-primary"   style="font-size:.78rem;white-space:nowrap;" onclick="devRunCron(false)">▶ Envoyer</button>
+        </div>
+      </div>
+      <pre id="dev-cron-output" style="display:none;font-size:.75rem;background:var(--bg2);padding:.6rem .9rem;border-radius:5px;white-space:pre-wrap;margin:0;"></pre>
+
+      <hr style="border:none;border-top:1px solid var(--border);margin:0;">
+
+      <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+        <div style="flex:1;min-width:200px;">
+          <div style="font-size:.88rem;font-weight:500;">Taille du répertoire uploads/</div>
+          <div style="font-size:.75rem;color:var(--ink3);margin-top:2px;">Calcule le poids total des photos et fichiers stockés.</div>
+        </div>
+        <button class="btn-secondary" style="font-size:.78rem;white-space:nowrap;" onclick="devUploadSize()">📁 Calculer</button>
+      </div>
+      <div id="dev-upload-size" style="display:none;font-size:.82rem;color:var(--ink2);"></div>
+
+      <hr style="border:none;border-top:1px solid var(--border);margin:0;">
+
+      <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+        <div style="flex:1;min-width:200px;">
+          <div style="font-size:.88rem;font-weight:500;">Démo : rappel de choix de prénom</div>
+          <div style="font-size:.75rem;color:var(--ink3);margin-top:2px;">Affiche la notification qui demande à l'utilisateur de choisir son prénom d'auteur.</div>
+        </div>
+        <button class="btn-secondary" style="font-size:.78rem;white-space:nowrap;" onclick="devDemoReminder()">🔔 Afficher</button>
+      </div>
+
     </div>
   </div>
 </div>
