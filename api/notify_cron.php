@@ -95,46 +95,132 @@ if (empty($recipients)) {
     echo "Aucun destinataire configuré.\n"; exit;
 }
 
-// ── Construire le corps du mail ───────────────────────────────────────────────
+// ── Construire le corps du mail (HTML) ───────────────────────────────────────
 $typesFr = [
     'personne'  => 'Membres',
     'evenement' => 'Événements',
     'anecdote'  => 'Anecdotes',
     'reunion'   => 'Réunions',
+    'tresor'    => 'Trésors',
+    'recette'   => 'Recettes',
+    'auto'      => 'Automobiles',
     'lien'      => 'Membres',
 ];
 $actionsFr = ['ajout' => 'Ajout', 'modification' => 'Modification', 'suppression' => 'Suppression'];
+$typeHash  = [
+    'personne'  => 'personne',
+    'evenement' => 'evenement',
+    'anecdote'  => 'anecdote',
+    'reunion'   => 'reunion',
+    'tresor'    => 'tresor',
+    'recette'   => 'recette',
+    'auto'      => 'auto',
+];
 
-$linesFr = '';
+$actionColors = [
+    'ajout'        => ['bg' => '#e8f5e9', 'fg' => '#2e7d32', 'label' => '＋ Ajout'],
+    'modification' => ['bg' => '#fff8e8', 'fg' => '#8b5e3c', 'label' => '✎ Modification'],
+    'suppression'  => ['bg' => '#fdecea', 'fg' => '#c0392b', 'label' => '✕ Suppression'],
+];
+$typeIcons = [
+    'personne'  => '👤',
+    'evenement' => '📅',
+    'anecdote'  => '📖',
+    'reunion'   => '🏡',
+    'tresor'    => '🏺',
+    'recette'   => '🍽️',
+    'auto'      => '🚗',
+    'lien'      => '👤',
+];
+
+$rowsHtml = '';
 foreach ($logs as $log) {
-    $date     = date('d/m H:i', strtotime($log['created_at']));
-    $typeFr   = $typesFr[$log['type']]   ?? $log['type'];
-    $actionFr = $actionsFr[$log['action']] ?? $log['action'];
-    $auteur   = $log['auteur'] ? "\n    par {$log['auteur']}" : '';
-    $linesFr .= "• {$date} — {$typeFr} — {$actionFr}\n  {$log['description']}{$auteur}\n\n";
+    $date     = date('d/m/Y à H:i', strtotime($log['created_at']));
+    $typeFr   = $typesFr[$log['type']]     ?? $log['type'];
+    $icon     = $typeIcons[$log['type']]   ?? '•';
+    $ac       = $actionColors[$log['action']] ?? ['bg' => '#f0ede8', 'fg' => '#6b5e4e', 'label' => $log['action']];
+    $auteur   = $log['auteur'] ? htmlspecialchars($log['auteur']) : '';
+
+    $badge = '<span style="display:inline-block;padding:2px 8px;border-radius:12px;font-size:.68rem;font-weight:600;'
+        . 'background:' . $ac['bg'] . ';color:' . $ac['fg'] . ';letter-spacing:.02em;">' . $ac['label'] . '</span>';
+
+    $btn = '';
+    $hash = $typeHash[$log['type']] ?? null;
+    if ($hash && !empty($log['object_id']) && $log['action'] !== 'suppression') {
+        $url = rtrim(SITE_URL, '/') . '/#' . $hash . '/' . (int)$log['object_id'];
+        $btn = '<a href="' . $url . '" style="display:inline-block;margin-top:8px;padding:5px 14px;'
+            . 'background:#c5a880;color:#fff;text-decoration:none;border-radius:4px;'
+            . 'font-size:.75rem;font-family:Georgia,serif;letter-spacing:.03em;">Voir →</a>';
+    }
+
+    $rowsHtml .= '<tr><td style="padding:0 0 10px;">'
+        . '<div style="background:#faf8f5;border:1px solid #ece6dd;border-radius:6px;padding:12px 14px;">'
+        . '<table width="100%" cellpadding="0" cellspacing="0"><tr>'
+        . '<td style="font-size:1.1rem;width:28px;vertical-align:top;padding-top:1px;">' . $icon . '</td>'
+        . '<td style="vertical-align:top;">'
+        . '<div style="margin-bottom:4px;">' . $badge
+        . '<span style="font-size:.72rem;color:#a09080;margin-left:8px;">' . $date . '</span></div>'
+        . '<div style="font-size:.9rem;color:#2a2118;font-weight:500;">' . htmlspecialchars($log['description']) . '</div>'
+        . ($auteur ? '<div style="font-size:.75rem;color:#7a6a58;margin-top:2px;">par ' . $auteur . '</div>' : '')
+        . ($btn ? '<div>' . $btn . '</div>' : '')
+        . '</td></tr></table>'
+        . '</div>'
+        . '</td></tr>';
 }
 
 $nbModifs = count($logs);
-$bodyText = <<<BODY
-🌿 Notre Famille — Mises à jour
+$siteUrl  = rtrim(SITE_URL, '/');
+$bodyHtml = <<<HTML
+<!DOCTYPE html>
+<html lang="fr">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#f0ede8;font-family:Georgia,serif;color:#2a2118;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f0ede8;padding:32px 16px;">
+<tr><td align="center">
+<table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;">
 
-{$nbModifs} modification(s) :
+  <!-- En-tête -->
+  <tr><td style="background:#2a2118;border-radius:8px 8px 0 0;padding:24px 28px;">
+    <div style="font-size:1.4rem;color:#c5a880;letter-spacing:.04em;">🌿 Notre Famille</div>
+    <div style="font-size:.8rem;color:#a09080;margin-top:4px;letter-spacing:.06em;text-transform:uppercase;">Mises à jour</div>
+  </td></tr>
 
-{$linesFr}
-Abonné aux notifications.
-BODY;
+  <!-- Corps -->
+  <tr><td style="background:#fff;padding:24px 28px;">
+    <p style="font-size:.82rem;color:#6b5e4e;margin:0 0 18px;border-bottom:1px solid #ece6dd;padding-bottom:12px;">
+      <strong>{$nbModifs}</strong> modification(s) enregistrée(s)
+    </p>
+    <table width="100%" cellpadding="0" cellspacing="0">
+      {$rowsHtml}
+    </table>
+  </td></tr>
+
+  <!-- Pied de page -->
+  <tr><td style="background:#faf8f5;border-top:1px solid #ece6dd;border-radius:0 0 8px 8px;padding:14px 28px;">
+    <table width="100%" cellpadding="0" cellspacing="0"><tr>
+      <td style="font-size:.7rem;color:#a09080;">Abonné aux notifications de Notre Famille</td>
+      <td align="right">
+        <a href="{$siteUrl}" style="font-size:.7rem;color:#8b5e3c;text-decoration:none;">Ouvrir le site →</a>
+      </td>
+    </tr></table>
+  </td></tr>
+
+</table>
+</td></tr></table>
+</body></html>
+HTML;
 
 // ── Envoyer le mail à chaque destinataire ─────────────────────────────────────
 $subject = '=?UTF-8?B?' . base64_encode('🌿 Mise à jour — Notre Famille') . '?=';
 $headers  = "MIME-Version: 1.0\r\n";
-$headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
+$headers .= "Content-Type: text/html; charset=UTF-8\r\n";
 $headers .= "Content-Transfer-Encoding: base64\r\n";
 $headers .= "From: Notre Famille <" . NOTIFY_FROM . ">\r\n";
 $headers .= "X-Mailer: PHP/" . phpversion();
 
 $sent = 0;
 foreach ($recipients as $r) {
-    if (mail($r['email'], $subject, chunk_split(base64_encode($bodyText)), $headers)) {
+    if (mail($r['email'], $subject, chunk_split(base64_encode($bodyHtml)), $headers)) {
         $sent++;
     }
 }
