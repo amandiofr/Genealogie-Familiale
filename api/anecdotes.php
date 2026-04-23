@@ -52,7 +52,7 @@ if ($method === 'POST' && !$id && $sub !== 'photos') {
         $ins=$db->prepare('INSERT IGNORE INTO anecdote_personnes (anecdote_id,personne_id) VALUES (?,?)');
         foreach ($b['personnes'] as $pid) $ins->execute([$aid,$pid]);
     }
-    log_modification('anecdote', 'ajout', $b['titre'], $user['nom']);
+    log_modification('anecdote', 'ajout', $b['titre'], $user['nom'], $aid);
     json_out(['id'=>$aid]);
 }
 
@@ -65,7 +65,7 @@ if ($method === 'PUT' && $id && !$sub) {
         $ins=$db->prepare('INSERT IGNORE INTO anecdote_personnes (anecdote_id,personne_id) VALUES (?,?)');
         foreach ($b['personnes'] as $pid) $ins->execute([$id,$pid]);
     }
-    log_modification('anecdote', 'modification', $b['titre'], $user['nom']);
+    log_modification('anecdote', 'modification', $b['titre'], $user['nom'], $id);
     json_out(['ok'=>true]);
 }
 
@@ -75,7 +75,7 @@ if ($method === 'DELETE' && $id && !$sub) {
     $photos=$db->prepare('SELECT chemin,chemin_thumb FROM anecdote_photos WHERE anecdote_id=?'); $photos->execute([$id]);
     foreach ($photos->fetchAll() as $ph) { del_file($ph['chemin']); del_file($ph['chemin_thumb']); }
     $db->prepare('DELETE FROM anecdotes WHERE id=?')->execute([$id]);
-    if ($an) log_modification('anecdote', 'suppression', $an['titre'], $user['nom']);
+    if ($an) log_modification('anecdote', 'suppression', $an['titre'], $user['nom'], $id);
     json_out(['ok'=>true]);
 }
 
@@ -101,7 +101,7 @@ if ($sub==='photos') {
         $an = $db->prepare('SELECT photo_id FROM anecdotes WHERE id=?'); $an->execute([$id]); $an = $an->fetch();
         if (!$an['photo_id']) $db->prepare('UPDATE anecdotes SET photo_id=? WHERE id=?')->execute([$photo_id, $id]);
         $an_name = $db->prepare('SELECT titre FROM anecdotes WHERE id=?'); $an_name->execute([$id]); $an_name = $an_name->fetchColumn() ?: '';
-        log_modification('anecdote', 'ajout', 'Photo : ' . $an_name, $user['nom']);
+        log_modification('anecdote', 'ajout', 'Photo : ' . $an_name, $user['nom'], $id);
         json_out(['id'=>$photo_id,'chemin'=>$c,'chemin_thumb'=>$ct]);
     }
     if ($method==='PUT'&&$subid) {

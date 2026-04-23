@@ -229,7 +229,6 @@ async function openPerson(id) {
 
   const _mv = document.getElementById('modal-person-view');
   _mv.innerHTML = html;
-  _mv.scrollTop = 0;
   _mv.addEventListener('click', function(e) {
     const eb = e.target.closest('.fl-edit-btn');
     if (eb) {
@@ -244,6 +243,7 @@ async function openPerson(id) {
     }
   }, { once: true });
   document.getElementById('modal-person-view-overlay').classList.add('open');
+  _mv.scrollTop = 0;
   history.replaceState(null, '', '#person/' + id);
 }
 
@@ -292,7 +292,7 @@ async function showPersonForm(id) {
         <div class="fg"><label>${T('form_lieu_deces')}</label><input id="fp-lieu-deces" value="${p?.lieu_deces||''}"></div>
         <div class="fg full"><label>${T('form_generation')}</label><select id="fp-gen">${genOptions}</select></div>
         <div class="fg full"><label>${T('form_job')}</label><input id="fp-job" value="${p?.profession||''}"></div>
-        <div class="fg full"><label>${T('form_bio')}</label><textarea id="fp-bio">${encodeHTML(p?.biographie||'')}</textarea></div>
+        <div class="fg full"><label>${T('form_bio')}</label><textarea id="fp-bio" style="min-height:160px;">${encodeHTML(p?.biographie||'')}</textarea></div>
       </div>
       ${!id ? `<div class="form-grid" style="margin-top:.5rem;">
           <div class="fg"><label>${T('form_lien_type')}</label>

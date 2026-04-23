@@ -155,7 +155,7 @@ if ($method === 'POST' && !$id) {
         $horsArbre,
     ]);
     $newId = $db->lastInsertId();
-    log_modification('personne', 'ajout', "{$b['prenom']} {$b['nom']}", $user['nom']);
+    log_modification('personne', 'ajout', "{$b['prenom']} {$b['nom']}", $user['nom'], $newId);
     json_out(['id' => $newId]);
 }
 
@@ -182,7 +182,7 @@ if ($method === 'PUT' && $id && !$sub) {
         $b['biographie'] ?: null,
         $id,
     ]);
-    log_modification('personne', 'modification', "{$b['prenom']} {$b['nom']}", $user['nom']);
+    log_modification('personne', 'modification', "{$b['prenom']} {$b['nom']}", $user['nom'], $id);
     json_out(['ok' => true]);
 }
 
@@ -205,7 +205,7 @@ if ($method === 'DELETE' && $id && !$sub) {
     $p = $db->prepare('SELECT prenom, nom FROM personnes WHERE id=?');
     $p->execute([$id]); $p = $p->fetch();
     $db->prepare('DELETE FROM personnes WHERE id=?')->execute([$id]);
-    if ($p) log_modification('personne', 'suppression', "{$p['prenom']} {$p['nom']}", $user['nom']);
+    if ($p) log_modification('personne', 'suppression', "{$p['prenom']} {$p['nom']}", $user['nom'], $id);
     json_out(['ok' => true]);
 }
 
@@ -249,7 +249,7 @@ if ($sub === 'photos') {
         if (empty($_FILES['photo'])) json_error('Aucun fichier');
         $result = save_photo($_FILES['photo'], $id);
         $pn = $db->prepare('SELECT CONCAT(prenom, " ", COALESCE(nom,"")) FROM personnes WHERE id=?'); $pn->execute([$id]); $pn = trim($pn->fetchColumn() ?: '');
-        log_modification('personne', 'ajout', 'Photo : ' . $pn, $user['nom']);
+        log_modification('personne', 'ajout', 'Photo : ' . $pn, $user['nom'], $id);
         json_out($result);
     }
 

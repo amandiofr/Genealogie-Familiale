@@ -69,7 +69,7 @@ if ($method === 'POST' && !$id && $sub !== 'photos') {
         $ins = $db->prepare('INSERT IGNORE INTO reunion_personnes (reunion_id,personne_id,role) VALUES (?,?,?)');
         foreach ($b['personnes'] as $p) $ins->execute([$eid, $p['id'], $p['role'] ?? null]);
     }
-    log_modification('reunion', 'ajout', $b['titre'], $user['nom']);
+    log_modification('reunion', 'ajout', $b['titre'], $user['nom'], $eid);
     json_out(['id' => $eid]);
 }
 
@@ -85,7 +85,7 @@ if ($method === 'PUT' && $id && !$sub) {
         $ins = $db->prepare('INSERT IGNORE INTO reunion_personnes (reunion_id,personne_id,role) VALUES (?,?,?)');
         foreach ($b['personnes'] as $p) $ins->execute([$id, $p['id'], $p['role'] ?? null]);
     }
-    log_modification('reunion', 'modification', $b['titre'], $user['nom']);
+    log_modification('reunion', 'modification', $b['titre'], $user['nom'], $id);
     json_out(['ok' => true]);
 }
 
@@ -98,7 +98,7 @@ if ($method === 'DELETE' && $id && !$sub) {
     $photos->execute([$id]);
     foreach ($photos->fetchAll() as $ph) { del_file_r($ph['chemin']); del_file_r($ph['chemin_thumb']); }
     $db->prepare('DELETE FROM reunions WHERE id=?')->execute([$id]);
-    if ($re) log_modification('reunion', 'suppression', $re['titre'], $user['nom']);
+    if ($re) log_modification('reunion', 'suppression', $re['titre'], $user['nom'], $id);
     json_out(['ok' => true]);
 }
 

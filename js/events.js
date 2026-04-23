@@ -71,9 +71,11 @@ async function openEvent(id){
     </div>`;
   }
   html+=`</div>`;
-  document.getElementById('modal-person-view').innerHTML=html;
+  const _mv_ev = document.getElementById('modal-person-view');
+  _mv_ev.innerHTML=html;
+  _mv_ev.style.maxWidth='640px';
   document.getElementById('modal-person-view-overlay').classList.add('open');
-  document.getElementById('modal-person-view').style.maxWidth='640px';
+  _mv_ev.scrollTop=0;
   history.replaceState(null, '', '#event/' + id);
   loadReactions('evenement', id, `react-evenement-detail-${id}`);
 }
@@ -229,8 +231,10 @@ async function openAnecdote(id){
   html+=`<div id="react-anecdote-detail-${id}"></div>`;
   if(currentUser.role!=='lecteur') html+=`<div style="display:flex;gap:8px;margin-top:1rem;"><button class="btn-secondary" style="flex:1;font-size:.78rem;" onclick="showAnecdoteForm(${id});closeOverlay('modal-person-view-overlay')">${T('btn_edit')}</button><button class="btn-danger" style="font-size:.78rem;" onclick="deleteAnecdote(${id})">🗑</button></div>`;
   html+=`</div>`;
-  document.getElementById('modal-person-view').innerHTML=html;
+  const _mv_an = document.getElementById('modal-person-view');
+  _mv_an.innerHTML=html;
   document.getElementById('modal-person-view-overlay').classList.add('open');
+  _mv_an.scrollTop=0;
   history.replaceState(null, '', '#anecdote/' + id);
   loadReactions('anecdote', id, `react-anecdote-detail-${id}`);
 }

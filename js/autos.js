@@ -78,9 +78,11 @@ async function openAuto(id) {
     </div>`;
   }
   html += `</div>`;
-  document.getElementById('modal-person-view').innerHTML = html;
-  document.getElementById('modal-person-view').style.maxWidth = '560px';
+  const _mv = document.getElementById('modal-person-view');
+  _mv.innerHTML = html;
+  _mv.style.maxWidth = '560px';
   document.getElementById('modal-person-view-overlay').classList.add('open');
+  _mv.scrollTop = 0;
   history.replaceState(null, '', '#auto/' + id);
 }
 

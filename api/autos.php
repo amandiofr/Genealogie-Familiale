@@ -47,7 +47,7 @@ if ($method === 'POST' && !$id && $sub !== 'photos') {
     $db->prepare('INSERT INTO autos (marque, modele, annee, couleur, description, personne_id) VALUES (?,?,?,?,?,?)')
        ->execute([$b['marque'], $b['modele'] ?: null, $b['annee'] ?: null, $b['couleur'] ?: null, $b['description'] ?: null, $b['personne_id'] ?: null]);
     $aid = $db->lastInsertId();
-    log_modification('auto', 'ajout', $b['marque'] . ($b['modele'] ? ' ' . $b['modele'] : ''), $user['nom']);
+    log_modification('auto', 'ajout', $b['marque'] . ($b['modele'] ? ' ' . $b['modele'] : ''), $user['nom'], $aid);
     json_out(['id' => $aid]);
 }
 
@@ -56,7 +56,7 @@ if ($method === 'PUT' && $id && !$sub) {
     $b = body();
     $db->prepare('UPDATE autos SET marque=?, modele=?, annee=?, couleur=?, description=?, personne_id=? WHERE id=?')
        ->execute([$b['marque'], $b['modele'] ?: null, $b['annee'] ?: null, $b['couleur'] ?: null, $b['description'] ?: null, $b['personne_id'] ?: null, $id]);
-    log_modification('auto', 'modification', $b['marque'] . ($b['modele'] ? ' ' . $b['modele'] : ''), $user['nom']);
+    log_modification('auto', 'modification', $b['marque'] . ($b['modele'] ? ' ' . $b['modele'] : ''), $user['nom'], $id);
     json_out(['ok' => true]);
 }
 
@@ -66,7 +66,7 @@ if ($method === 'DELETE' && $id && !$sub) {
     $photos = $db->prepare('SELECT chemin, chemin_thumb FROM auto_photos WHERE auto_id=?'); $photos->execute([$id]);
     foreach ($photos->fetchAll() as $ph) { del_file($ph['chemin']); del_file($ph['chemin_thumb']); }
     $db->prepare('DELETE FROM autos WHERE id=?')->execute([$id]);
-    if ($an) log_modification('auto', 'suppression', $an['marque'] . ($an['modele'] ? ' ' . $an['modele'] : ''), $user['nom']);
+    if ($an) log_modification('auto', 'suppression', $an['marque'] . ($an['modele'] ? ' ' . $an['modele'] : ''), $user['nom'], $id);
     json_out(['ok' => true]);
 }
 
@@ -96,7 +96,7 @@ if ($sub === 'photos') {
         }
         $au_row = $db->prepare('SELECT marque, modele FROM autos WHERE id=?'); $au_row->execute([$id]); $au_row = $au_row->fetch();
         $au_name = trim(($au_row['marque'] ?? '') . ' ' . ($au_row['modele'] ?? ''));
-        log_modification('auto', 'ajout', 'Photo : ' . $au_name, $user['nom']);
+        log_modification('auto', 'ajout', 'Photo : ' . $au_name, $user['nom'], $id);
         json_out(['id' => $photo_id, 'chemin' => $c, 'chemin_thumb' => $ct]);
     }
     if ($method === 'PUT' && $subid) {

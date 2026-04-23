@@ -275,6 +275,7 @@ CREATE TABLE IF NOT EXISTS modification_log (
   action      ENUM('ajout','modification','suppression') NOT NULL,
   description VARCHAR(500) NOT NULL,
   auteur      VARCHAR(200) DEFAULT NULL,
+  object_id   INT UNSIGNED DEFAULT NULL,
   created_at  DATETIME DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;",
 
@@ -410,6 +411,17 @@ try {
         }
     } catch (PDOException $e) {
         $errors[] = 'Migration birthday_sent_date : ' . $e->getMessage();
+    }
+
+    // Migration : object_id sur modification_log
+    try {
+        $cols = $db->query("SHOW COLUMNS FROM modification_log LIKE 'object_id'")->fetchAll();
+        if (empty($cols)) {
+            $db->exec("ALTER TABLE modification_log ADD COLUMN object_id INT UNSIGNED DEFAULT NULL");
+            $done[] = '→ Migration : colonne object_id ajoutée à modification_log';
+        }
+    } catch (PDOException $e) {
+        $errors[] = 'Migration object_id modification_log : ' . $e->getMessage();
     }
 
     // Compte admin par défaut

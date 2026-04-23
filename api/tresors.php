@@ -52,7 +52,7 @@ if ($method === 'POST' && !$id && $sub !== 'photos') {
         $ins = $db->prepare('INSERT IGNORE INTO tresor_personnes (tresor_id,personne_id) VALUES (?,?)');
         foreach ($b['personnes'] as $pid) $ins->execute([$tid, $pid]);
     }
-    log_modification('tresor', 'ajout', $b['titre'], $user['nom']);
+    log_modification('tresor', 'ajout', $b['titre'], $user['nom'], $tid);
     json_out(['id' => $tid]);
 }
 
@@ -65,7 +65,7 @@ if ($method === 'PUT' && $id && !$sub) {
         $ins = $db->prepare('INSERT IGNORE INTO tresor_personnes (tresor_id,personne_id) VALUES (?,?)');
         foreach ($b['personnes'] as $pid) $ins->execute([$id, $pid]);
     }
-    log_modification('tresor', 'modification', $b['titre'], $user['nom']);
+    log_modification('tresor', 'modification', $b['titre'], $user['nom'], $id);
     json_out(['ok' => true]);
 }
 
@@ -75,7 +75,7 @@ if ($method === 'DELETE' && $id && !$sub) {
     $photos = $db->prepare('SELECT chemin,chemin_thumb FROM tresor_photos WHERE tresor_id=?'); $photos->execute([$id]);
     foreach ($photos->fetchAll() as $ph) { del_file($ph['chemin']); del_file($ph['chemin_thumb']); }
     $db->prepare('DELETE FROM tresors WHERE id=?')->execute([$id]);
-    if ($tr) log_modification('tresor', 'suppression', $tr['titre'], $user['nom']);
+    if ($tr) log_modification('tresor', 'suppression', $tr['titre'], $user['nom'], $id);
     json_out(['ok' => true]);
 }
 
@@ -101,7 +101,7 @@ if ($sub === 'photos') {
         $tr = $db->prepare('SELECT photo_id FROM tresors WHERE id=?'); $tr->execute([$id]); $tr = $tr->fetch();
         if (!$tr['photo_id']) $db->prepare('UPDATE tresors SET photo_id=? WHERE id=?')->execute([$photo_id, $id]);
         $tr_name = $db->prepare('SELECT titre FROM tresors WHERE id=?'); $tr_name->execute([$id]); $tr_name = $tr_name->fetchColumn() ?: '';
-        log_modification('tresor', 'ajout', 'Photo : ' . $tr_name, $user['nom']);
+        log_modification('tresor', 'ajout', 'Photo : ' . $tr_name, $user['nom'], $id);
         json_out(['id' => $photo_id, 'chemin' => $c, 'chemin_thumb' => $ct]);
     }
     if ($method === 'PUT' && $subid) {

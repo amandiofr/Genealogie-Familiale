@@ -35,7 +35,7 @@ if ($method === 'POST' && !$id && $sub !== 'photos') {
     $b = body();
     if (empty($b['titre']) || empty($b['contenu'])) json_error('Titre et contenu requis');
     $db->prepare('INSERT INTO recettes (titre,description,ingredients,contenu,date_recette,auteur) VALUES (?,?,?,?,?,?)')->execute([$b['titre'], $b['description'] ?: null, $b['ingredients'] ?: null, $b['contenu'], $b['date_recette'] ?: null, $b['auteur'] ?: null]);
-    log_modification('recette', 'ajout', $b['titre'], $user['nom']);
+    log_modification('recette', 'ajout', $b['titre'], $user['nom'], $db->lastInsertId());
     json_out(['id' => $db->lastInsertId()]);
 }
 
@@ -43,7 +43,7 @@ if ($method === 'PUT' && $id && !$sub) {
     require_role('admin', 'editeur');
     $b = body();
     $db->prepare('UPDATE recettes SET titre=?,description=?,ingredients=?,contenu=?,date_recette=?,auteur=? WHERE id=?')->execute([$b['titre'], $b['description'] ?: null, $b['ingredients'] ?: null, $b['contenu'], $b['date_recette'] ?: null, $b['auteur'] ?: null, $id]);
-    log_modification('recette', 'modification', $b['titre'], $user['nom']);
+    log_modification('recette', 'modification', $b['titre'], $user['nom'], $id);
     json_out(['ok' => true]);
 }
 
@@ -53,7 +53,7 @@ if ($method === 'DELETE' && $id && !$sub) {
     $photos = $db->prepare('SELECT chemin,chemin_thumb FROM recette_photos WHERE recette_id=?'); $photos->execute([$id]);
     foreach ($photos->fetchAll() as $ph) { del_file($ph['chemin']); del_file($ph['chemin_thumb']); }
     $db->prepare('DELETE FROM recettes WHERE id=?')->execute([$id]);
-    if ($rec) log_modification('recette', 'suppression', $rec['titre'], $user['nom']);
+    if ($rec) log_modification('recette', 'suppression', $rec['titre'], $user['nom'], $id);
     json_out(['ok' => true]);
 }
 
@@ -79,7 +79,7 @@ if ($sub === 'photos') {
         $rc = $db->prepare('SELECT photo_id FROM recettes WHERE id=?'); $rc->execute([$id]); $rc = $rc->fetch();
         if (!$rc['photo_id']) $db->prepare('UPDATE recettes SET photo_id=? WHERE id=?')->execute([$photo_id, $id]);
         $rc_name = $db->prepare('SELECT titre FROM recettes WHERE id=?'); $rc_name->execute([$id]); $rc_name = $rc_name->fetchColumn() ?: '';
-        log_modification('recette', 'ajout', 'Photo : ' . $rc_name, $user['nom']);
+        log_modification('recette', 'ajout', 'Photo : ' . $rc_name, $user['nom'], $id);
         json_out(['id' => $photo_id, 'chemin' => $c, 'chemin_thumb' => $ct]);
     }
     if ($method === 'PUT' && $subid) {

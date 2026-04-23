@@ -169,14 +169,24 @@ async function loadModificationLog(offset = 0) {
       return;
     }
     const actionColor = { ajout:'#2a7a2a', modification:'#1a6eb5', suppression:'#c44' };
-    const rows = logs.map(l => `
-      <div style="padding:.5rem 0;border-bottom:1px solid var(--border);font-size:.78rem;line-height:1.6;display:flex;flex-wrap:wrap;align-items:baseline;gap:.3rem .4rem;">
+    const hashMap = { personne:'person', evenement:'event', anecdote:'anecdote', tresor:'tresor', recette:'recette', auto:'auto' };
+    const rows = logs.map(l => {
+      const hash = hashMap[l.type];
+      const clickable = hash && l.object_id;
+      const isDeleted = l.action === 'suppression';
+      const onclick = !clickable ? '' : isDeleted
+        ? `onclick="toast(T('admin_log_deleted'),'error')"`
+        : `onclick="location.hash='${hash}/${l.object_id}'"`;
+      const cursor = clickable ? 'cursor:pointer;' : '';
+      return `
+      <div ${onclick} style="${cursor}padding:.5rem 0;border-bottom:1px solid var(--border);font-size:.78rem;line-height:1.6;display:flex;flex-wrap:wrap;align-items:baseline;gap:.3rem .4rem;">
         <span style="padding:1px 6px;border-radius:10px;color:#fff;background:${actionColor[l.action]??'#888'};">${encodeHTML(l.action??'')}</span>
         ${l.auteur ? `<span style="font-weight:500;color:var(--ink2);">${encodeHTML(l.auteur)}</span>` : ''}
         <span style="padding:1px 6px;border-radius:10px;background:var(--bg2);color:var(--ink2);">${encodeHTML(l.type??'')}</span>
         <span style="color:var(--ink);word-break:break-word;">${encodeHTML(l.description??'')}</span>
         <span style="color:var(--ink3);white-space:nowrap;margin-left:auto;">${l.created_at?.replace('T',' ').slice(0,16) ?? ''}</span>
-      </div>`).join('');
+      </div>`;
+    }).join('');
 
     if (offset === 0) {
       el.innerHTML = `<div id="mod-log-rows" style="display:flex;flex-direction:column;gap:.3rem;">${rows}</div>`;

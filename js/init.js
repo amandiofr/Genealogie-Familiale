@@ -53,7 +53,8 @@ async function loadArbres() {
     return na.localeCompare(nb, undefined, {sensitivity:'base'});
   });
   if (!_currentArbreId || !_arbres.find(a => a.id === _currentArbreId)) {
-    _currentArbreId = _arbres[0]?.id || null;
+    const _saved = localStorage.getItem('genealogie_arbre');
+    _currentArbreId = (_saved && _arbres.find(a => a.id === _saved)) ? _saved : (_arbres[0]?.id || null);
   }
   _applyArbre();
   _renderArbreCombo();
