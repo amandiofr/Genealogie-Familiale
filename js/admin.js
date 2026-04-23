@@ -465,6 +465,24 @@ function closePersonModalAll() {
   if (hadStack) closeLightbox();
 }
 
+// Ferme les modals sur clic backdrop uniquement si le mousedown a aussi démarré sur le backdrop
+(function() {
+  const _specialClose = {
+    'modal-person-view-overlay': () => closePersonModalAll(),
+    'modal-no-tree-overlay':     () => _cancelNoTree(),
+  };
+  document.querySelectorAll('.overlay').forEach(ov => {
+    let _mdOnSelf = false;
+    ov.addEventListener('mousedown', e => { _mdOnSelf = e.target === ov; });
+    ov.addEventListener('click', e => {
+      if (_mdOnSelf && e.target === ov) {
+        (_specialClose[ov.id] || (() => closeOverlay(ov.id)))();
+      }
+      _mdOnSelf = false;
+    });
+  });
+})();
+
 // Ouvre une fiche depuis un tag de lightbox (lightbox reste ouverte derrière)
 function _lbOpenPersonFromTag(personId) {
   _lbPersonStacked = true;
