@@ -90,7 +90,7 @@ async function showReunionForm(id){
         <div class="fg"><label>${T('form_date_debut')}</label><input type="date" id="rn-date-debut" value="${e?.date_debut||''}"></div>
         <div class="fg"><label>${T('form_date_fin')}</label><input type="date" id="rn-date-fin" value="${e?.date_fin||''}"></div>
         <div class="fg full"><label>${T('form_lieu')}</label><input id="rn-lieu" value="${e?.lieu||''}" placeholder="${T('ph_lieu')}"></div>
-        <div class="fg full"><label>${T('sec_description')}</label><textarea id="rn-desc" placeholder="${T('ph_desc_reunion')}">${e?.description||''}</textarea></div>
+        <div class="fg full"><label>${T('sec_description')}</label><textarea id="rn-desc" placeholder="${T('ph_desc_reunion')}">${encodeHTML(e?.description||'')}</textarea></div>
         <div class="fg full"><label>${T('form_participants')}</label><select id="rn-personnes" multiple size="6" style="height:130px;">${peopleOptions}</select></div>
       </div>
       ${id ? `<div class="fg full" style="margin-top:.8rem;">

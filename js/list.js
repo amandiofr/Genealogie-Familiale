@@ -292,7 +292,7 @@ async function showPersonForm(id) {
         <div class="fg"><label>${T('form_lieu_deces')}</label><input id="fp-lieu-deces" value="${p?.lieu_deces||''}"></div>
         <div class="fg full"><label>${T('form_generation')}</label><select id="fp-gen">${genOptions}</select></div>
         <div class="fg full"><label>${T('form_job')}</label><input id="fp-job" value="${p?.profession||''}"></div>
-        <div class="fg full"><label>${T('form_bio')}</label><textarea id="fp-bio">${p?.biographie||''}</textarea></div>
+        <div class="fg full"><label>${T('form_bio')}</label><textarea id="fp-bio">${encodeHTML(p?.biographie||'')}</textarea></div>
       </div>
       ${!id ? `<div class="form-grid" style="margin-top:.5rem;">
           <div class="fg"><label>${T('form_lien_type')}</label>

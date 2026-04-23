@@ -106,7 +106,7 @@ async function showAutoForm(id) {
         <div class="fg"><label>${T('form_annee')}</label><input id="fau-annee" type="number" min="1885" max="2100" value="${a?.annee||''}" placeholder="1972"></div>
         <div class="fg"><label>${T('form_couleur')}</label><input id="fau-couleur" value="${a?.couleur||''}" placeholder="${T('ph_couleur')}"></div>
         <div class="fg full"><label>${T('form_owner')}</label><select id="fau-owner">${ownerOptions}</select></div>
-        <div class="fg full"><label>${T('sec_description')}</label><textarea id="fau-desc" placeholder="${T('ph_desc_auto')}">${a?.description||''}</textarea></div>
+        <div class="fg full"><label>${T('sec_description')}</label><textarea id="fau-desc" placeholder="${T('ph_desc_auto')}">${encodeHTML(a?.description||'')}</textarea></div>
       </div>
       ${id ? `<div class="fg full" style="margin-top:.8rem;">
         <div class="fg-section-label">${T('lbl_add_photos')}</div>

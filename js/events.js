@@ -98,7 +98,7 @@ async function showEventForm(id){
         <div class="fg"><label>${T('form_date_debut')}</label><input type="date" id="fe-date-debut" value="${e?.date_debut||''}"></div>
         <div class="fg"><label>${T('form_date_fin')}</label><input type="date" id="fe-date-fin" value="${e?.date_fin||''}"></div>
         <div class="fg full"><label>${T('form_lieu')}</label><input id="fe-lieu" value="${e?.lieu||''}" placeholder="${T('ph_lieu')}" oninput="checkDemenagementLieu()"><div id="fe-lieu-warn" style="display:none;font-size:.72rem;color:#b45309;margin-top:3px;">⚠️ <span></span></div></div>
-        <div class="fg full"><label>${T('sec_description')}</label><textarea id="fe-desc" placeholder="${T('ph_desc_event')}">${e?.description||''}</textarea></div>
+        <div class="fg full"><label>${T('sec_description')}</label><textarea id="fe-desc" placeholder="${T('ph_desc_event')}">${encodeHTML(e?.description||'')}</textarea></div>
         <div class="fg full"><label>${T('form_participants')}</label><select id="fe-personnes" multiple size="6" style="height:130px;">${peopleOptions}</select></div>
       </div>
       ${id ? `<div class="fg full" style="margin-top:.8rem;">

@@ -78,7 +78,7 @@ async function showTresorForm(id){
     </div>
     <div class="modal-bd">
       <div class="fg"><label>${T('form_titre')} *</label><input id="ft-titre" value="${t?.titre||''}" placeholder="${T('ph_titre_tresor')}"></div>
-      <div class="fg"><label>${T('form_contenu')} *</label><textarea id="ft-contenu" style="min-height:160px;" placeholder="${T('ph_contenu_tresor')}">${t?.contenu||''}</textarea></div>
+      <div class="fg"><label>${T('form_contenu')} *</label><textarea id="ft-contenu" style="min-height:160px;" placeholder="${T('ph_contenu_tresor')}">${encodeHTML(t?.contenu||'')}</textarea></div>
       <div class="form-grid">
         <div class="fg"><label>${T('form_date_approx')}</label><input id="ft-date" value="${t?.date_tresor||''}" placeholder="${T('ph_date_tresor')}"></div>
         <div class="fg"><label>${T('form_written_by')}</label><input id="ft-auteur" value="${t?.auteur ?? authorName ?? ''}" placeholder="${T('author_placeholder')}"></div>

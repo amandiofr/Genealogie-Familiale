@@ -84,9 +84,9 @@ async function showRecetteForm(id){
     </div>
     <div class="modal-bd">
       <div class="fg"><label>${T('form_titre')} *</label><input id="fr-titre" value="${r?.titre||''}" placeholder="${T('ph_titre_recette')}"></div>
-      <div class="fg"><label>${T('sec_description')}</label><textarea id="fr-description" style="min-height:80px;" placeholder="${T('ph_desc_recette')}">${r?.description||''}</textarea></div>
-      <div class="fg"><label>${T('lbl_ingredients')}</label><textarea id="fr-ingredients" style="min-height:100px;" placeholder="${T('ph_ingredients_recette')}">${r?.ingredients||''}</textarea></div>
-      <div class="fg"><label>${T('lbl_preparation')} *</label><textarea id="fr-contenu" style="min-height:160px;" placeholder="${T('ph_contenu_recette')}">${r?.contenu||''}</textarea></div>
+      <div class="fg"><label>${T('sec_description')}</label><textarea id="fr-description" style="min-height:80px;" placeholder="${T('ph_desc_recette')}">${encodeHTML(r?.description||'')}</textarea></div>
+      <div class="fg"><label>${T('lbl_ingredients')}</label><textarea id="fr-ingredients" style="min-height:100px;" placeholder="${T('ph_ingredients_recette')}">${encodeHTML(r?.ingredients||'')}</textarea></div>
+      <div class="fg"><label>${T('lbl_preparation')} *</label><textarea id="fr-contenu" style="min-height:160px;" placeholder="${T('ph_contenu_recette')}">${encodeHTML(r?.contenu||'')}</textarea></div>
       <div class="form-grid">
         <div class="fg"><label>${T('form_date_approx')}</label><input id="fr-date" value="${r?.date_recette||''}" placeholder="${T('ph_date_recette')}"></div>
         <div class="fg"><label>${T('form_written_by')}</label><input id="fr-auteur" value="${r?.auteur ?? authorName ?? ''}" placeholder="${T('author_placeholder')}"></div>
