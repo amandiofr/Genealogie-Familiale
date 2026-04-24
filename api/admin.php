@@ -103,7 +103,8 @@ if ($action === 'quality_check' && method_is('GET')) {
     // Membres isolés (aucun lien familial)
     $isoles = $db->query("
         SELECT id, prenom, nom FROM personnes
-        WHERE id NOT IN (SELECT personne_a FROM liens UNION SELECT personne_b FROM liens)
+        WHERE hors_arbre = 0
+          AND id NOT IN (SELECT personne_a FROM liens UNION SELECT personne_b FROM liens)
         ORDER BY nom, prenom
     ")->fetchAll();
 
