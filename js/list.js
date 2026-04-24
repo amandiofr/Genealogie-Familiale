@@ -110,7 +110,7 @@ async function openPerson(id) {
   // Famille
   const conjoints  = (p.liens||[]).filter(l=>l.type==='conjoint');
   const fiancailles= (p.liens||[]).filter(l=>l.type==='fiancailles');
-  const parents    = (p.liens||[]).filter(l=>l.type==='parent_enfant'&&Number(l.personne_b)===id);
+  const parents    = (p.liens||[]).filter(l=>l.type==='parent_enfant'&&Number(l.personne_b)===id&&inCurrentTree(Number(l.personne_a)));
   const enfants    = (p.liens||[]).filter(l=>l.type==='parent_enfant'&&Number(l.personne_a)===id);
   const sortedParents = parents.slice().sort((a,b)=>(a.genre==='male'?0:1)-(b.genre==='male'?0:1));
   const sortedEnfants = enfants.slice().sort((a,b)=>{
@@ -118,8 +118,45 @@ async function openPerson(id) {
     if(!a.naissance) return 1; if(!b.naissance) return -1;
     return a.naissance.localeCompare(b.naissance);
   });
-  const groupA = [...conjoints.map(l=>({...l,role:'💍'})),...fiancailles.map(l=>({...l,role:'💑'})),...sortedParents.map(l=>({...l,role:'👨‍👩‍👧'}))];
-  const groupB = sortedEnfants.map(l=>({...l,role:l.genre==='male'?'👦':'👧'}));
+  // Conjoint de chaque parent (si pas déjà parent de X et appartient à l'arbre courant)
+  const shownParentIds = new Set([id, ...parents.map(l => Number(l.personne_a))]);
+  const extraParents = [];
+  for (const pl of parents) {
+    const parentId = Number(pl.personne_a);
+    for (const l of _allLiens) {
+      if (l.type !== 'conjoint' && l.type !== 'fiancailles') continue;
+      const a = Number(l.personne_a), b = Number(l.personne_b);
+      const sid = a === parentId ? b : b === parentId ? a : null;
+      if (!sid || shownParentIds.has(sid) || !inCurrentTree(sid)) continue;
+      const sp = people.find(x => x.id === sid);
+      if (!sp) continue;
+      shownParentIds.add(sid);
+      extraParents.push({ _computed:true, lien_id:null, personne_a:sid, personne_b:id,
+        type:'parent_enfant', prenom:sp.prenom, nom:sp.nom||'', genre:sp.genre,
+        chemin_thumb:sp.chemin_thumb||null, role:'👨‍👩‍👧', naissance:sp.naissance });
+    }
+  }
+  extraParents.sort((a,b)=>(a.genre==='male'?0:1)-(b.genre==='male'?0:1));
+  // Enfants du conjoint (si pas déjà enfant de X)
+  const seenChildren = new Set([id, ...enfants.map(l => Number(l.personne_b))]);
+  const extraEnfants = [];
+  for (const cl of [...conjoints, ...fiancailles]) {
+    const sid = Number(cl.personne_a) === id ? Number(cl.personne_b) : Number(cl.personne_a);
+    for (const l of _allLiens) {
+      if (l.type !== 'parent_enfant' || Number(l.personne_a) !== sid) continue;
+      const childId = Number(l.personne_b);
+      if (seenChildren.has(childId)) continue;
+      const ch = people.find(x => x.id === childId);
+      if (!ch) continue;
+      seenChildren.add(childId);
+      extraEnfants.push({ _computed:true, lien_id:null, personne_a:id, personne_b:childId,
+        type:'parent_enfant', prenom:ch.prenom, nom:ch.nom||'', genre:ch.genre,
+        chemin_thumb:ch.chemin_thumb||null, role:ch.genre==='male'?'👦':'👧', naissance:ch.naissance });
+    }
+  }
+  extraEnfants.sort((a,b)=>{ if(!a.naissance&&!b.naissance) return 0; if(!a.naissance) return 1; if(!b.naissance) return -1; return a.naissance.localeCompare(b.naissance); });
+  const groupA = [...conjoints.map(l=>({...l,role:'💍'})),...fiancailles.map(l=>({...l,role:'💑'})),...sortedParents.map(l=>({...l,role:'👨‍👩‍👧'})),...extraParents];
+  const groupB = [...sortedEnfants.map(l=>({...l,role:l.genre==='male'?'👦':'👧'})),...extraEnfants];
   const allFamily = [...groupA,...groupB];
   const renderFL = (l) => {
     const isDirect = !l._computed && !!l.lien_id;
