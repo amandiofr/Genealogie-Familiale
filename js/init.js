@@ -275,6 +275,26 @@ async function _handleHash(hash) {
 }
 
 // ══════════════════════════════════════════════════════════════
+//  Global error handler — évite l'écran blanc sur erreur JS inattendue
+// ══════════════════════════════════════════════════════════════
+window.addEventListener('unhandledrejection', e => {
+  const msg = e.reason?.message || 'Erreur inattendue';
+  const b = document.getElementById('_err-banner') || (() => {
+    const el = document.createElement('div');
+    el.id = '_err-banner';
+    Object.assign(el.style, { position:'fixed', top:'0', left:'0', right:'0', padding:'12px 16px',
+      background:'#5a4e3a', color:'#fff', fontSize:'14px', zIndex:'9999', textAlign:'center',
+      display:'flex', alignItems:'center', justifyContent:'center', gap:'12px' });
+    document.body.appendChild(el);
+    return el;
+  })();
+  const label = (typeof T === 'function' ? T('err_unexpected') : null) || 'Une erreur est survenue. Appuyez sur le bouton pour recharger la page.';
+  const btnLabel = (typeof T === 'function' ? T('btn_reload') : null) || 'Rafraîchir';
+  b.innerHTML = `<span>${label}</span><button onclick="location.reload()" style="background:#fff;color:#5a4e3a;border:none;border-radius:4px;padding:4px 12px;font-size:13px;font-weight:600;cursor:pointer;">${btnLabel}</button>`;
+  e.preventDefault();
+});
+
+// ══════════════════════════════════════════════════════════════
 //  API helper
 // ══════════════════════════════════════════════════════════════
 async function api(method, url, body) {

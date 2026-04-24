@@ -1349,6 +1349,10 @@ function devDemoReminder() {
   toast(T('author_reminder'), 'info', 6000);
 }
 
+function devDemoError() {
+  Promise.reject(new Error('Test erreur simulée'));
+}
+
 init().catch(err => {
   document.body.innerHTML = '<div style="padding:2rem;font-family:monospace;color:red;background:#fff;position:fixed;inset:0;overflow:auto;z-index:9999;">'
     + '<h2>Erreur au démarrage</h2><pre>' + err.stack + '</pre></div>';
