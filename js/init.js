@@ -60,12 +60,25 @@ async function loadArbres() {
   _renderArbreCombo();
 }
 
+function _applySubtreeFilter() {
+  _directMembersSet = _computeDescendants(_subtreeRootId);
+  _currentMembers = new Set(_directMembersSet);
+  for (const l of _allLiens) {
+    if (l.type === 'conjoint' || l.type === 'fiancailles') {
+      const a = Number(l.personne_a), b = Number(l.personne_b);
+      if (_currentMembers.has(a)) _currentMembers.add(b);
+      if (_currentMembers.has(b)) _currentMembers.add(a);
+    }
+  }
+}
+
 function _applyArbre() {
   _directMembersSet = null;
   if (!_currentArbreId || !_arbres.length) { _currentMembers = null; return; }
   const arbre = _arbres.find(a => a.id === _currentArbreId);
   _currentMembers = arbre ? new Set(arbre.membres.map(Number)) : null;
   if (typeof _expandCurrentMembersWithSpouses === 'function') _expandCurrentMembersWithSpouses();
+  if (_subtreeRootId && _allLiens) _applySubtreeFilter();
 }
 
 function _renderArbreCombo() {
@@ -107,15 +120,7 @@ function _computeDescendants(rootId) {
 function setSubtree(personId) {
   _subtreeRootId = Number(personId);
   const p = people.find(x => x.id === _subtreeRootId);
-  _directMembersSet = _computeDescendants(_subtreeRootId);
-  _currentMembers = new Set(_directMembersSet);
-  for (const l of _allLiens) {
-    if (l.type === 'conjoint' || l.type === 'fiancailles') {
-      const a = Number(l.personne_a), b = Number(l.personne_b);
-      if (_currentMembers.has(a)) _currentMembers.add(b);
-      if (_currentMembers.has(b)) _currentMembers.add(a);
-    }
-  }
+  _applySubtreeFilter();
   const banner = document.getElementById('subtree-banner');
   if (banner) {
     document.getElementById('subtree-banner-label').textContent = `🌳 ${T('btn_subtree').replace('🌳 ','')} : ${p ? fullName(p) : ''}`;
