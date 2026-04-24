@@ -149,6 +149,32 @@ async function openPerson(id) {
     html+=`<div class="modal-section"><div class="sec-title">${T('sec_famille')}</div><button class="btn-secondary" style="width:100%;font-size:.75rem;" onclick="showLienForm(${id})">${T('btn_add_link')}</button></div>`;
   }
 
+  // Déménagements (membres directs et conjoints de l'arbre courant)
+  const _dems = inCurrentTree(id) ? (p.evenements||[]).filter(e=>e.type==='demenagement').sort((a,b)=>a.date_debut>b.date_debut?1:-1) : null;
+  if (_dems !== null) {
+  html+=`<div class="modal-section" id="dem-section"><div class="sec-title">${T('sec_dems')}</div>`;
+  html+=`<div id="dem-list">`;
+  if(_dems.length){
+    _dems.forEach(e=>{
+      const annee = e.date_debut ? e.date_debut.substring(0,4) : '?';
+      const autres = (e.nb_personnes||1) - 1;
+      const avecLabel = autres > 0 ? ` <span style="color:var(--ink3);font-size:.75em;">+ ${autres}</span>` : '';
+      const editBtns = currentUser.role!=='lecteur' ? `<button onclick="showDemForm(${id},${e.id})" style="background:none;border:none;color:var(--ink3);cursor:pointer;font-size:.75rem;padding:0 4px;">✏️</button><button onclick="deleteDem(${id},${e.id})" style="background:none;border:none;color:var(--ink3);cursor:pointer;font-size:.75rem;padding:0 2px;">🗑</button>` : '';
+      html+=`<div style="display:flex;align-items:center;gap:.5rem;padding:.35rem 0;border-bottom:1px solid var(--border2);">
+        <span style="font-size:.8rem;font-weight:600;min-width:2.5rem;color:var(--ink2);">${annee}</span>
+        <span style="flex:1;font-size:.85rem;">${e.lieu||'—'}${avecLabel}</span>
+        ${editBtns}
+      </div>`;
+    });
+  } else {
+    html+=`<div style="font-size:.8rem;color:var(--ink3);font-style:italic;padding:.3rem 0;">${T('dem_empty')}</div>`;
+  }
+  html+=`</div>`;
+  if(currentUser.role!=='lecteur') html+=`<button class="btn-secondary" style="width:100%;margin-top:8px;font-size:.75rem;" onclick="showDemForm(${id},null)">${T('btn_add_dem')}</button>`;
+  html+=`<div id="dem-form-wrap" style="display:none;"></div>`;
+  html+=`</div>`;
+  } // fin if inCurrentTree
+
   // Photos
   if((p.photos||[]).length){
     html+=`<div class="modal-section"><div class="sec-title">${T('sec_photos')}</div><div class="photos-strip">`;
@@ -182,33 +208,6 @@ async function openPerson(id) {
 
   // Biographie
   if(p.biographie) html+=`<div class="modal-section"><div class="sec-title">${T('sec_bio')}</div><div class="notes-box">${p.biographie.replace(/\n/g,'<br>')}</div></div>`;
-
-  // Déménagements (membres directs et conjoints de l'arbre courant)
-  const _dems = inCurrentTree(id) ? (p.evenements||[]).filter(e=>e.type==='demenagement').sort((a,b)=>a.date_debut>b.date_debut?1:-1) : null;
-  if (_dems !== null) {
-  html+=`<div class="modal-section" id="dem-section"><div class="sec-title">${T('sec_dems')}</div>`;
-  html+=`<div id="dem-list">`;
-  if(_dems.length){
-    _dems.forEach(e=>{
-      const annee = e.date_debut ? e.date_debut.substring(0,4) : '?';
-      const autres = (e.nb_personnes||1) - 1;
-      const avecLabel = autres > 0 ? ` <span style="color:var(--ink3);font-size:.75em;">+ ${autres}</span>` : '';
-      const editBtns = currentUser.role!=='lecteur' ? `<button onclick="showDemForm(${id},${e.id})" style="background:none;border:none;color:var(--ink3);cursor:pointer;font-size:.75rem;padding:0 4px;">✏️</button><button onclick="deleteDem(${id},${e.id})" style="background:none;border:none;color:var(--ink3);cursor:pointer;font-size:.75rem;padding:0 2px;">🗑</button>` : '';
-      html+=`<div style="display:flex;align-items:center;gap:.5rem;padding:.35rem 0;border-bottom:1px solid var(--border2);">
-        <span style="font-size:.8rem;font-weight:600;min-width:2.5rem;color:var(--ink2);">${annee}</span>
-        <span style="flex:1;font-size:.85rem;">${e.lieu||'—'}${avecLabel}</span>
-        ${editBtns}
-      </div>`;
-    });
-  } else {
-    html+=`<div style="font-size:.8rem;color:var(--ink3);font-style:italic;padding:.3rem 0;">${T('dem_empty')}</div>`;
-  }
-  html+=`</div>`;
-  if(currentUser.role!=='lecteur') html+=`<button class="btn-secondary" style="width:100%;margin-top:8px;font-size:.75rem;" onclick="showDemForm(${id},null)">${T('btn_add_dem')}</button>`;
-  html+=`<div id="dem-form-wrap" style="display:none;"></div>`;
-  html+=`</div>`;
-  } // fin if inCurrentTreeDirect
-
 
   // Actions
   if(currentUser.role!=='lecteur'){
