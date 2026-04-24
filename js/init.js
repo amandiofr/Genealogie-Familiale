@@ -171,7 +171,6 @@ async function init() {
       document.getElementById('btn-add-person').style.display='none';
       document.getElementById('btn-add-person-tree').style.display='none';
       document.getElementById('btn-add-event').style.display='none';
-      document.getElementById('btn-add-reunion').style.display='none';
       document.getElementById('btn-add-anecdote').style.display='none';
       document.getElementById('btn-add-tresor').style.display='none';
       document.getElementById('btn-add-recette').style.display='none';
@@ -198,7 +197,6 @@ async function init() {
   });
   document.getElementById('btn-add-person').onclick   = () => showPersonForm(null);
   document.getElementById('btn-add-event').onclick    = () => showEventForm(null);
-  document.getElementById('btn-add-reunion').onclick  = () => showReunionForm(null);
   document.getElementById('btn-add-anecdote').onclick = () => showAnecdoteForm(null);
   document.getElementById('btn-add-tresor').onclick   = () => showTresorForm(null);
   document.getElementById('btn-add-recette').onclick  = () => showRecetteForm(null);
@@ -244,7 +242,7 @@ async function init() {
 
 const _adminViews = ['admin-comptes','admin-export','admin-import','admin-notif','admin-password','admin-orphans','admin-logs','admin-dev'];
 const _editorViews = ['quality'];
-const _validViews = ['tree','list','events','reunions','anecdotes','tresors','recettes','autos','timeline','carte',..._adminViews,..._editorViews];
+const _validViews = ['tree','list','events','anecdotes','tresors','recettes','autos','timeline','carte',..._adminViews,..._editorViews];
 
 async function _handleHash(hash) {
   if (!hash) return;
@@ -308,7 +306,6 @@ function showView(name) {
   if (name==='tree')             { centerTree(); }
   if (name==='list')             { renderList(); }
   if (name==='events')           { loadEvents(); }
-  if (name==='reunions')         { loadReunions(); }
   if (name==='anecdotes')        { loadAnecdotes(); }
   if (name==='tresors')          { loadTresors(); }
   if (name==='recettes')         { loadRecettes(); }

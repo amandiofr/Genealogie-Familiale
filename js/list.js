@@ -8,7 +8,6 @@ let _lbTaggedGallery = [], _lbTaggedMeta = [];
 function _refreshActiveView() {
   const active = document.querySelector('.view.active')?.id?.replace('view-', '');
   if (active === 'events')    loadEvents();
-  else if (active === 'reunions')  loadReunions();
   else if (active === 'anecdotes') loadAnecdotes();
   else if (active === 'autos')     loadAutos();
   else if (active === 'timeline')  loadTimeline();

@@ -21,7 +21,6 @@
       <button class="active" data-view="tree">Arbre</button>
       <button data-view="list">Membres</button>
       <button data-view="events">Événements</button>
-      <button data-view="reunions" style="display:none;">Réunions</button>
       <button data-view="anecdotes">Anecdotes</button>
       <button data-view="tresors">Trésors</button>
       <button data-view="recettes">Recettes</button>
@@ -124,16 +123,6 @@
   </div>
 </div>
 
-<!-- ── RÉUNIONS FAMILIALES ────────────────────────────────────── -->
-<div id="view-reunions" class="view">
-  <div class="view-inner">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.2rem;">
-      <h2 id="view-reunions-heading" style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:400;">Réunions familiales</h2>
-      <button class="btn-primary" id="btn-add-reunion" style="font-size:.78rem;padding:7px 14px;">+ Ajouter</button>
-    </div>
-    <div id="reunions-grid" class="cards-grid"></div>
-  </div>
-</div>
 
 <!-- ── ANECDOTES ──────────────────────────────────────────────── -->
 <div id="view-anecdotes" class="view">
@@ -400,10 +389,6 @@
   <div class="modal" id="modal-form-event" onclick="event.stopPropagation()" style="max-width:560px;"></div>
 </div>
 
-<!-- ── MODAL FORM RÉUNION ─────────────────────────────────────── -->
-<div class="overlay" id="modal-form-reunion-overlay">
-  <div class="modal" id="modal-form-reunion" onclick="event.stopPropagation()" style="max-width:560px;"></div>
-</div>
 
 <!-- ── MODAL FORM ANECDOTE ───────────────────────────────────── -->
 <div class="overlay" id="modal-form-anecdote-overlay">
@@ -452,7 +437,6 @@
 <script src="js/list.js?v=105"></script>
 <script src="js/reactions.js?v=105"></script>
 <script src="js/events.js?v=105"></script>
-<script src="js/reunions.js?v=105"></script>
 <script src="js/timeline.js?v=105"></script>
 <script src="js/autos.js?v=105"></script>
 <script src="js/tresors.js?v=105"></script>

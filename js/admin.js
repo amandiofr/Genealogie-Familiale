@@ -319,20 +319,6 @@ async function loadQualityCheck() {
       </div>`;
     });
 
-    // ── Réunions ──
-    html += _section(T('admin_quality_reunions'), [...d.reunions].sort(_alpha('titre')), r => {
-      const issues = [];
-      if (!r.date_debut || r.date_debut.includes('?')) issues.push(T('admin_quality_no_date'));
-      if (!r.lieu || r.lieu.includes('?'))             issues.push(T('admin_quality_no_lieu'));
-      return `<div class="user-row" style="cursor:pointer;" onclick="showReunionForm(${r.id})">
-        <div style="flex:1;">
-          <div style="font-size:.85rem;font-weight:500;">${r.titre}</div>
-          <div style="font-size:.72rem;color:#b45309;">${issues.join(' · ')}</div>
-        </div>
-        <span style="font-size:.7rem;color:var(--ink3);">✏️</span>
-      </div>`;
-    });
-
     // ── Événements ──
     html += _section(T('admin_quality_events'), [...d.evenements].sort(_alpha('titre')), e => {
       const issues = [];

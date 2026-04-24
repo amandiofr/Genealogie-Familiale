@@ -16,7 +16,7 @@ if ($action === 'orphan_files' && method_is('GET')) {
 
     // Collect every path referenced in the DB
     $referenced = [];
-    $tables = ['photos', 'anecdote_photos', 'evenement_photos', 'reunion_photos', 'auto_photos'];
+    $tables = ['photos', 'anecdote_photos', 'evenement_photos', 'auto_photos'];
     foreach ($tables as $table) {
         foreach ($db->query("SELECT chemin, chemin_thumb FROM $table")->fetchAll() as $row) {
             if ($row['chemin'])       $referenced[$row['chemin']]       = true;
@@ -100,14 +100,6 @@ if ($action === 'quality_check' && method_is('GET')) {
         ORDER BY e.titre
     ")->fetchAll();
 
-    $reunions = $db->query("
-        SELECT id, titre, date_debut, lieu
-        FROM reunions
-        WHERE  date_debut IS NULL
-           OR (lieu       IS NULL OR lieu = '' OR lieu LIKE '%?%')
-        ORDER BY titre
-    ")->fetchAll();
-
     // Membres isolés (aucun lien familial)
     $isoles = $db->query("
         SELECT id, prenom, nom FROM personnes
@@ -165,7 +157,6 @@ if ($action === 'quality_check' && method_is('GET')) {
     json_out([
         'personnes'       => $personnes,
         'evenements'      => $evenements,
-        'reunions'        => $reunions,
         'isoles'          => $isoles,
         'sans_photo'      => $sansPhoto,
         'sans_date_mariage' => $sansDateMariage,

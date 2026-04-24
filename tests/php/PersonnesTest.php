@@ -16,7 +16,7 @@ class PersonnesTest extends DbTestCase
             'evenement_personnes', 'evenement_photos', 'evenements',
             'liens', 'modification_log', 'notification_emails', 'notification_state',
             'personnes', 'photos',
-            'remember_tokens', 'reunion_personnes', 'reunion_photos', 'reunions',
+            'remember_tokens',
             'utilisateurs',
         ];
 

@@ -92,13 +92,12 @@ if ($method === 'GET' && $id) {
     // Photos où la personne est taguée (toutes sources sauf ses propres photos)
     $tagged = $db->prepare("
         SELECT pt.photo_source AS source, pt.photo_id,
-               COALESCE(ph_p.chemin_thumb, ph_e.chemin_thumb, ph_r.chemin_thumb, ph_a.chemin_thumb, ph_au.chemin_thumb, ph_t.chemin_thumb, ph_rc.chemin_thumb) AS chemin_thumb,
-               COALESCE(ph_p.chemin,       ph_e.chemin,       ph_r.chemin,       ph_a.chemin,       ph_au.chemin,       ph_t.chemin,       ph_rc.chemin)       AS chemin,
-               COALESCE(ph_p.personne_id, ph_e.evenement_id, ph_r.reunion_id, ph_a.anecdote_id, ph_au.auto_id, ph_t.tresor_id, ph_rc.recette_id) AS parent_id,
+               COALESCE(ph_p.chemin_thumb, ph_e.chemin_thumb, ph_a.chemin_thumb, ph_au.chemin_thumb, ph_t.chemin_thumb, ph_rc.chemin_thumb) AS chemin_thumb,
+               COALESCE(ph_p.chemin,       ph_e.chemin,       ph_a.chemin,       ph_au.chemin,       ph_t.chemin,       ph_rc.chemin)       AS chemin,
+               COALESCE(ph_p.personne_id, ph_e.evenement_id, ph_a.anecdote_id, ph_au.auto_id, ph_t.tresor_id, ph_rc.recette_id) AS parent_id,
                COALESCE(
                    CONCAT(pr.prenom, ' ', pr.nom),
                    ev.titre,
-                   re.titre,
                    an.titre,
                    CONCAT(au.marque, IFNULL(CONCAT(' ', NULLIF(au.modele, '')), '')),
                    tr.titre,
@@ -107,14 +106,12 @@ if ($method === 'GET' && $id) {
         FROM photo_tags pt
         LEFT JOIN photos             ph_p  ON pt.photo_source='person'    AND ph_p.id  = pt.photo_id
         LEFT JOIN evenement_photos   ph_e  ON pt.photo_source='evenement' AND ph_e.id  = pt.photo_id
-        LEFT JOIN reunion_photos     ph_r  ON pt.photo_source='reunion'   AND ph_r.id  = pt.photo_id
         LEFT JOIN anecdote_photos    ph_a  ON pt.photo_source='anecdote'  AND ph_a.id  = pt.photo_id
         LEFT JOIN auto_photos        ph_au ON pt.photo_source='auto'      AND ph_au.id = pt.photo_id
         LEFT JOIN tresor_photos      ph_t  ON pt.photo_source='tresor'    AND ph_t.id  = pt.photo_id
         LEFT JOIN recette_photos     ph_rc ON pt.photo_source='recette'   AND ph_rc.id = pt.photo_id
         LEFT JOIN personnes          pr    ON pt.photo_source='person'    AND pr.id    = ph_p.personne_id
         LEFT JOIN evenements         ev    ON pt.photo_source='evenement' AND ev.id    = ph_e.evenement_id
-        LEFT JOIN reunions           re    ON pt.photo_source='reunion'   AND re.id    = ph_r.reunion_id
         LEFT JOIN anecdotes          an    ON pt.photo_source='anecdote'  AND an.id    = ph_a.anecdote_id
         LEFT JOIN autos              au    ON pt.photo_source='auto'      AND au.id    = ph_au.auto_id
         LEFT JOIN tresors            tr    ON pt.photo_source='tresor'    AND tr.id    = ph_t.tresor_id

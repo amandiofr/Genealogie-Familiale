@@ -100,40 +100,6 @@ CREATE TABLE IF NOT EXISTS evenement_photos (
   FOREIGN KEY (evenement_id) REFERENCES evenements(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;",
 
-'reunions' => "
-CREATE TABLE IF NOT EXISTS reunions (
-  id          INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  titre       VARCHAR(300) NOT NULL,
-  date_debut  DATE    DEFAULT NULL,
-  date_fin    DATE    DEFAULT NULL,
-  lieu        VARCHAR(300) DEFAULT NULL,
-  description TEXT    DEFAULT NULL,
-  photo_id    INT UNSIGNED DEFAULT NULL,
-  created_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
-  updated_at  DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;",
-
-'reunion_personnes' => "
-CREATE TABLE IF NOT EXISTS reunion_personnes (
-  reunion_id  INT UNSIGNED NOT NULL,
-  personne_id INT UNSIGNED NOT NULL,
-  role        VARCHAR(100) DEFAULT NULL,
-  PRIMARY KEY (reunion_id, personne_id),
-  FOREIGN KEY (reunion_id)  REFERENCES reunions(id)  ON DELETE CASCADE,
-  FOREIGN KEY (personne_id) REFERENCES personnes(id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;",
-
-'reunion_photos' => "
-CREATE TABLE IF NOT EXISTS reunion_photos (
-  id          INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  reunion_id  INT UNSIGNED NOT NULL,
-  chemin      VARCHAR(400) NOT NULL,
-  chemin_thumb VARCHAR(400) DEFAULT NULL,
-  legende     TEXT         DEFAULT NULL,
-  ordre       SMALLINT     DEFAULT 0,
-  FOREIGN KEY (reunion_id) REFERENCES reunions(id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;",
-
 'anecdotes' => "
 CREATE TABLE IF NOT EXISTS anecdotes (
   id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -422,6 +388,13 @@ try {
         }
     } catch (PDOException $e) {
         $errors[] = 'Migration object_id modification_log : ' . $e->getMessage();
+    }
+
+    try {
+        $db->exec("DROP TABLE IF EXISTS reunion_photos, reunion_personnes, reunions");
+        $done[] = '→ Migration : tables reunions supprimées';
+    } catch (PDOException $e) {
+        $errors[] = 'Migration drop reunions : ' . $e->getMessage();
     }
 
     // Compte admin par défaut

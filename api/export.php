@@ -38,8 +38,6 @@ if ($action === 'json' && $method === 'GET') {
         'auto_photos'         => $db->query('SELECT * FROM auto_photos')->fetchAll(),
         'reactions'           => $db->query('SELECT * FROM reactions')->fetchAll(),
         'photo_tags'          => $db->query('SELECT * FROM photo_tags')->fetchAll(),
-        'reunions'            => $db->query('SELECT * FROM reunions')->fetchAll(),
-        'reunion_personnes'   => $db->query('SELECT * FROM reunion_personnes')->fetchAll(),
     ];
     echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
     exit;
@@ -65,8 +63,6 @@ if ($action === 'csv' && $method === 'GET') {
         'auto_photos'         => ['id','auto_id','chemin','chemin_thumb','legende','ordre'],
         'reactions'           => ['id','source','source_id','display_name','emoji','created_at'],
         'photo_tags'          => ['id','photo_source','photo_id','personne_id','x','y','w','h'],
-        'reunions'            => ['id','titre','date_debut','date_fin','lieu','description'],
-        'reunion_personnes'   => ['reunion_id','personne_id','role'],
     ];
 
     $zip = new ZipArchive();
@@ -368,11 +364,6 @@ function import_json(array $data, PDO $db): int {
         foreach ($data['recettes']??[] as $r) { $insRec->execute([$r['titre'],$r['description']??null,$r['ingredients']??null,$r['contenu'],$r['date_recette']??null,$r['auteur']??null]); }
         $insAu=$db->prepare('INSERT INTO autos (marque,modele,annee,couleur,description,personne_id) VALUES (?,?,?,?,?,?)');
         foreach ($data['autos']??[] as $a) { $pid=$idMap[$a['personne_id']??0]??null; $insAu->execute([$a['marque'],$a['modele']??null,$a['annee']??null,$a['couleur']??null,$a['description']??null,$pid]); }
-        $reunMap=[];
-        $insR=$db->prepare('INSERT INTO reunions (titre,date_debut,date_fin,lieu,description) VALUES (?,?,?,?,?)');
-        foreach ($data['reunions']??[] as $r) { $insR->execute([$r['titre'],$r['date_debut']??null,$r['date_fin']??null,$r['lieu']??null,$r['description']??null]); $reunMap[$r['id']]=$db->lastInsertId(); }
-        $insRP=$db->prepare('INSERT IGNORE INTO reunion_personnes (reunion_id,personne_id,role) VALUES (?,?,?)');
-        foreach ($data['reunion_personnes']??[] as $rp) { $rid=$reunMap[$rp['reunion_id']]??null;$pid=$idMap[$rp['personne_id']]??null; if($rid&&$pid) $insRP->execute([$rid,$pid,$rp['role']??null]); }
         $db->commit();
     } catch (Throwable $e) { $db->rollBack(); throw $e; }
     return $imported;

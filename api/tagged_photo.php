@@ -12,7 +12,6 @@ if (!$source || !$photoId) json_error('Paramètres manquants');
 $map = [
     'person'    => ['photos',           'personne_id',  'photos',           'personne_id'],
     'evenement' => ['evenement_photos', 'evenement_id', 'evenement_photos', 'evenement_id'],
-    'reunion'   => ['reunion_photos',   'reunion_id',   'reunion_photos',   'reunion_id'],
     'anecdote'  => ['anecdote_photos',  'anecdote_id',  'anecdote_photos',  'anecdote_id'],
     'auto'      => ['auto_photos',      'auto_id',      'auto_photos',      'auto_id'],
     'tresor'    => ['tresor_photos',    'tresor_id',    'tresor_photos',    'tresor_id'],
