@@ -172,7 +172,7 @@ async function openPerson(id) {
     const dateLbl = isSpouse
       ? (l.date_debut ? fmtDate(l.date_debut) : '')
       : (l.naissance  ? fmtDate(l.naissance)  : '');
-    return `<div class="family-link" onclick="openPerson(${lid})">${fav}<div><div class="fl-name">${l.prenom} ${l.nom}</div><div class="fl-role">${l.role}${dateLbl?` <span style="color:var(--ink3);font-size:.75em;">${dateLbl}</span>`:''}</div></div><span style="margin-left:auto;color:var(--ink3);font-size:.8rem;">›</span>${editBtn}${delBtn}</div>`;
+    return `<div class="family-link" onclick="openPerson(${lid})">${fav}<div><div class="fl-name">${l.prenom}</div><div class="fl-role">${l.role}${dateLbl?` <span style="color:var(--ink3);font-size:.75em;">${dateLbl}</span>`:''}</div></div><span style="margin-left:auto;color:var(--ink3);font-size:.8rem;">›</span>${editBtn}${delBtn}</div>`;
   };
   if(allFamily.length){
     html+=`<div class="modal-section"><div class="sec-title">${T('sec_famille')}</div>`;
