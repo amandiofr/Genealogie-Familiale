@@ -106,6 +106,32 @@ foreach ($singles as $p) {
     $arbres[] = ['id' => 'p_' . $p['id'], 'prenom_a' => $p['prenom'], 'prenom_b' => null, 'racine' => $rootIds, 'membres' => $membres];
 }
 
+// Migrer les arbre_utilisateurs orphelins (ex: racine d'arbre déplacée par ajout d'un parent)
+if ($allowedArbres !== null) {
+    $currentIds = array_column($arbres, 'id');
+    foreach (array_diff($allowedArbres, $currentIds) as $oldId) {
+        $oldPersonIds = [];
+        if (preg_match('/^p_(\d+)$/', $oldId, $m)) {
+            $oldPersonIds = [(int)$m[1]];
+        } elseif (preg_match('/^c_(\d+)$/', $oldId, $m)) {
+            $lien = $db->prepare("SELECT personne_a, personne_b FROM liens WHERE id = ?");
+            $lien->execute([(int)$m[1]]);
+            $row = $lien->fetch();
+            if ($row) $oldPersonIds = [(int)$row['personne_a'], (int)$row['personne_b']];
+        }
+        foreach ($arbres as $arbre) {
+            foreach ($oldPersonIds as $pid) {
+                if (in_array($pid, $arbre['membres'])) {
+                    $db->prepare("UPDATE arbre_utilisateurs SET arbre_id = ? WHERE utilisateur_id = ? AND arbre_id = ?")
+                       ->execute([$arbre['id'], $currentUser['id'], $oldId]);
+                    $allowedArbres = array_map(fn($id) => $id === $oldId ? $arbre['id'] : $id, $allowedArbres);
+                    break 2;
+                }
+            }
+        }
+    }
+}
+
 // Filtrer par arbres autorisés si non-admin
 if ($allowedArbres !== null) {
     $arbres = array_values(array_filter($arbres, fn($a) => in_array($a['id'], $allowedArbres)));
