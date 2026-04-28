@@ -46,7 +46,7 @@ async function openEvent(id){
     html+=`<div class="modal-section"><div class="sec-title">${T('sec_participants')}</div>`;
     e.personnes.forEach(p=>{
       const av=p.chemin_thumb?`<div class="fl-av ${p.genre}"><img src="${imgUrl(p.chemin_thumb)}" alt=""></div>`:`<div class="fl-av ${p.genre}">${(p.prenom[0]||'')+(p.nom[0]||'')}</div>`;
-      html+=`<div class="family-link" onclick="openPerson(${p.id});closeOverlay('modal-person-view-overlay')">${av}<div><div class="fl-name">${p.prenom} ${p.nom}</div>${p.role?`<div class="fl-role">${p.role}</div>`:''}</div></div>`;
+      html+=`<div class="family-link" onclick="openPerson(${p.id});closeOverlay('modal-person-view-overlay')">${av}<div><div class="fl-name">${p.prenom}</div>${p.role?`<div class="fl-role">${p.role}</div>`:''}</div></div>`;
     }); html+=`</div>`;
   }
   if((e.photos||[]).length){
@@ -86,7 +86,7 @@ async function showEventForm(id){
   if (id) { try { e = await api('GET', `api/evenements.php?id=${id}`); } catch {} }
 
   const participantIds = new Set((e?.personnes||[]).map(p=>String(p.id)));
-  const peopleOptions = people.filter(p=>inCurrentTree(p.id)).map(p=>`<option value="${p.id}"${participantIds.has(String(p.id))?' selected':''}>${fullName(p)}</option>`).join('');
+  const peopleOptions = people.filter(p=>inCurrentTree(p.id)).map(p=>`<option value="${p.id}"${participantIds.has(String(p.id))?' selected':''}>${p.prenom}</option>`).join('');
 
   document.getElementById('modal-form-event').innerHTML=`
     <div class="modal-hd" style="padding:1.2rem 1.4rem .8rem;">
@@ -211,7 +211,7 @@ async function openAnecdote(id){
     html+=`<div class="modal-section"><div class="sec-title">${T('form_mentions')}</div>`;
     a.personnes.forEach(p=>{
       const av=p.chemin_thumb?`<div class="fl-av ${p.genre}"><img src="${imgUrl(p.chemin_thumb)}" alt=""></div>`:`<div class="fl-av ${p.genre}">${(p.prenom[0]||'')+(p.nom[0]||'')}</div>`;
-      html+=`<div class="family-link" onclick="openPerson(${p.id});closeOverlay('modal-person-view-overlay')">${av}<div class="fl-name">${p.prenom} ${p.nom}</div></div>`;
+      html+=`<div class="family-link" onclick="openPerson(${p.id});closeOverlay('modal-person-view-overlay')">${av}<div class="fl-name">${p.prenom}</div></div>`;
     }); html+=`</div>`;
   }
   if((a.photos||[]).length){
@@ -244,7 +244,7 @@ async function showAnecdoteForm(id){
   if (id) { try { a = await api('GET', `api/anecdotes.php?id=${id}`); } catch {} }
 
   const mentionIds = new Set((a?.personnes||[]).map(p=>String(p.id)));
-  const peopleOptions=people.map(p=>`<option value="${p.id}"${mentionIds.has(String(p.id))?' selected':''}>${fullName(p)}</option>`).join('');
+  const peopleOptions=people.map(p=>`<option value="${p.id}"${mentionIds.has(String(p.id))?' selected':''}>${p.prenom}</option>`).join('');
 
   document.getElementById('modal-form-anecdote').innerHTML=`
     <div class="modal-hd" style="padding:1.2rem 1.4rem .8rem;">

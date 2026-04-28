@@ -766,7 +766,7 @@ function _renderDemParticipants(excludeId) {
       return `<label style="display:flex;align-items:center;gap:.5rem;font-size:.8rem;cursor:pointer;padding:.15rem 0;">
         <input type="checkbox" ${checked ? 'checked' : ''} ${disabled} onchange="toggleDemParticipant(${p.id},this.checked)"
           style="width:15px;height:15px;flex-shrink:0;">
-        <span>${p.prenom} ${p.nom}</span>
+        <span>${p.prenom}</span>
       </label>`;
     }).join('');
 }

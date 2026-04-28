@@ -38,7 +38,7 @@ async function openTresor(id){
     html+=`<div class="modal-section"><div class="sec-title">${T('form_mentions')}</div>`;
     t.personnes.forEach(p=>{
       const av=p.chemin_thumb?`<div class="fl-av ${p.genre}"><img src="${imgUrl(p.chemin_thumb)}" alt=""></div>`:`<div class="fl-av ${p.genre}">${(p.prenom[0]||'')+(p.nom[0]||'')}</div>`;
-      html+=`<div class="family-link" onclick="openPerson(${p.id});closeOverlay('modal-person-view-overlay')">${av}<div class="fl-name">${p.prenom} ${p.nom}</div></div>`;
+      html+=`<div class="family-link" onclick="openPerson(${p.id});closeOverlay('modal-person-view-overlay')">${av}<div class="fl-name">${p.prenom}</div></div>`;
     }); html+=`</div>`;
   }
   if((t.photos||[]).length){
@@ -71,7 +71,7 @@ async function showTresorForm(id){
   if (id) { try { t = await api('GET', `api/tresors.php?id=${id}`); } catch {} }
 
   const mentionIds = new Set((t?.personnes||[]).map(p=>String(p.id)));
-  const peopleOptions=people.map(p=>`<option value="${p.id}"${mentionIds.has(String(p.id))?' selected':''}>${fullName(p)}</option>`).join('');
+  const peopleOptions=people.map(p=>`<option value="${p.id}"${mentionIds.has(String(p.id))?' selected':''}>${p.prenom}</option>`).join('');
 
   document.getElementById('modal-form-tresor').innerHTML=`
     <div class="modal-hd" style="padding:1.2rem 1.4rem .8rem;">
