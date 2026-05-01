@@ -46,5 +46,5 @@ ServerSignature Off
     RewriteRule ^api/(.+)$ api/$1 [L]
 
     # Tout le reste → SPA
-    RewriteRule ^ index.html [L]
+    RewriteRule ^ index.php [L]
 </IfModule>

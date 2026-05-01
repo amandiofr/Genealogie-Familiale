@@ -1,4 +1,6 @@
-<!DOCTYPE html>
+<?php
+$v = fn($f) => filemtime(__DIR__ . '/' . $f);
+?><!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -8,7 +10,7 @@
 <meta name="version" content="2.1">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=112">
+<link rel="stylesheet" href="css/style.css?v=<?= $v('css/style.css') ?>">
 </head>
 </head>
 <body>
@@ -440,19 +442,18 @@
 
 <div class="toast" id="toast"></div>
 
-
-<script src="js/i18n.js?v=112"></script>
-<script src="js/translate.js?v=112"></script>
-<script src="js/init.js?v=112"></script>
-<script src="js/arbre.js?v=112"></script>
-<script src="js/list.js?v=112"></script>
-<script src="js/reactions.js?v=112"></script>
-<script src="js/events.js?v=112"></script>
-<script src="js/timeline.js?v=112"></script>
-<script src="js/autos.js?v=112"></script>
-<script src="js/tresors.js?v=112"></script>
-<script src="js/recettes.js?v=112"></script>
-<script src="js/carte.js?v=112"></script>
-<script src="js/admin.js?v=112"></script>
+<script src="js/i18n.js?v=<?= $v('js/i18n.js') ?>"></script>
+<script src="js/translate.js?v=<?= $v('js/translate.js') ?>"></script>
+<script src="js/init.js?v=<?= $v('js/init.js') ?>"></script>
+<script src="js/arbre.js?v=<?= $v('js/arbre.js') ?>"></script>
+<script src="js/list.js?v=<?= $v('js/list.js') ?>"></script>
+<script src="js/reactions.js?v=<?= $v('js/reactions.js') ?>"></script>
+<script src="js/events.js?v=<?= $v('js/events.js') ?>"></script>
+<script src="js/timeline.js?v=<?= $v('js/timeline.js') ?>"></script>
+<script src="js/autos.js?v=<?= $v('js/autos.js') ?>"></script>
+<script src="js/tresors.js?v=<?= $v('js/tresors.js') ?>"></script>
+<script src="js/recettes.js?v=<?= $v('js/recettes.js') ?>"></script>
+<script src="js/carte.js?v=<?= $v('js/carte.js') ?>"></script>
+<script src="js/admin.js?v=<?= $v('js/admin.js') ?>"></script>
 </body>
 </html>
