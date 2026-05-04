@@ -1,4 +1,16 @@
-# 🌿 Généalogie Familiale — Guide de déploiement
+# 🌿 Généalogie Familiale
+
+Une application web familiale auto-hébergée pour garder vivante la mémoire de votre famille — bien au-delà d'un simple arbre généalogique.
+
+## L'idée
+
+Dans chaque famille, il y a des histoires qui risquent de se perdre — le prénom d'un arrière-grand-père, le village d'où on est partis, la recette que seule mamie savait faire, la photo jaunie d'un mariage d'avant-guerre.
+
+Cette application est un espace privé où toute la famille peut se retrouver pour explorer l'arbre généalogique, lire des anecdotes, feuilleter des albums photos, découvrir les lieux sur une carte, et ajouter ses propres souvenirs. Les plus jeunes peuvent y découvrir ceux qu'ils n'ont pas connus ; les plus anciens peuvent y déposer ce qu'ils savent avant que ça se perde.
+
+Chacun contribue à son rythme. Quand quelqu'un ajoute quelque chose de nouveau, les autres membres reçoivent un e-mail. Vos données restent sur votre propre serveur, accessibles uniquement aux personnes que vous invitez.
+
+---
 
 Stack : **PHP 8+ · MySQL · HTML/CSS/JS vanilla**  
 Aucune dépendance npm, aucune compilation, aucune commande serveur.
@@ -19,7 +31,15 @@ Tout hébergeur mutualisé avec :
 
 ## 2. Configuration
 
-Ouvrez `config.php` et renseignez vos identifiants MySQL :
+Un fichier `config.example.php` est fourni comme modèle. Copiez-le en `config.php` et renseignez vos identifiants :
+
+```bash
+cp config.example.php config.php
+```
+
+> ⚠️ `config.php` est listé dans `.gitignore` et ne sera jamais commité. `config.example.php`, lui, est commité — il sert de référence sans contenir de vrais identifiants.
+
+Renseignez vos identifiants MySQL dans `config.php` :
 
 ```php
 define('DB_HOST', 'localhost');          // voir ci-dessous selon l'hébergeur
