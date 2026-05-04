@@ -26,10 +26,7 @@ define('THUMB_URL',   'uploads/thumbs/');
 // Taille max des photos uploadées (en octets)
 define('MAX_UPLOAD_SIZE', 20 * 1024 * 1024); // 20 Mo
 
-// Google Cloud Translation API (optionnel — pour la traduction automatique)
-define('GOOGLE_TRANSLATE_KEY', '');
-
-// Google API key (optionnel — pour la carte géographique)
+// Google API key (optionnel — pour la traduction automatique et la carte géographique)
 define('GOOGLE_API_KEY', '');
 
 // Notifications e-mail

@@ -75,6 +75,48 @@ define('BASE_URL', '/familia-new/');  // ou '/' si à la racine
 
 > ⚠️ `config.php` ne doit **jamais** être commité dans git. Ajoutez-le à `.gitignore`.
 
+### Clé Google API (optionnel)
+
+La clé Google est utilisée pour deux fonctionnalités optionnelles : la **traduction automatique** du contenu et la **carte géographique** des lieux de naissance et décès. Le site fonctionne sans, mais ces fonctionnalités seront désactivées.
+
+**Étape 1 — Créer un compte Google Cloud**
+
+Rendez-vous sur [console.cloud.google.com](https://console.cloud.google.com) et connectez-vous avec un compte Google. Si c'est la première fois, acceptez les conditions d'utilisation.
+
+> Google offre 300 $ de crédits gratuits à la création du compte, ce qui couvre largement un usage familial pendant longtemps. Une carte bancaire est demandée pour vérification, mais elle ne sera pas débitée tant que vous ne dépassez pas le quota gratuit.
+
+**Étape 2 — Créer un projet**
+
+1. Cliquez sur le menu déroulant en haut à gauche (à côté du logo Google Cloud)
+2. Cliquez sur **Nouveau projet**
+3. Donnez-lui un nom (ex : `Genealogie Familiale`) et cliquez sur **Créer**
+
+**Étape 3 — Activer les APIs nécessaires**
+
+Dans le menu de gauche, allez dans **APIs et services → Bibliothèque**, puis activez ces trois APIs :
+
+- **Cloud Translation API** (pour la traduction automatique)
+- **Maps JavaScript API** (pour afficher la carte)
+- **Geocoding API** (pour localiser les villes sur la carte)
+
+Pour chacune : cherchez son nom dans la bibliothèque, cliquez dessus, puis cliquez sur **Activer**.
+
+**Étape 4 — Créer une clé API**
+
+1. Allez dans **APIs et services → Identifiants**
+2. Cliquez sur **+ Créer des identifiants → Clé API**
+3. Copiez la clé générée (elle ressemble à `AIzaSyB...`)
+
+**Étape 5 — Restreindre la clé (recommandé)**
+
+Pour éviter que quelqu'un utilise votre clé à vos frais, cliquez sur **Modifier la clé** et ajoutez une restriction par référent HTTP : entrez l'URL de votre site (ex : `https://votre-domaine.fr/*`).
+
+**Étape 6 — Ajouter la clé dans `config.php`**
+
+```php
+define('GOOGLE_API_KEY', 'AIzaSyB...');
+```
+
 ---
 
 ## 5. Upload via FTP
