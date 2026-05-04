@@ -90,6 +90,7 @@ async function filterList() {
 async function openPerson(id) {
   let p = await api('GET',`api/personnes.php?id=${id}`);
   p = await translateFields(p, ['biographie', 'profession']);
+  logAccess('personne', id, p.prenom + ' ' + (p.nom || ''));
   const age = calcAge(p);
   const av  = (p.photos||[]).find(ph=>ph.id==p.photo_id);
 

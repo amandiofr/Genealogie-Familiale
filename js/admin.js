@@ -202,6 +202,49 @@ async function loadModificationLog(offset = 0) {
 }
 
 // ══════════════════════════════════════════════════════════════
+//  CONSULTATIONS
+// ══════════════════════════════════════════════════════════════
+async function loadAccessLog(offset = 0) {
+  const el = document.getElementById('access-log-result');
+  if (offset === 0) el.innerHTML = '<p style="font-size:.8rem;color:var(--ink3);">Chargement…</p>';
+  try {
+    const logs = await api('GET', `api/access_log.php?limit=100&offset=${offset}`);
+    if (offset === 0 && !logs.length) {
+      el.innerHTML = `<p style="font-size:.8rem;color:var(--ink3);font-style:italic;">${T('admin_access_empty')}</p>`;
+      return;
+    }
+    const typeColor = { vue:'#888', personne:'#1a6eb5', evenement:'#2a7a2a', anecdote:'#b56a1a', tresor:'#7a2a7a', recette:'#c44', auto:'#555' };
+    const hashMap   = { personne:'person', evenement:'event', anecdote:'anecdote', tresor:'tresor', recette:'recette', auto:'auto' };
+    const rows = logs.map(l => {
+      const hash = hashMap[l.type];
+      const onclick = hash && l.element_id ? `onclick="location.hash='${hash}/${l.element_id}'"` : '';
+      const cursor  = hash && l.element_id ? 'cursor:pointer;' : '';
+      const ipLink  = l.ip ? `<a href="https://ipinfo.io/${encodeURIComponent(l.ip)}" target="_blank" rel="noopener" style="color:var(--accent2);text-decoration:none;font-family:monospace;">${encodeHTML(l.ip)}</a>` : '—';
+      return `
+      <div ${onclick} style="${cursor}padding:.5rem 0;border-bottom:1px solid var(--border);font-size:.78rem;line-height:1.6;display:flex;flex-wrap:wrap;align-items:baseline;gap:.3rem .4rem;">
+        <span style="color:var(--ink3);white-space:nowrap;">${l.created_at?.replace('T',' ').slice(0,16) ?? ''}</span>
+        <span>${ipLink}</span>
+        <span style="font-weight:500;color:var(--ink2);">${encodeHTML(l.nom ?? '—')}</span>
+        <span style="color:var(--ink3);font-size:.72rem;">${encodeHTML(l.login ?? '')}</span>
+        <span style="padding:1px 6px;border-radius:10px;background:${typeColor[l.type]??'#888'};color:#fff;">${encodeHTML(l.type)}</span>
+        ${l.element_name ? `<span style="color:var(--ink);word-break:break-word;">${encodeHTML(l.element_name)}</span>` : ''}
+      </div>`;
+    }).join('');
+
+    if (offset === 0) {
+      el.innerHTML = `<div id="access-log-rows" style="display:flex;flex-direction:column;gap:.2rem;">${rows}</div>`;
+    } else {
+      document.getElementById('access-log-rows').insertAdjacentHTML('beforeend', rows);
+      document.getElementById('access-log-more')?.remove();
+    }
+    if (logs.length === 100) {
+      el.insertAdjacentHTML('beforeend',
+        `<button id="access-log-more" class="btn-secondary" onclick="loadAccessLog(${offset + 100})" style="margin-top:.8rem;font-size:.78rem;">${T('admin_logs_load_more')}</button>`);
+    }
+  } catch(e) { el.innerHTML = ''; toast(e.message, 'error'); }
+}
+
+// ══════════════════════════════════════════════════════════════
 //  FICHIERS ORPHELINS
 // ══════════════════════════════════════════════════════════════
 async function scanOrphanFiles() {

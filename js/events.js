@@ -26,6 +26,7 @@ async function loadEvents(){
 async function openEvent(id){
   let e=await api('GET',`api/evenements.php?id=${id}`);
   e=await translateFields(e,['titre','description']);
+  logAccess('evenement', id, e.titre);
   // Avatar : photo préférée ou icône type
   const avatarHtml = e.thumb
     ? `<div class="modal-av" style="border-radius:10px;overflow:hidden;width:60px;height:60px;flex-shrink:0;"><img src="${imgUrl(e.thumb)}" style="width:100%;height:100%;object-fit:cover;" alt=""></div>`
@@ -202,6 +203,7 @@ async function loadAnecdotes(){
 async function openAnecdote(id){
   let a=await api('GET',`api/anecdotes.php?id=${id}`);
   a=await translateFields(a,['titre','contenu']);
+  logAccess('anecdote', id, a.titre);
   let html=`<div class="modal-hd" style="padding:1.2rem 1.4rem .8rem;">
     <div style="font-size:1.5rem;">📖</div>
     <div class="modal-ti"><div class="modal-name">${a.titre}</div>${a.date_anec||a.auteur?`<div class="modal-maiden">${[a.date_anec,a.auteur?T('lbl_by')+' '+a.auteur:''].filter(Boolean).join(' · ')}</div>`:''}</div>

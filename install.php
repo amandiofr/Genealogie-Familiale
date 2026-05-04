@@ -245,6 +245,19 @@ CREATE TABLE IF NOT EXISTS modification_log (
   created_at  DATETIME DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;",
 
+'access_log' => "
+CREATE TABLE IF NOT EXISTS access_log (
+  id           INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  utilisateur_id INT UNSIGNED DEFAULT NULL,
+  login        VARCHAR(200) DEFAULT NULL,
+  nom          VARCHAR(100) DEFAULT NULL,
+  ip           VARCHAR(45)  DEFAULT NULL,
+  type         VARCHAR(30)  NOT NULL,
+  element_id   INT UNSIGNED DEFAULT NULL,
+  element_name VARCHAR(255) DEFAULT NULL,
+  created_at   DATETIME DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;",
+
 'notification_state' => "
 CREATE TABLE IF NOT EXISTS notification_state (
   id                  INT UNSIGNED NOT NULL DEFAULT 1,

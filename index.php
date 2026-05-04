@@ -45,6 +45,7 @@ $v = fn($f) => filemtime(__DIR__ . '/' . $f);
           <button data-view="admin-password" id="nav-dd-password">Mot de passe</button>
           <button data-view="admin-orphans"  id="nav-dd-orphans">Fichiers</button>
           <button data-view="admin-logs"     id="nav-dd-logs">Logs</button>
+          <button data-view="admin-access"   id="nav-dd-access">Consultations</button>
           <button data-view="admin-lieux"    id="nav-dd-lieux">Lieux</button>
           <button data-view="admin-dev"     id="nav-dd-dev">Dev</button>
         </div>
@@ -308,6 +309,16 @@ $v = fn($f) => filemtime(__DIR__ . '/' . $f);
     <h2 id="view-admin-logs-heading" style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:400;margin-bottom:1.2rem;">Logs des modifications</h2>
     <div class="form-card">
       <div id="mod-log-result"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── ADMIN : Consultations ────────────────────────────────── -->
+<div id="view-admin-access" class="view">
+  <div class="view-inner">
+    <h2 id="view-admin-access-heading" style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:400;margin-bottom:1.2rem;">Consultations</h2>
+    <div class="form-card">
+      <div id="access-log-result"></div>
     </div>
   </div>
 </div>

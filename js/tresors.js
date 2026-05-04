@@ -28,6 +28,7 @@ async function loadTresors(){
 async function openTresor(id){
   let t=await api('GET',`api/tresors.php?id=${id}`);
   t=await translateFields(t,['titre','contenu']);
+  logAccess('tresor', id, t.titre);
   let html=`<div class="modal-hd" style="padding:1.2rem 1.4rem .8rem;">
     <div style="font-size:1.5rem;">💎</div>
     <div class="modal-ti"><div class="modal-name">${t.titre}</div>${t.date_tresor||t.auteur?`<div class="modal-maiden">${[t.date_tresor,t.auteur?T('lbl_by')+' '+t.auteur:''].filter(Boolean).join(' · ')}</div>`:''}</div>

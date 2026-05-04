@@ -1,3 +1,7 @@
+function logAccess(type, elementId = null, elementName = null) {
+  api('POST', 'api/access_log.php', { type, element_id: elementId, element_name: elementName }).catch(() => {});
+}
+
 // ══════════════════════════════════════════════════════════════
 //  ARBRES — filtre global
 // ══════════════════════════════════════════════════════════════
@@ -323,10 +327,11 @@ function showView(name) {
   document.getElementById('admin-dropdown')?.classList.remove('open');
   document.getElementById('plus-dropdown')?.classList.remove('open');
   history.replaceState(null, '', '#' + name);
+  logAccess('vue', null, name);
   // Marquer le bouton nav actif
   const navBtn = document.querySelector(`nav button[data-view="${name}"]`);
   if (navBtn) navBtn.classList.add('active');
-  if (name.startsWith('admin-') && name !== 'quality') document.getElementById('nav-admin').classList.add('active');
+  if (name.startsWith('admin-') && name !== 'quality') document.getElementById('nav-admin')?.classList.add('active');
   const _plusViews = ['anecdotes','list','tresors','recettes','autos','timeline','quality'];
   if (_plusViews.includes(name)) document.getElementById('nav-plus')?.classList.add('active');
   // Charger les données
@@ -344,6 +349,7 @@ function showView(name) {
   if (name==='admin-logs')       { loadModificationLog(); }
   if (name==='quality')    { loadQualityCheck(); }
   if (name==='admin-lieux')      { loadLieux(); }
+  if (name==='admin-access')     { loadAccessLog(); }
 }
 
 // ══════════════════════════════════════════════════════════════

@@ -1,15 +1,19 @@
-# 🌿 Généalogie Familiale — Guide de déploiement OVH
+# 🌿 Généalogie Familiale — Guide de déploiement
 
 Stack : **PHP 8+ · MySQL · HTML/CSS/JS vanilla**  
 Aucune dépendance npm, aucune compilation, aucune commande serveur.
 
 ---
 
-## 1. Prérequis OVH
+## 1. Prérequis
 
-- Hébergement mutualisé OVH avec **PHP 8.0+** (vérifiez dans cPanel → PHP)
-- Une **base de données MySQL** créée dans l'espace client OVH
-  - Notez : hôte, nom de la base, utilisateur, mot de passe
+Tout hébergeur mutualisé avec :
+- **PHP 8.0+**
+- **MySQL 5.7+** (ou MariaDB 10.3+)
+- **mod_rewrite** Apache activé
+- Accès **FTP** (FileZilla ou équivalent)
+
+> Hébergeurs testés : **OVH**, **InfinityFree**, et tout hébergement mutualisé cPanel standard.
 
 ---
 
@@ -18,51 +22,90 @@ Aucune dépendance npm, aucune compilation, aucune commande serveur.
 Ouvrez `config.php` et renseignez vos identifiants MySQL :
 
 ```php
-define('DB_HOST', 'votre-serveur.mysql.db');  // ex: mysql51-42.perso.ovh.net
+define('DB_HOST', 'localhost');          // voir ci-dessous selon l'hébergeur
 define('DB_NAME', 'votre_base');
 define('DB_USER', 'votre_utilisateur');
 define('DB_PASS', 'votre_mot_de_passe');
 define('SESSION_SECRET', 'une-chaine-aleatoire-longue-et-unique');
 ```
 
-> 💡 L'hôte MySQL OVH ressemble à `mysqlXX-XX.perso.ovh.net` ou `localhost`.  
-> Retrouvez-le dans : Espace client OVH → Hébergements → votre hébergement → Bases de données.
+### Valeur de DB_HOST selon l'hébergeur
+
+| Hébergeur | DB_HOST typique |
+|-----------|----------------|
+| **OVH mutualisé** | `mysqlXX-XX.perso.ovh.net` (dans Espace client → Bases de données) |
+| **InfinityFree** | `sql.infinityfree.com` (dans le panneau de contrôle → MySQL Databases) |
+| **Hébergement cPanel standard** | `localhost` (le plus souvent) |
+
+### Valeur de BASE_URL
+
+Adaptez également `BASE_URL` pour correspondre à votre sous-dossier :
+
+```php
+define('BASE_URL', '/familia-new/');  // ou '/' si à la racine
+```
+
+> ⚠️ `config.php` ne doit **jamais** être commité dans git. Ajoutez-le à `.gitignore`.
 
 ---
 
 ## 3. Upload via FTP
 
-Connectez-vous avec FileZilla (ou votre client FTP) :
-
-| Paramètre | Valeur OVH |
-|-----------|-----------|
-| Hôte      | `ftp.cluster0XX.hosting.ovh.net` |
-| Identifiant | votre login OVH |
-| Mot de passe | votre mot de passe FTP |
-| Port | 21 |
-
-**Uploadez tous les fichiers** dans le dossier `www/` (ou `public_html/`) :
+Connectez-vous avec FileZilla (ou votre client FTP préféré) et uploadez tous les fichiers dans le dossier public de votre hébergeur (`www/`, `public_html/`, ou `htdocs/` selon l'hébergeur) :
 
 ```
-www/
+public_html/
 ├── api/
-│   ├── auth.php
-│   ├── personnes.php
-│   ├── evenements.php
+│   ├── access_log.php
+│   ├── admin.php
 │   ├── anecdotes.php
-│   ├── utilisateurs.php
-│   └── export.php
+│   ├── arbres.php
+│   ├── auth.php
+│   ├── autos.php
+│   ├── evenements.php
+│   ├── export.php
+│   ├── import.php
+│   ├── lieux.php
+│   ├── notify_cron.php
+│   ├── personnes.php
+│   ├── reactions.php
+│   ├── recettes.php
+│   ├── tagged_photo.php
+│   ├── tresors.php
+│   └── utilisateurs.php
+├── css/
+│   └── style.css
+├── js/
+│   ├── admin.js
+│   ├── arbre.js
+│   ├── autos.js
+│   ├── carte.js
+│   ├── events.js
+│   ├── i18n.js
+│   ├── init.js
+│   ├── list.js
+│   ├── reactions.js
+│   ├── recettes.js
+│   ├── timeline.js
+│   ├── translate.js
+│   ├── tresors.js
+│   └── utils.js
 ├── uploads/
 │   ├── thumbs/          ← créer ce dossier vide
 │   └── .htaccess
+├── .htaccess
 ├── config.php
-├── index.html
-├── login.html
+├── familia.png
+├── index.php
 ├── install.php
-└── .htaccess
+└── login.html
 ```
 
-> ⚠️ Vérifiez que les **dossiers `uploads/` et `uploads/thumbs/`** ont les permissions **755** (clic droit → Permissions dans FileZilla).
+> ⚠️ Vérifiez que **`uploads/`** et **`uploads/thumbs/`** ont les permissions **755** (clic droit → Permissions dans FileZilla).
+
+### Note InfinityFree
+
+Sur InfinityFree, le dossier public s'appelle `htdocs/`. Vérifiez que `.htaccess` est bien uploadé (les fichiers commençant par `.` sont parfois masqués dans FileZilla — activez "Afficher les fichiers cachés").
 
 ---
 
@@ -80,6 +123,8 @@ Vous devriez voir :
 
 **⚠️ Supprimez ensuite `install.php` via FTP** — il ne doit pas rester accessible !
 
+> En cas de mise à jour, relancez `install.php` — il est idempotent et applique les migrations sans perte de données.
+
 ---
 
 ## 5. Première connexion
@@ -90,7 +135,7 @@ Accédez à `https://votre-domaine.fr/`
 |-------|-------------|
 | `admin@famille.local` | `admin1234` |
 
-**Changez immédiatement le mot de passe** : menu Admin → "Changer mon mot de passe".
+**Changez immédiatement le mot de passe** : menu Admin → Mot de passe.
 
 ---
 
@@ -99,11 +144,14 @@ Accédez à `https://votre-domaine.fr/`
 | Section | Description |
 |---------|-------------|
 | **Arbre** | Visualisation par génération, clic → fiche complète |
-| **Membres** | Liste searchable, filtres, fiches avec photos et liens familiaux |
 | **Événements** | Mariages, voyages, réunions, etc. avec photos et participants |
+| **Carte** | Localisation géographique des lieux de naissance et décès |
+| **Membres** | Liste searchable, filtres, fiches avec photos et liens familiaux |
 | **Anecdotes** | Histoires familiales libres, avec photos et personnes mentionnées |
-| **Statistiques** | Chiffres clés, répartition par génération |
-| **Admin** | Gestion des comptes, import/export |
+| **Trésors** | Documents, objets et souvenirs de famille |
+| **Recettes** | Recettes familiales transmises de génération en génération |
+| **Autos** | Véhicules de la famille |
+| **Timeline** | Chronologie de tous les événements |
 
 ### Rôles utilisateurs
 
@@ -113,24 +161,28 @@ Accédez à `https://votre-domaine.fr/`
 | **Éditeur** | ✅ | ✅ | ❌ |
 | **Admin** | ✅ | ✅ | ✅ |
 
+### Langues disponibles
+
+Français · Português · English · Deutsch · فارسی · Español · Italiano · Ελληνικά
+
 ---
 
 ## 7. Import / Export
 
 ### Export
 - **GEDCOM 5.5.1** : compatible Ancestry, MyHeritage, Geneanet, Heredis…
-- **JSON** : sauvegarde complète (personnes, liens, événements, anecdotes)
+- **JSON** : sauvegarde complète (personnes, liens, événements, anecdotes, trésors…)
 - **CSV** : liste des membres pour Excel/Google Sheets
 
 ### Import
 - **GEDCOM** : depuis n'importe quel logiciel de généalogie
-- **JSON** : depuis un export précédent (restauration)
+- **JSON** : depuis un export précédent (restauration complète)
 
 ---
 
 ## 8. Sauvegardes recommandées
 
-1. **Base MySQL** : Espace client OVH → Bases de données → Export  
+1. **Base MySQL** : depuis votre panneau d'hébergeur (phpMyAdmin → Export)  
    *ou* utilisez l'export JSON depuis l'application (Admin → Export JSON)
 
 2. **Photos** : téléchargez périodiquement le dossier `uploads/` via FTP
@@ -139,19 +191,25 @@ Accédez à `https://votre-domaine.fr/`
 
 ## 9. Sécurité
 
-- Le dossier `uploads/` est protégé contre l'exécution de scripts PHP (`.htaccess`)
 - `config.php` est bloqué en accès direct (`.htaccess`)
+- Le dossier `uploads/` est protégé contre l'exécution de scripts PHP
 - Les sessions durent 30 jours (modifiable dans `config.php`)
 - Les mots de passe sont hashés avec `bcrypt`
+- Ne commitez jamais `config.php` dans git
 
 ---
 
-## 10. Dépannage fréquent OVH
+## 10. Dépannage fréquent
 
 | Problème | Solution |
 |----------|---------|
-| Page blanche | Activez PHP 8.0+ dans cPanel → PHP |
-| "Connexion impossible" | Vérifiez `DB_HOST` — chez OVH mutualisé c'est rarement `localhost` |
+| Page blanche | Vérifiez que PHP 8.0+ est activé dans votre panneau d'hébergeur |
+| "Connexion impossible" | Vérifiez `DB_HOST` — rarement `localhost` chez OVH, souvent `localhost` ailleurs |
 | Photos ne s'affichent pas | Vérifiez les permissions du dossier `uploads/` (755) |
-| `.htaccess` ignoré | Activez `mod_rewrite` dans cPanel, ou contactez le support OVH |
-| Erreur 500 | Consultez les logs dans cPanel → Logs d'erreurs |
+| `.htaccess` ignoré | `mod_rewrite` doit être activé — contactez votre hébergeur si besoin |
+| Erreur 500 | Consultez les logs d'erreurs dans cPanel ou phpMyAdmin |
+| Routes SPA cassées (404) | Vérifiez que `RewriteBase` dans `.htaccess` correspond à votre sous-dossier |
+
+### Note InfinityFree
+
+InfinityFree bloque certaines requêtes PHP qui s'exécutent trop longtemps. Si l'import GEDCOM échoue, découpez le fichier en lots plus petits.
