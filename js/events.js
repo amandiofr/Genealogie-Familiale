@@ -183,6 +183,7 @@ async function loadAnecdotes(){
   const all=await api('GET','api/anecdotes.php');
   const filtered=all.filter(a=>!_currentMembers||!a.personne_ids.length||a.personne_ids.some(id=>inCurrentTreeDirect(id)));
   const rows=await Promise.all(filtered.map(a=>translateFields(a,['titre','contenu'])));
+  for(let i=rows.length-1;i>0;i--){const j=Math.random()*i+1|0;[rows[i],rows[j]]=[rows[j],rows[i]];}
   const el=document.getElementById('anecdotes-list');
   if(!rows.length){el.innerHTML=`<div class="empty"><div class="empty-icon">📖</div><div class="empty-title">${T('empty_anecdotes')}</div><div class="empty-sub">${T('empty_anecdotes_sub')}</div></div>`;return;}
   el.innerHTML=rows.map(a=>`
