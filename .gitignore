@@ -50,3 +50,4 @@ tests/fixtures/seed.sql
 # Uploads utilisateurs
 /uploads/*
 !/uploads/.htaccess
+config.php
