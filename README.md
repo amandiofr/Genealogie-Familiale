@@ -17,7 +17,15 @@ Aucune dépendance npm, aucune compilation, aucune commande serveur.
 
 ---
 
-## 1. Prérequis
+## 1. Télécharger les fichiers
+
+1. Sur la page GitHub du projet, cliquez sur le bouton vert **Code**
+2. Choisissez **Download ZIP**
+3. Décompressez l'archive sur votre PC
+
+---
+
+## 3. Prérequis
 
 Tout hébergeur mutualisé avec :
 - **PHP 8.0+**
@@ -29,7 +37,7 @@ Tout hébergeur mutualisé avec :
 
 ---
 
-## 2. Configuration
+## 4. Configuration
 
 Un fichier `config.example.php` est fourni comme modèle. Copiez-le en `config.php` et renseignez vos identifiants :
 
@@ -69,7 +77,7 @@ define('BASE_URL', '/familia-new/');  // ou '/' si à la racine
 
 ---
 
-## 3. Upload via FTP
+## 5. Upload via FTP
 
 Connectez-vous avec FileZilla (ou votre client FTP préféré) et uploadez tous les fichiers dans le dossier public de votre hébergeur (`www/`, `public_html/`, ou `htdocs/` selon l'hébergeur) :
 
@@ -129,7 +137,7 @@ Sur InfinityFree, le dossier public s'appelle `htdocs/`. Vérifiez que `.htacces
 
 ---
 
-## 4. Installation de la base de données
+## 6. Installation de la base de données
 
 Ouvrez dans votre navigateur :
 
@@ -147,7 +155,7 @@ Vous devriez voir :
 
 ---
 
-## 5. Première connexion
+## 7. Première connexion
 
 Accédez à `https://votre-domaine.fr/`
 
@@ -159,7 +167,7 @@ Accédez à `https://votre-domaine.fr/`
 
 ---
 
-## 6. Fonctionnalités
+## 8. Fonctionnalités
 
 | Section | Description |
 |---------|-------------|
@@ -187,7 +195,7 @@ Français · Português · English · Deutsch · فارسی · Español · Itali
 
 ---
 
-## 7. Import / Export
+## 9. Import / Export
 
 ### Export
 - **GEDCOM 5.5.1** : compatible Ancestry, MyHeritage, Geneanet, Heredis…
@@ -200,7 +208,7 @@ Français · Português · English · Deutsch · فارسی · Español · Itali
 
 ---
 
-## 8. Sauvegardes recommandées
+## 10. Sauvegardes recommandées
 
 1. **Base MySQL** : depuis votre panneau d'hébergeur (phpMyAdmin → Export)  
    *ou* utilisez l'export JSON depuis l'application (Admin → Export JSON)
@@ -209,7 +217,7 @@ Français · Português · English · Deutsch · فارسی · Español · Itali
 
 ---
 
-## 9. Sécurité
+## 11. Sécurité
 
 - `config.php` est bloqué en accès direct (`.htaccess`)
 - Le dossier `uploads/` est protégé contre l'exécution de scripts PHP
@@ -219,7 +227,7 @@ Français · Português · English · Deutsch · فارسی · Español · Itali
 
 ---
 
-## 10. Dépannage fréquent
+## 12. Dépannage fréquent
 
 | Problème | Solution |
 |----------|---------|
