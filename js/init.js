@@ -185,15 +185,19 @@ async function init() {
       document.getElementById('admin-dropdown').classList.toggle('open');
       return;
     }
+    // Dropdown plus toggle
+    if (e.target.closest('#nav-plus') && !e.target.closest('[data-view]')) {
+      document.getElementById('plus-dropdown').classList.toggle('open');
+      return;
+    }
     const btn = e.target.closest('button[data-view]');
     if (!btn) return;
     showView(btn.dataset.view);
   });
-  // Fermer le dropdown en cliquant ailleurs
+  // Fermer les dropdowns en cliquant ailleurs
   document.addEventListener('click', e => {
-    if (!e.target.closest('.admin-nav-wrap')) {
-      document.getElementById('admin-dropdown')?.classList.remove('open');
-    }
+    if (!e.target.closest('#nav-admin-wrap')) document.getElementById('admin-dropdown')?.classList.remove('open');
+    if (!e.target.closest('#nav-plus-wrap'))  document.getElementById('plus-dropdown')?.classList.remove('open');
   });
   document.getElementById('btn-add-person').onclick   = () => showPersonForm(null);
   document.getElementById('btn-add-event').onclick    = () => showEventForm(null);
@@ -317,11 +321,14 @@ function showView(name) {
   document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
   document.getElementById('view-'+name).classList.add('active');
   document.getElementById('admin-dropdown')?.classList.remove('open');
+  document.getElementById('plus-dropdown')?.classList.remove('open');
   history.replaceState(null, '', '#' + name);
   // Marquer le bouton nav actif
   const navBtn = document.querySelector(`nav button[data-view="${name}"]`);
   if (navBtn) navBtn.classList.add('active');
   if (name.startsWith('admin-') && name !== 'quality') document.getElementById('nav-admin').classList.add('active');
+  const _plusViews = ['anecdotes','list','tresors','recettes','autos','timeline','quality'];
+  if (_plusViews.includes(name)) document.getElementById('nav-plus')?.classList.add('active');
   // Charger les données
   if (name==='tree')             { centerTree(); }
   if (name==='list')             { renderList(); }

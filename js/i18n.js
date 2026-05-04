@@ -8,7 +8,7 @@ const LANGS = {
   fr: {
     // Nav
     nav_tree:'Arbre', nav_list:'Membres', nav_events:'Événements',
-    nav_anecdotes:'Anecdotes', nav_tresors:'Trésors', nav_recettes:'Recettes', nav_timeline:'Chronologie', nav_admin:'Admin',
+    nav_anecdotes:'Anecdotes', nav_tresors:'Trésors', nav_recettes:'Recettes', nav_timeline:'Chronologie', nav_admin:'Admin', nav_plus:'Plus',
     // Site title & page headers
     site_title:'Notre Famille',
     h_membres:'Membres', h_events:'Événements', h_anecdotes:'Anecdotes', h_tresors:'Trésors de famille', h_recettes:'Recettes de famille', h_timeline:'Au fil du temps',
@@ -188,7 +188,7 @@ const LANGS = {
     lbl_upload_hint:'Cliquez ou déposez vos photos', lbl_upload_hint_touch:'Appuyez pour choisir des photos',
     lbl_legende:'Légende (optionnelle)', lbl_legende_ph:'Ex : Été 1985 à Marseille',
     lbl_upload_send:'📤 Envoyer', lbl_upload_max:'JPEG, PNG, WebP — max 20 Mo chacune',
-    lbl_by:'Par', lbl_with:'Avec', btn_create_account:'Créer le compte',
+    lbl_by:'Par', lbl_with:'Avec', lbl_download:'Télécharger', ph_notif_email:'nouvelle@adresse.fr', btn_create_account:'Créer le compte',
     // Event type labels
     evt_mariage:'Mariage', evt_reunion:'Réunion', evt_demenagement:'Déménagement', evt_autre:'Autre',
     warn_demenagement_lieu:'Lieu non renseigné — cet événement ne sera pas utilisé pour la carte.',
@@ -245,7 +245,7 @@ const LANGS = {
   },
   pt: {
     nav_tree:'Árvore', nav_list:'Membros', nav_events:'Eventos',
-    nav_anecdotes:'Anedotas', nav_tresors:'Tesouros', nav_recettes:'Receitas', nav_timeline:'Cronologia', nav_admin:'Admin',
+    nav_anecdotes:'Anedotas', nav_tresors:'Tesouros', nav_recettes:'Receitas', nav_timeline:'Cronologia', nav_admin:'Admin', nav_plus:'Mais',
     // Site title & page headers
     site_title:'Nossa Família',
     h_membres:'Membros', h_events:'Eventos', h_anecdotes:'Anedotas', h_tresors:'Tesouros de família', h_recettes:'Receitas de família', h_timeline:'Linha do tempo',
@@ -410,7 +410,7 @@ const LANGS = {
     lbl_upload_hint:'Clique ou solte as suas fotos', lbl_upload_hint_touch:'Toque para escolher fotos',
     lbl_legende:'Legenda (opcional)', lbl_legende_ph:'Ex : Verão 1985 em Marselha',
     lbl_upload_send:'📤 Enviar', lbl_upload_max:'JPEG, PNG, WebP — máx 20 Mo cada',
-    lbl_by:'Por', lbl_with:'Com', btn_create_account:'Criar conta',
+    lbl_by:'Por', lbl_with:'Com', lbl_download:'Baixar', ph_notif_email:'novo@email.pt', btn_create_account:'Criar conta',
     // Event type labels
     evt_mariage:'Casamento', evt_reunion:'Reunião', evt_demenagement:'Mudança', evt_autre:'Outro',
     warn_demenagement_lieu:'Local não preenchido — este evento não será usado para o mapa.',
@@ -467,7 +467,7 @@ const LANGS = {
   },
   en: {
     nav_tree:'Tree', nav_list:'Members', nav_events:'Events',
-    nav_anecdotes:'Anecdotes', nav_tresors:'Treasures', nav_recettes:'Recipes', nav_timeline:'Timeline', nav_admin:'Admin',
+    nav_anecdotes:'Anecdotes', nav_tresors:'Treasures', nav_recettes:'Recipes', nav_timeline:'Timeline', nav_admin:'Admin', nav_plus:'More',
     site_title:'Our Family',
     h_membres:'Members', h_events:'Events', h_anecdotes:'Anecdotes', h_tresors:'Family Treasures', h_recettes:'Family Recipes', h_timeline:'Timeline',
     h_admin:'Administration',
@@ -619,7 +619,7 @@ const LANGS = {
     lbl_upload_hint:'Click or drop your photos', lbl_upload_hint_touch:'Tap to choose photos',
     lbl_legende:'Caption (optional)', lbl_legende_ph:'Ex: Summer 1985 in Marseille',
     lbl_upload_send:'📤 Send', lbl_upload_max:'JPEG, PNG, WebP — max 20 MB each',
-    lbl_by:'By', lbl_with:'With', btn_create_account:'Create account',
+    lbl_by:'By', lbl_with:'With', lbl_download:'Download', ph_notif_email:'new@address.com', btn_create_account:'Create account',
     evt_mariage:'Marriage', evt_reunion:'Reunion', evt_demenagement:'Move', evt_autre:'Other',
     warn_demenagement_lieu:'Location not filled — this event will not be used for the map.',
     error_name_required:'First name required',
@@ -679,7 +679,7 @@ const LANGS = {
   },
   de: {
     nav_tree:'Stammbaum', nav_list:'Mitglieder', nav_events:'Ereignisse',
-    nav_anecdotes:'Anekdoten', nav_tresors:'Schätze', nav_recettes:'Rezepte', nav_timeline:'Zeitleiste', nav_admin:'Admin',
+    nav_anecdotes:'Anekdoten', nav_tresors:'Schätze', nav_recettes:'Rezepte', nav_timeline:'Zeitleiste', nav_admin:'Admin', nav_plus:'Mehr',
     site_title:'Unsere Familie',
     h_membres:'Mitglieder', h_events:'Ereignisse', h_anecdotes:'Anekdoten', h_tresors:'Familienschätze', h_recettes:'Familienrezepte', h_timeline:'Zeitleiste',
     h_admin:'Verwaltung',
@@ -831,7 +831,7 @@ const LANGS = {
     lbl_upload_hint:'Klicken oder Fotos ablegen', lbl_upload_hint_touch:'Tippen, um Fotos auszuwählen',
     lbl_legende:'Bildunterschrift (optional)', lbl_legende_ph:'Z.B.: Sommer 1985 in Marseille',
     lbl_upload_send:'📤 Senden', lbl_upload_max:'JPEG, PNG, WebP — max. 20 MB pro Datei',
-    lbl_by:'Von', lbl_with:'Mit', btn_create_account:'Konto erstellen',
+    lbl_by:'Von', lbl_with:'Mit', lbl_download:'Herunterladen', ph_notif_email:'neu@adresse.de', btn_create_account:'Konto erstellen',
     evt_mariage:'Hochzeit', evt_reunion:'Treffen', evt_demenagement:'Umzug', evt_autre:'Sonstiges',
     warn_demenagement_lieu:'Ort nicht angegeben — dieses Ereignis wird nicht für die Karte verwendet.',
     error_name_required:'Vorname erforderlich',
@@ -891,7 +891,7 @@ const LANGS = {
   },
   fa: {
     nav_tree:'درخت', nav_list:'اعضا', nav_events:'رویدادها',
-    nav_anecdotes:'خاطرات', nav_tresors:'گنج‌ها', nav_recettes:'دستورها', nav_timeline:'خط زمانی', nav_admin:'مدیریت',
+    nav_anecdotes:'خاطرات', nav_tresors:'گنج‌ها', nav_recettes:'دستورها', nav_timeline:'خط زمانی', nav_admin:'مدیریت', nav_plus:'بیشتر',
     site_title:'خانواده ما',
     h_membres:'اعضا', h_events:'رویدادها', h_anecdotes:'خاطرات', h_tresors:'گنج‌های خانوادگی', h_recettes:'دستورهای خانوادگی', h_timeline:'خط زمانی',
     h_admin:'مدیریت',
@@ -1043,7 +1043,7 @@ const LANGS = {
     lbl_upload_hint:'کلیک کنید یا عکس‌ها را بکشید', lbl_upload_hint_touch:'برای انتخاب عکس‌ها ضربه بزنید',
     lbl_legende:'زیرنویس (اختیاری)', lbl_legende_ph:'مثال: تابستان ۱۹۸۵ در مارسی',
     lbl_upload_send:'📤 ارسال', lbl_upload_max:'JPEG، PNG، WebP — حداکثر ۲۰ مگابایت',
-    lbl_by:'توسط', lbl_with:'با', btn_create_account:'ایجاد حساب',
+    lbl_by:'توسط', lbl_with:'با', lbl_download:'دانلود', ph_notif_email:'ایمیل@نمونه.ir', btn_create_account:'ایجاد حساب',
     evt_mariage:'ازدواج', evt_reunion:'گردهمایی', evt_demenagement:'نقل مکان', evt_autre:'سایر',
     warn_demenagement_lieu:'مکان پر نشده — این رویداد برای نقشه استفاده نخواهد شد.',
     error_name_required:'نام الزامی است',
@@ -1103,7 +1103,7 @@ const LANGS = {
   },
   es: {
     nav_tree:'Árbol', nav_list:'Miembros', nav_events:'Eventos',
-    nav_anecdotes:'Anécdotas', nav_tresors:'Tesoros', nav_recettes:'Recetas', nav_timeline:'Cronología', nav_admin:'Admin',
+    nav_anecdotes:'Anécdotas', nav_tresors:'Tesoros', nav_recettes:'Recetas', nav_timeline:'Cronología', nav_admin:'Admin', nav_plus:'Más',
     site_title:'Nuestra Familia',
     h_membres:'Miembros', h_events:'Eventos', h_anecdotes:'Anécdotas', h_tresors:'Tesoros de familia', h_recettes:'Recetas de familia', h_timeline:'A lo largo del tiempo',
     h_admin:'Administración',
@@ -1263,7 +1263,7 @@ const LANGS = {
     lbl_upload_hint:'Haga clic o suelte sus fotos', lbl_upload_hint_touch:'Toque para elegir fotos',
     lbl_legende:'Leyenda (opcional)', lbl_legende_ph:'Ej: Verano 1985 en Barcelona',
     lbl_upload_send:'📤 Enviar', lbl_upload_max:'JPEG, PNG, WebP — máx 20 MB cada una',
-    lbl_by:'Por', lbl_with:'Con', btn_create_account:'Crear la cuenta',
+    lbl_by:'Por', lbl_with:'Con', lbl_download:'Descargar', ph_notif_email:'nuevo@correo.es', btn_create_account:'Crear la cuenta',
     evt_mariage:'Boda', evt_reunion:'Reunión', evt_demenagement:'Mudanza', evt_autre:'Otro',
     warn_demenagement_lieu:'Lugar no especificado — este evento no se usará para el mapa.',
     error_name_required:'Nombre requerido',
@@ -1316,7 +1316,7 @@ const LANGS = {
   },
   it: {
     nav_tree:'Albero', nav_list:'Membri', nav_events:'Eventi',
-    nav_anecdotes:'Aneddoti', nav_tresors:'Tesori', nav_recettes:'Ricette', nav_timeline:'Cronologia', nav_admin:'Admin',
+    nav_anecdotes:'Aneddoti', nav_tresors:'Tesori', nav_recettes:'Ricette', nav_timeline:'Cronologia', nav_admin:'Admin', nav_plus:'Altro',
     site_title:'La Nostra Famiglia',
     h_membres:'Membri', h_events:'Eventi', h_anecdotes:'Aneddoti', h_tresors:'Tesori di famiglia', h_recettes:'Ricette di famiglia', h_timeline:'Nel corso del tempo',
     h_admin:'Amministrazione',
@@ -1476,7 +1476,7 @@ const LANGS = {
     lbl_upload_hint:'Clicca o rilascia le tue foto', lbl_upload_hint_touch:'Tocca per scegliere le foto',
     lbl_legende:'Didascalia (opzionale)', lbl_legende_ph:'Es: Estate 1985 a Milano',
     lbl_upload_send:'📤 Invia', lbl_upload_max:'JPEG, PNG, WebP — max 20 MB ciascuna',
-    lbl_by:'Di', lbl_with:'Con', btn_create_account:'Crea l\'account',
+    lbl_by:'Di', lbl_with:'Con', lbl_download:'Scarica', ph_notif_email:'nuovo@indirizzo.it', btn_create_account:'Crea l\'account',
     evt_mariage:'Matrimonio', evt_reunion:'Riunione', evt_demenagement:'Trasloco', evt_autre:'Altro',
     warn_demenagement_lieu:'Luogo non specificato — questo evento non verrà usato per la mappa.',
     error_name_required:'Nome richiesto',
@@ -1529,7 +1529,7 @@ const LANGS = {
   },
   el: {
     nav_tree:'Δέντρο', nav_list:'Μέλη', nav_events:'Εκδηλώσεις',
-    nav_anecdotes:'Ανέκδοτα', nav_tresors:'Θησαυροί', nav_recettes:'Συνταγές', nav_timeline:'Χρονολόγιο', nav_admin:'Admin',
+    nav_anecdotes:'Ανέκδοτα', nav_tresors:'Θησαυροί', nav_recettes:'Συνταγές', nav_timeline:'Χρονολόγιο', nav_admin:'Admin', nav_plus:'Περισσότερα',
     site_title:'Η Οικογένειά μας',
     h_membres:'Μέλη', h_events:'Εκδηλώσεις', h_anecdotes:'Ανέκδοτα', h_tresors:'Οικογενειακοί θησαυροί', h_recettes:'Οικογενειακές συνταγές', h_timeline:'Μέσα στο χρόνο',
     h_admin:'Διαχείριση',
@@ -1689,7 +1689,7 @@ const LANGS = {
     lbl_upload_hint:'Κάντε κλικ ή αποθέστε τις φωτογραφίες', lbl_upload_hint_touch:'Αγγίξτε για επιλογή φωτογραφιών',
     lbl_legende:'Λεζάντα (προαιρετική)', lbl_legende_ph:'Π.χ: Καλοκαίρι 1985 στη Θεσσαλονίκη',
     lbl_upload_send:'📤 Αποστολή', lbl_upload_max:'JPEG, PNG, WebP — μέγ. 20 MB η καθεμία',
-    lbl_by:'Από', lbl_with:'Με', btn_create_account:'Δημιουργία λογαριασμού',
+    lbl_by:'Από', lbl_with:'Με', lbl_download:'Λήψη', ph_notif_email:'νεο@διευθυνση.gr', btn_create_account:'Δημιουργία λογαριασμού',
     evt_mariage:'Γάμος', evt_reunion:'Σύναξη', evt_demenagement:'Μετακόμιση', evt_autre:'Άλλο',
     warn_demenagement_lieu:'Τόπος μη καθορισμένος — αυτή η εκδήλωση δεν θα χρησιμοποιηθεί για τον χάρτη.',
     error_name_required:'Απαιτείται όνομα',
@@ -1921,6 +1921,11 @@ function applyLang() {
     const tn = [...navAdminBtn.childNodes].find(n => n.nodeType === Node.TEXT_NODE);
     if (tn) tn.textContent = T('nav_admin') + ' ';
   }
+  const navPlusText = document.getElementById('nav-plus-text');
+  if (navPlusText) navPlusText.textContent = T('nav_plus');
+  document.getElementById('lb-download')?.setAttribute('title', T('lbl_download'));
+  const notifEmailInput = document.getElementById('notif-new-email');
+  if (notifEmailInput) notifEmailInput.placeholder = T('ph_notif_email');
   const transLbl = document.getElementById('auto-translate-lbl');
   if (transLbl) transLbl.textContent = T('lbl_translate');
   // Carte

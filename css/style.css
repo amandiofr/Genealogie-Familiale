@@ -25,6 +25,7 @@ nav button.active{background:var(--ink);color:var(--bg);}
 .admin-dropdown.open{display:flex;}
 .admin-dropdown button{text-align:left;padding:7px 12px;border-radius:6px;font-size:.8rem;color:var(--ink);background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;}
 .admin-dropdown button:hover{background:var(--bg2);}
+#plus-dropdown{left:auto;right:0;}
 .header-right{display:flex;align-items:center;gap:8px;margin-left:auto;flex-wrap:wrap;}
 @media (pointer:coarse){.user-badge{display:none;}}
 .user-badge{font-size:.75rem;color:var(--ink3);white-space:nowrap;}
@@ -285,6 +286,6 @@ nav button.active{background:var(--ink);color:var(--bg);}
 @media(max-width:600px){
   .form-grid{grid-template-columns:1fr;}
   .full{grid-column:1;}
-  header{padding:0 1rem;}
+  header{padding:.3rem 1rem;}
   .view-inner{padding:1rem;}
 }

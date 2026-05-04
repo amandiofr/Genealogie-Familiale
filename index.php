@@ -17,19 +17,24 @@ $v = fn($f) => filemtime(__DIR__ . '/' . $f);
 
 <header>
   <nav id="nav">
-    <div class="logo">🌿 <span id="logo-title">Notre Famille</span></div>
+    <div class="logo" onclick="showView('tree')" style="cursor:pointer;">🌿 <span id="logo-title">Notre Famille</span></div>
     <select id="arbre-select" onchange="setCurrentArbre(this.value)" style="padding:4px 24px 4px 8px;border:1px solid var(--border);border-radius:6px;font-family:'DM Sans',sans-serif;font-size:.8rem;color:var(--ink);background:var(--bg);outline:none;cursor:pointer;"></select>
     <div class="nav-buttons">
       <button class="active" data-view="tree">Arbre</button>
-      <button data-view="list">Membres</button>
       <button data-view="events">Événements</button>
-      <button data-view="anecdotes">Anecdotes</button>
-      <button data-view="tresors">Trésors</button>
-      <button data-view="recettes">Recettes</button>
-      <button data-view="autos">Autos</button>
-      <button data-view="timeline">Timeline</button>
       <button data-view="carte">Carte</button>
-      <button data-view="quality" id="nav-quality" style="display:none;">Qualité</button>
+      <div class="admin-nav-wrap" id="nav-plus-wrap">
+        <button id="nav-plus"><span id="nav-plus-text">Plus</span> <span style="font-size:.65em;opacity:.7;">▾</span></button>
+        <div class="admin-dropdown" id="plus-dropdown">
+          <button data-view="list">Membres</button>
+          <button data-view="anecdotes">Anecdotes</button>
+          <button data-view="tresors">Trésors</button>
+          <button data-view="recettes">Recettes</button>
+          <button data-view="autos">Autos</button>
+          <button data-view="timeline">Timeline</button>
+          <button data-view="quality" id="nav-quality" style="display:none;">Qualité</button>
+        </div>
+      </div>
       <div class="admin-nav-wrap" id="nav-admin-wrap" style="display:none">
         <button id="nav-admin">Admin <span style="font-size:.65em;opacity:.7;">▾</span></button>
         <div class="admin-dropdown" id="admin-dropdown">
