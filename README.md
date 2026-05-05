@@ -25,6 +25,35 @@ Aucune dépendance npm, aucune compilation, aucune commande serveur.
 
 ---
 
+## 2. Créer un hébergement gratuit (InfinityFree)
+
+> Si vous avez déjà un hébergement mutualisé (OVH, cPanel…), passez directement à l'étape 3.
+
+### Étape 1 — Créer un compte InfinityFree
+
+1. Rendez-vous sur [infinityfree.com](https://infinityfree.com)
+2. Cliquez sur **Sign Up** et créez un compte gratuit
+3. Vérifiez votre adresse e-mail pour activer le compte
+
+### Étape 2 — Créer un compte d'hébergement
+
+1. Connectez-vous, puis cliquez sur **Create Account**
+2. Choisissez un sous-domaine gratuit (ex : `mafamille.infinityfreeapp.com`) ou entrez votre propre domaine si vous en avez un
+3. Cliquez sur **Create** — patientez quelques secondes
+
+### Étape 3 — Créer la base de données MySQL
+
+1. Depuis le tableau de bord, cliquez sur **Control Panel** à côté de votre hébergement
+2. Cherchez **MySQL Databases** (ou "Bases de données MySQL") et cliquez dessus
+3. Remplissez le formulaire :
+   - **Database name** : un nom court, ex `familia`
+   - **Username** : un identifiant, ex `familia_user`
+   - **Password** : un mot de passe fort
+4. Cliquez sur **Create Database**
+5. Une fois créée, notez les informations affichées : **host**, **database name**, **username**, **password** — vous en aurez besoin à l'étape 4
+
+---
+
 ## 3. Prérequis
 
 Tout hébergeur mutualisé avec :
