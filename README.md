@@ -15,6 +15,8 @@ Chacun contribue à son rythme. Quand quelqu'un ajoute quelque chose de nouveau,
 Stack : **PHP 8+ · MySQL · HTML/CSS/JS vanilla**  
 Aucune dépendance npm, aucune compilation, aucune commande serveur.
 
+Si ce projet vous est utile, vous pouvez [offrir un café ☕](https://ko-fi.com/amandiofr) — c'est entièrement facultatif.
+
 ---
 
 ## 1. Télécharger les fichiers
