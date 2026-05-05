@@ -6,6 +6,10 @@ Une application web familiale auto-hébergée pour garder vivante la mémoire de
 
 Dans chaque famille, il y a des histoires qui risquent de se perdre — le prénom d'un arrière-grand-père, le village d'où on est partis, la recette que seule mamie savait faire, la photo jaunie d'un mariage d'avant-guerre.
 
+![Vue de l'arbre généalogique](images/screentree.jpg)
+
+*Vue de l'arbre généalogique — les noms ont été floutés pour préserver la vie privée.*
+
 Cette application est un espace privé où toute la famille peut se retrouver pour explorer l'arbre généalogique, lire des anecdotes, feuilleter des albums photos, découvrir les lieux sur une carte, et ajouter ses propres souvenirs. Les plus jeunes peuvent y découvrir ceux qu'ils n'ont pas connus ; les plus anciens peuvent y déposer ce qu'ils savent avant que ça se perde.
 
 Chacun contribue à son rythme. Quand quelqu'un ajoute quelque chose de nouveau, les autres membres reçoivent un e-mail. Vos données restent sur votre propre serveur, accessibles uniquement aux personnes que vous invitez.
@@ -16,10 +20,6 @@ Stack : **PHP 8+ · MySQL · HTML/CSS/JS vanilla**
 Aucune dépendance npm, aucune compilation, aucune commande serveur.
 
 Si ce projet vous est utile, vous pouvez [offrir un café ☕](https://ko-fi.com/amandiofr) — c'est entièrement facultatif.
-
-![Vue de l'arbre généalogique](images/screentree.jpg)
-
-*Vue de l'arbre généalogique — les noms ont été floutés pour préserver la vie privée.*
 
 ---
 
