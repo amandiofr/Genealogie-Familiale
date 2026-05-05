@@ -17,6 +17,9 @@ Aucune dépendance npm, aucune compilation, aucune commande serveur.
 
 Si ce projet vous est utile, vous pouvez [offrir un café ☕](https://ko-fi.com/amandiofr) — c'est entièrement facultatif.
 
+![Vue de l'arbre généalogique](images/screentree.jpg)
+*Vue de l'arbre généalogique — les noms ont été floutés pour préserver la vie privée.*
+
 ---
 
 ## 1. Télécharger les fichiers
