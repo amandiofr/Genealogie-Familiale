@@ -243,7 +243,7 @@ async function init() {
   }
 }
 
-const _adminViews = ['admin-comptes','admin-export','admin-import','admin-notif','admin-password','admin-orphans','admin-logs','admin-dev'];
+const _adminViews = ['admin-comptes','admin-export','admin-import','admin-notif','admin-password','admin-orphans','admin-logs','admin-dev','admin-access','admin-lieux'];
 const _editorViews = ['quality'];
 const _validViews = ['tree','list','events','anecdotes','tresors','recettes','autos','timeline','carte',..._adminViews,..._editorViews];
 

@@ -289,3 +289,12 @@ nav button.active{background:var(--ink);color:var(--bg);}
   header{padding:.3rem 1rem;}
   .view-inner{padding:1rem;}
 }
+@media(max-width:600px){
+  .access-log-table{display:block;}
+  .access-log-table thead{display:none;}
+  .access-log-table tbody,.access-log-table tr{display:block;}
+  .access-log-table tr{border-bottom:1px solid var(--border);padding:.4rem 0;}
+  .access-log-table td{display:inline;padding:0 .3rem 0 0;font-size:.78rem;}
+  .access-log-table tr{display:flex;flex-wrap:wrap;align-items:baseline;gap:.1rem;}
+  .access-log-table td:empty{display:none;}
+}
