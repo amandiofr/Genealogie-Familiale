@@ -268,7 +268,7 @@ Accédez à `https://votre-domaine.fr/`
 
 ### Langues disponibles
 
-Français · Português · English · Deutsch · فارسی · Español · Italiano · Ελληνικά
+Français · Português · English · Deutsch · فارسی · Kreyòl ayisyen · Español · Italiano · Ελληνικά
 
 ---
 

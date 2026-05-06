@@ -27,7 +27,18 @@ function setSort(s,btn) {
   currentSort=s;
   document.getElementById('sort-btn-date').classList.toggle('active', s==='date');
   document.getElementById('sort-btn-alpha').classList.toggle('active', s==='alpha');
+  document.getElementById('sort-btn-birthday').classList.toggle('active', s==='birthday');
   filterList();
+}
+function _daysUntilBirthday(dateStr) {
+  if (!dateStr) return Infinity;
+  const parts = dateStr.split('-');
+  if (parts.length < 2) return Infinity;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const m = parseInt(parts[1]) - 1, d = parseInt(parts[2] || 1);
+  let next = new Date(today.getFullYear(), m, d);
+  if (next < today) next = new Date(today.getFullYear() + 1, m, d);
+  return (next - today) / 86400000;
 }
 async function filterList() {
   const q=(document.getElementById('search').value||'').toLowerCase().trim();
@@ -37,12 +48,16 @@ async function filterList() {
     if(currentFilter==='female'&&p.genre!=='female') return false;
     if(currentFilter==='living'&&(!p.vivant||p.deces)) return false;
     if(currentFilter==='deceased'&&p.vivant&&!p.deces) return false;
+    if(currentSort==='birthday'&&(!p.vivant||p.deces)) return false;
     if(q){const h=[p.prenom,p.nom,p.nom_naiss,p.lieu_naiss,p.profession,p.naissance?.substring(0,4)].filter(Boolean).join(' ').toLowerCase();if(!h.includes(q))return false;}
     return true;
   }).sort((a,b)=>{
     if(currentSort==='alpha'){
       const f=a.prenom.localeCompare(b.prenom,undefined,{sensitivity:'base'});
       return f!==0?f:a.nom.localeCompare(b.nom,undefined,{sensitivity:'base'});
+    }
+    if(currentSort==='birthday'){
+      return _daysUntilBirthday(a.naissance) - _daysUntilBirthday(b.naissance);
     }
     if(!a.naissance&&!b.naissance) return 0;
     if(!a.naissance) return 1;
@@ -63,11 +78,10 @@ async function filterList() {
 
   let html = '';
   if (filtered.length) {
-    const rows = await Promise.all(filtered.map(p => translateFields(p, ['profession'])));
-    html = rows.map(p=>{
+    html = filtered.map(p=>{
       const naiss = p.naissance ? fmtDate(p.naissance) : '?';
       const deces = p.deces ? ' – ' + fmtDate(p.deces) : '';
-      const sub=[p.profession, naiss+deces].filter(Boolean).join(' · ');
+      const sub = naiss + deces;
       const av=p.chemin_thumb?`<div class="li-avatar ${p.genre}"><img src="${imgUrl(p.chemin_thumb)}" alt=""></div>`:`<div class="li-avatar ${p.genre}">${initials(p)}</div>`;
       return `<div class="list-item" onclick="openPerson(${p.id})">${av}<div class="li-info"><div class="li-name">${fullName(p)}${p.nom_naiss?` <span style="color:var(--ink3);font-size:.8em;font-style:italic;">${T('nee_label')} ${p.nom_naiss}</span>`:''}</div><div class="li-sub">${sub}</div></div><span class="li-arrow">›</span></div>`;
     }).join('');

@@ -11,7 +11,7 @@ $target = trim($b['target'] ?? 'fr');
 if (!$text) json_out(['translation' => '']);
 
 // Langues supportées par Google Translate (codes ISO 639-1)
-$validLangs = ['fr','pt','en','de','fa','es','it','el'];
+$validLangs = ['fr','pt','en','de','fa','ht','es','it','el'];
 if (!in_array($target, $validLangs)) $target = 'fr';
 
 $url = 'https://translation.googleapis.com/language/translate/v2?key=' . urlencode(GOOGLE_API_KEY);
