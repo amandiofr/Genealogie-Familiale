@@ -47,7 +47,14 @@ function _isDirectInAnyTree(personId) {
 }
 
 async function loadArbres() {
-  try { _arbres = await api('GET', 'api/arbres.php'); } catch { _arbres = []; }
+  try {
+    const resp = await api('GET', 'api/arbres.php');
+    _arbres = resp.arbres || [];
+    const migrations = resp.migrations || {};
+    if (_currentArbreId && migrations[_currentArbreId]) _currentArbreId = migrations[_currentArbreId];
+    const _lsSaved = localStorage.getItem('genealogie_arbre');
+    if (_lsSaved && migrations[_lsSaved]) localStorage.setItem('genealogie_arbre', migrations[_lsSaved]);
+  } catch { _arbres = []; }
   _allTreeMembers = null; _allTreeSpouses = null; _directMembersSet = null;
   // Charger les liens pour pouvoir inclure les conjoints dans le filtre
   try { const r = await fetch('api/liens.php'); if (r.ok) _allLiens = await r.json(); } catch {}

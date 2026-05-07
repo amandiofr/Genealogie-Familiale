@@ -107,6 +107,7 @@ foreach ($singles as $p) {
 }
 
 // Migrer les arbre_utilisateurs orphelins (ex: racine d'arbre déplacée par ajout d'un parent)
+$migrations = [];
 if ($allowedArbres !== null) {
     $currentIds = array_column($arbres, 'id');
     foreach (array_diff($allowedArbres, $currentIds) as $oldId) {
@@ -122,8 +123,14 @@ if ($allowedArbres !== null) {
         foreach ($arbres as $arbre) {
             foreach ($oldPersonIds as $pid) {
                 if (in_array($pid, $arbre['membres'])) {
-                    $db->prepare("UPDATE arbre_utilisateurs SET arbre_id = ? WHERE utilisateur_id = ? AND arbre_id = ?")
-                       ->execute([$arbre['id'], $currentUser['id'], $oldId]);
+                    // Mettre à jour TOUS les utilisateurs qui avaient accès à l'ancien arbre
+                    $uids = $db->prepare("SELECT DISTINCT utilisateur_id FROM arbre_utilisateurs WHERE arbre_id = ?");
+                    $uids->execute([$oldId]);
+                    $uids = $uids->fetchAll(PDO::FETCH_COLUMN);
+                    $db->prepare("DELETE FROM arbre_utilisateurs WHERE arbre_id = ?")->execute([$oldId]);
+                    $st = $db->prepare("INSERT IGNORE INTO arbre_utilisateurs (arbre_id, utilisateur_id) VALUES (?,?)");
+                    foreach ($uids as $uid) $st->execute([$arbre['id'], $uid]);
+                    $migrations[$oldId] = $arbre['id'];
                     $allowedArbres = array_map(fn($id) => $id === $oldId ? $arbre['id'] : $id, $allowedArbres);
                     break 2;
                 }
@@ -137,4 +144,4 @@ if ($allowedArbres !== null) {
     $arbres = array_values(array_filter($arbres, fn($a) => in_array($a['id'], $allowedArbres)));
 }
 
-json_out($arbres);
+json_out(['arbres' => $arbres, 'migrations' => (object)$migrations]);

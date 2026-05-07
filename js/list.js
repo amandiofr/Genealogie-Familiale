@@ -469,10 +469,12 @@ function _showNoTreeDialog(personId, body) {
 async function _confirmNewTree() {
   if (!_noTreeBody) { closeOverlay('modal-no-tree-overlay'); return; }
   try {
-    await api('POST','api/personnes.php', _noTreeBody);
+    const r = await api('POST','api/personnes.php', _noTreeBody);
+    const newTreeId = 'p_' + r.id;
     _noTreeBody = null;
     await loadPeople(); await loadArbres(); renderTree(); renderList();
     _refreshActiveView();
+    setCurrentArbre(newTreeId);
     closeOverlay('modal-no-tree-overlay');
     toast(T('toast_added'));
   } catch(e) { toast(e.message, 'error'); }

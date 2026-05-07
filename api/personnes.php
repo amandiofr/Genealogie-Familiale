@@ -153,6 +153,10 @@ if ($method === 'POST' && !$id) {
     ]);
     $newId = $db->lastInsertId();
     log_modification('personne', 'ajout', "{$b['prenom']} {$b['nom']}", $user['nom'], $newId);
+    if ($user['role'] !== 'admin' && !$horsArbre) {
+        $db->prepare('INSERT IGNORE INTO arbre_utilisateurs (arbre_id, utilisateur_id) VALUES (?,?)')
+           ->execute(['p_' . $newId, $user['id']]);
+    }
     json_out(['id' => $newId]);
 }
 
