@@ -19,7 +19,7 @@ function renderList() {
 function setFilter(f,btn) {
   currentFilter=f;
   document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
+  (btn||document.querySelector(`.filter-btn[data-filter="${f}"]`))?.classList.add('active');
   document.getElementById('sort-btn-'+currentSort)?.classList.add('active');
   filterList();
 }
@@ -42,6 +42,14 @@ function _daysUntilBirthday(dateStr) {
 }
 async function filterList() {
   const q=(document.getElementById('search').value||'').toLowerCase().trim();
+  if (document.getElementById('view-list')?.classList.contains('active')) {
+    const _p=new URLSearchParams();
+    if (_currentArbreId) _p.set('arbre',_currentArbreId);
+    if (currentSort!=='date') _p.set('sort',currentSort);
+    if (currentFilter!=='all') _p.set('filter',currentFilter);
+    if (q) _p.set('q',q);
+    history.replaceState(null,'','#list'+(_p.toString()?'?'+_p:''));
+  }
   let filtered=people.filter(p=>{
     if(!inCurrentTree(p.id)) return false;
     if(currentFilter==='male'&&p.genre!=='male') return false;

@@ -7,11 +7,11 @@
 const LANGS = {
   fr: {
     // Nav
-    nav_tree:'Arbre', nav_list:'Membres', nav_events:'Événements',
+    nav_tree:'Arbre', nav_list:'Personnes', nav_events:'Album',
     nav_anecdotes:'Anecdotes', nav_tresors:'Trésors', nav_recettes:'Recettes', nav_timeline:'Chronologie', nav_admin:'Admin', nav_plus:'Plus',
     // Site title & page headers
     site_title:'Notre Famille',
-    h_membres:'Membres', h_events:'Événements', h_anecdotes:'Anecdotes', h_tresors:'Trésors de famille', h_recettes:'Recettes de famille', h_timeline:'Au fil du temps',
+    h_membres:'Personnes', h_events:'Album', h_anecdotes:'Anecdotes', h_tresors:'Trésors de famille', h_recettes:'Recettes de famille', h_timeline:'Au fil du temps',
     h_admin:'Administration',
     h_repartition:'Répartition par génération',
     h_longevite:'Longévité la plus élevée',
@@ -198,8 +198,7 @@ const LANGS = {
     error_title_content_required:'Titre et contenu requis',
     error_no_photo:'Aucune photo sélectionnée',
     error_select_file:'Sélectionnez un fichier',
-    toast_photos_added:'Photos ajoutées',
-    // Notifications
+    toast_photos_added:'Photos ajoutées',    // Notifications
     admin_notif:'Notifications par e-mail',
     admin_notif_desc:'Liste des adresses à prévenir lors de modifications. Un e-mail au maximum par jour, envoyé 1 heure après la dernière modification.',
     notif_empty:'Aucune adresse configurée',
@@ -244,11 +243,11 @@ const LANGS = {
     confirm_delete_auto:'Supprimer cette voiture ?',
   },
   pt: {
-    nav_tree:'Árvore', nav_list:'Membros', nav_events:'Eventos',
+    nav_tree:'Árvore', nav_list:'Pessoas', nav_events:'Álbum',
     nav_anecdotes:'Anedotas', nav_tresors:'Tesouros', nav_recettes:'Receitas', nav_timeline:'Cronologia', nav_admin:'Admin', nav_plus:'Mais',
     // Site title & page headers
     site_title:'Nossa Família',
-    h_membres:'Membros', h_events:'Eventos', h_anecdotes:'Anedotas', h_tresors:'Tesouros de família', h_recettes:'Receitas de família', h_timeline:'Linha do tempo',
+    h_membres:'Pessoas', h_events:'Álbum', h_anecdotes:'Anedotas', h_tresors:'Tesouros de família', h_recettes:'Receitas de família', h_timeline:'Linha do tempo',
     h_admin:'Administração',
     h_repartition:'Distribuição por geração',
     h_longevite:'Maior longevidade',
@@ -466,10 +465,10 @@ const LANGS = {
     confirm_delete_auto:'Eliminar este carro?',
   },
   en: {
-    nav_tree:'Tree', nav_list:'Members', nav_events:'Events',
+    nav_tree:'Tree', nav_list:'People', nav_events:'Album',
     nav_anecdotes:'Anecdotes', nav_tresors:'Treasures', nav_recettes:'Recipes', nav_timeline:'Timeline', nav_admin:'Admin', nav_plus:'More',
     site_title:'Our Family',
-    h_membres:'Members', h_events:'Events', h_anecdotes:'Anecdotes', h_tresors:'Family Treasures', h_recettes:'Family Recipes', h_timeline:'Timeline',
+    h_membres:'People', h_events:'Album', h_anecdotes:'Anecdotes', h_tresors:'Family Treasures', h_recettes:'Family Recipes', h_timeline:'Timeline',
     h_admin:'Administration',
     h_repartition:'Distribution by generation',
     h_longevite:'Highest longevity',
@@ -678,10 +677,10 @@ const LANGS = {
     confirm_delete_recette:'Delete this recipe?',
   },
   de: {
-    nav_tree:'Stammbaum', nav_list:'Mitglieder', nav_events:'Ereignisse',
+    nav_tree:'Stammbaum', nav_list:'Personen', nav_events:'Album',
     nav_anecdotes:'Anekdoten', nav_tresors:'Schätze', nav_recettes:'Rezepte', nav_timeline:'Zeitleiste', nav_admin:'Admin', nav_plus:'Mehr',
     site_title:'Unsere Familie',
-    h_membres:'Mitglieder', h_events:'Ereignisse', h_anecdotes:'Anekdoten', h_tresors:'Familienschätze', h_recettes:'Familienrezepte', h_timeline:'Zeitleiste',
+    h_membres:'Personen', h_events:'Album', h_anecdotes:'Anekdoten', h_tresors:'Familienschätze', h_recettes:'Familienrezepte', h_timeline:'Zeitleiste',
     h_admin:'Verwaltung',
     h_repartition:'Verteilung nach Generation',
     h_longevite:'Höchste Langlebigkeit',
@@ -890,10 +889,10 @@ const LANGS = {
     confirm_delete_recette:'Dieses Rezept löschen?',
   },
   fa: {
-    nav_tree:'درخت', nav_list:'اعضا', nav_events:'رویدادها',
+    nav_tree:'درخت', nav_list:'افراد', nav_events:'آلبوم',
     nav_anecdotes:'خاطرات', nav_tresors:'گنج‌ها', nav_recettes:'دستورها', nav_timeline:'خط زمانی', nav_admin:'مدیریت', nav_plus:'بیشتر',
     site_title:'خانواده ما',
-    h_membres:'اعضا', h_events:'رویدادها', h_anecdotes:'خاطرات', h_tresors:'گنج‌های خانوادگی', h_recettes:'دستورهای خانوادگی', h_timeline:'خط زمانی',
+    h_membres:'افراد', h_events:'آلبوم', h_anecdotes:'خاطرات', h_tresors:'گنج‌های خانوادگی', h_recettes:'دستورهای خانوادگی', h_timeline:'خط زمانی',
     h_admin:'مدیریت',
     h_repartition:'توزیع بر اساس نسل',
     h_longevite:'بیشترین طول عمر',
@@ -1102,10 +1101,10 @@ const LANGS = {
     confirm_delete_recette:'این دستور حذف شود؟',
   },
   ht: {
-    nav_tree:'Pyebwa', nav_list:'Manm', nav_events:'Evènman',
+    nav_tree:'Pyebwa', nav_list:'Moun', nav_events:'Albòm',
     nav_anecdotes:'Anekdòt', nav_tresors:'Trezò', nav_recettes:'Resèt', nav_timeline:'Nan tan', nav_admin:'Admin', nav_plus:'Plis',
     site_title:'Fanmi nou an',
-    h_membres:'Manm', h_events:'Evènman', h_anecdotes:'Anekdòt', h_tresors:'Trezò fanmi', h_recettes:'Resèt fanmi', h_timeline:'Nan tan',
+    h_membres:'Moun', h_events:'Albòm', h_anecdotes:'Anekdòt', h_tresors:'Trezò fanmi', h_recettes:'Resèt fanmi', h_timeline:'Nan tan',
     h_admin:'Administrasyon',
     h_repartition:'Distribisyon pa jenerasyon',
     h_longevite:'Pi long lavi',
@@ -1314,10 +1313,10 @@ const LANGS = {
     confirm_delete_recette:'Efase resèt sa a?',
   },
   es: {
-    nav_tree:'Árbol', nav_list:'Miembros', nav_events:'Eventos',
+    nav_tree:'Árbol', nav_list:'Personas', nav_events:'Álbum',
     nav_anecdotes:'Anécdotas', nav_tresors:'Tesoros', nav_recettes:'Recetas', nav_timeline:'Cronología', nav_admin:'Admin', nav_plus:'Más',
     site_title:'Nuestra Familia',
-    h_membres:'Miembros', h_events:'Eventos', h_anecdotes:'Anécdotas', h_tresors:'Tesoros de familia', h_recettes:'Recetas de familia', h_timeline:'A lo largo del tiempo',
+    h_membres:'Personas', h_events:'Álbum', h_anecdotes:'Anécdotas', h_tresors:'Tesoros de familia', h_recettes:'Recetas de familia', h_timeline:'A lo largo del tiempo',
     h_admin:'Administración',
     h_repartition:'Distribución por generación',
     h_longevite:'Mayor longevidad',
@@ -1527,10 +1526,10 @@ const LANGS = {
     confirm_delete_auto:'¿Eliminar este coche?',
   },
   it: {
-    nav_tree:'Albero', nav_list:'Membri', nav_events:'Eventi',
+    nav_tree:'Albero', nav_list:'Persone', nav_events:'Album',
     nav_anecdotes:'Aneddoti', nav_tresors:'Tesori', nav_recettes:'Ricette', nav_timeline:'Cronologia', nav_admin:'Admin', nav_plus:'Altro',
     site_title:'La Nostra Famiglia',
-    h_membres:'Membri', h_events:'Eventi', h_anecdotes:'Aneddoti', h_tresors:'Tesori di famiglia', h_recettes:'Ricette di famiglia', h_timeline:'Nel corso del tempo',
+    h_membres:'Persone', h_events:'Album', h_anecdotes:'Aneddoti', h_tresors:'Tesori di famiglia', h_recettes:'Ricette di famiglia', h_timeline:'Nel corso del tempo',
     h_admin:'Amministrazione',
     h_repartition:'Distribuzione per generazione',
     h_longevite:'Maggiore longevità',
@@ -1740,10 +1739,10 @@ const LANGS = {
     confirm_delete_auto:'Eliminare questa auto?',
   },
   el: {
-    nav_tree:'Δέντρο', nav_list:'Μέλη', nav_events:'Εκδηλώσεις',
+    nav_tree:'Δέντρο', nav_list:'Άτομα', nav_events:'Άλμπουμ',
     nav_anecdotes:'Ανέκδοτα', nav_tresors:'Θησαυροί', nav_recettes:'Συνταγές', nav_timeline:'Χρονολόγιο', nav_admin:'Admin', nav_plus:'Περισσότερα',
     site_title:'Η Οικογένειά μας',
-    h_membres:'Μέλη', h_events:'Εκδηλώσεις', h_anecdotes:'Ανέκδοτα', h_tresors:'Οικογενειακοί θησαυροί', h_recettes:'Οικογενειακές συνταγές', h_timeline:'Μέσα στο χρόνο',
+    h_membres:'Άτομα', h_events:'Άλμπουμ', h_anecdotes:'Ανέκδοτα', h_tresors:'Οικογενειακοί θησαυροί', h_recettes:'Οικογενειακές συνταγές', h_timeline:'Μέσα στο χρόνο',
     h_admin:'Διαχείριση',
     h_repartition:'Κατανομή ανά γενιά',
     h_longevite:'Μεγαλύτερη μακροζωία',

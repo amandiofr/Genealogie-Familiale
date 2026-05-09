@@ -21,12 +21,12 @@ $v = fn($f) => filemtime(__DIR__ . '/' . $f);
     <select id="arbre-select" onchange="setCurrentArbre(this.value)" style="padding:4px 24px 4px 8px;border:1px solid var(--border);border-radius:6px;font-family:'DM Sans',sans-serif;font-size:.8rem;color:var(--ink);background:var(--bg);outline:none;cursor:pointer;"></select>
     <div class="nav-buttons">
       <button class="active" data-view="tree">Arbre</button>
-      <button data-view="events">Événements</button>
+      <button data-view="events">Album</button>
       <button data-view="carte">Carte</button>
       <div class="admin-nav-wrap" id="nav-plus-wrap">
         <button id="nav-plus"><span id="nav-plus-text">Plus</span> <span style="font-size:.65em;opacity:.7;">▾</span></button>
         <div class="admin-dropdown" id="plus-dropdown">
-          <button data-view="list">Membres</button>
+          <button data-view="list">Personnes</button>
           <button data-view="anecdotes">Anecdotes</button>
           <button data-view="tresors">Trésors</button>
           <button data-view="recettes">Recettes</button>
@@ -100,7 +100,7 @@ $v = fn($f) => filemtime(__DIR__ . '/' . $f);
 <div id="view-list" class="view">
   <div class="view-inner">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
-      <h2 id="view-list-heading" style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:400;">Membres</h2>
+      <h2 id="view-list-heading" style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:400;">Personnes</h2>
       <button class="btn-primary" id="btn-add-person" style="font-size:.78rem;padding:7px 14px;">+ Ajouter</button>
     </div>
     <div class="search-wrap">
@@ -109,11 +109,11 @@ $v = fn($f) => filemtime(__DIR__ . '/' . $f);
     </div>
     <div class="filter-row" style="justify-content:space-between;flex-wrap:wrap;gap:.4rem;">
       <div style="display:flex;flex-wrap:wrap;gap:.35rem;">
-        <button class="filter-btn active" onclick="setFilter('all',this)">Tous</button>
-        <button class="filter-btn" onclick="setFilter('male',this)">Hommes</button>
-        <button class="filter-btn" onclick="setFilter('female',this)">Femmes</button>
-        <button class="filter-btn" onclick="setFilter('living',this)">Vivants</button>
-        <button class="filter-btn" onclick="setFilter('deceased',this)">Décédés</button>
+        <button class="filter-btn active" data-filter="all" onclick="setFilter('all',this)">Tous</button>
+        <button class="filter-btn" data-filter="male" onclick="setFilter('male',this)">Hommes</button>
+        <button class="filter-btn" data-filter="female" onclick="setFilter('female',this)">Femmes</button>
+        <button class="filter-btn" data-filter="living" onclick="setFilter('living',this)">Vivants</button>
+        <button class="filter-btn" data-filter="deceased" onclick="setFilter('deceased',this)">Décédés</button>
       </div>
       <div style="display:flex;flex-wrap:wrap;gap:.35rem;">
         <button id="sort-btn-date" class="filter-btn active" onclick="setSort('date',this)">Naissance</button>
@@ -129,7 +129,7 @@ $v = fn($f) => filemtime(__DIR__ . '/' . $f);
 <div id="view-events" class="view">
   <div class="view-inner">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.2rem;">
-      <h2 id="view-events-heading" style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:400;">Événements</h2>
+      <h2 id="view-events-heading" style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:400;">Album</h2>
       <button class="btn-primary" id="btn-add-event" style="font-size:.78rem;padding:7px 14px;">+ Ajouter</button>
     </div>
     <div id="events-grid" class="cards-grid"></div>

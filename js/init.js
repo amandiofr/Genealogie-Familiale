@@ -256,6 +256,34 @@ const _validViews = ['tree','list','events','anecdotes','tresors','recettes','au
 
 async function _handleHash(hash) {
   if (!hash) return;
+  const membersMatch = hash.match(/^list\?(.*)$/);
+  if (membersMatch) {
+    const params = new URLSearchParams(membersMatch[1]);
+    const arbre = params.get('arbre');
+    if (arbre && _arbres.find(a => a.id === arbre)) {
+      _currentArbreId = arbre;
+      localStorage.setItem('genealogie_arbre', arbre);
+      _applyArbre();
+      updateAuthorPicker();
+      _renderArbreCombo();
+    }
+    const sort = params.get('sort');
+    if (sort && ['date','alpha','birthday'].includes(sort)) currentSort = sort;
+    const filter = params.get('filter');
+    if (filter && ['all','male','female','living','deceased'].includes(filter)) currentFilter = filter;
+    const q = params.get('q') || '';
+    const searchEl = document.getElementById('search');
+    if (searchEl) searchEl.value = q;
+    showView('list');
+    document.getElementById('sort-btn-date')?.classList.toggle('active', currentSort === 'date');
+    document.getElementById('sort-btn-alpha')?.classList.toggle('active', currentSort === 'alpha');
+    document.getElementById('sort-btn-birthday')?.classList.toggle('active', currentSort === 'birthday');
+    document.querySelectorAll('.filter-btn').forEach(b =>
+      b.classList.toggle('active', (b.getAttribute('data-filter') ?? 'all') === currentFilter)
+    );
+    document.getElementById('sort-btn-' + currentSort)?.classList.add('active');
+    return;
+  }
   if (_validViews.includes(hash)) {
     if ((!_adminViews.includes(hash) && !_editorViews.includes(hash)) || currentUser.role === 'admin' || (_editorViews.includes(hash) && currentUser.role === 'editeur')) {
       showView(hash);
