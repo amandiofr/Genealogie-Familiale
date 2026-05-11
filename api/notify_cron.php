@@ -84,7 +84,14 @@ if (!$dryRun && $state['last_sent'] && $state['last_sent'] > date('Y-m-d H:i:s',
 }
 
 // ── Récupérer les modifications en attente ────────────────────────────────────
-$logs = $db->query("SELECT * FROM modification_log ORDER BY created_at DESC")->fetchAll();
+$lastSent = $state['last_sent'] ?? null;
+if ($lastSent) {
+    $s = $db->prepare("SELECT * FROM modification_log WHERE created_at > ? ORDER BY created_at DESC");
+    $s->execute([$lastSent]);
+    $logs = $s->fetchAll();
+} else {
+    $logs = $db->query("SELECT * FROM modification_log ORDER BY created_at DESC")->fetchAll();
+}
 if (empty($logs)) {
     // Plus rien à envoyer, remettre l'état à zéro
     $db->prepare("UPDATE notification_state SET send_after=NULL WHERE id=1")->execute();
@@ -109,8 +116,8 @@ $typesFr = [
 ];
 $actionsFr = ['ajout' => 'Ajout', 'modification' => 'Modification', 'suppression' => 'Suppression'];
 $typeHash  = [
-    'personne'  => 'personne',
-    'evenement' => 'evenement',
+    'personne'  => 'person',
+    'evenement' => 'event',
     'anecdote'  => 'anecdote',
     'tresor'    => 'tresor',
     'recette'   => 'recette',
@@ -225,11 +232,10 @@ foreach ($recipients as $r) {
     }
 }
 
-// ── Mettre à jour l'état et vider le log ─────────────────────────────────────
+// ── Mettre à jour l'état ──────────────────────────────────────────────────────
 if (!$dryRun) {
     $db->prepare("UPDATE notification_state SET send_after=NULL, last_sent=NOW() WHERE id=1")->execute();
-    $db->exec("DELETE FROM modification_log");
     echo "Mail envoyé à {$sent}/" . count($recipients) . " destinataire(s). {$nbModifs} modification(s) notifiée(s).\n";
 } else {
-    echo "[simulation] Mail envoyé à {$sent}/" . count($recipients) . " destinataire(s). {$nbModifs} modification(s) — logs et état conservés.\n";
+    echo "[simulation] Mail envoyé à {$sent}/" . count($recipients) . " destinataire(s). {$nbModifs} modification(s) — état conservé.\n";
 }

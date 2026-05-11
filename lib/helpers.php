@@ -98,9 +98,11 @@ function log_modification(string $type, string $action, string $description, ?st
         if ($headerAuthor !== null && $headerAuthor !== '') {
             $auteur = mb_substr($headerAuthor, 0, 100);
         }
+        $arbreId = isset($_SERVER['HTTP_X_ARBRE_ID']) ? trim($_SERVER['HTTP_X_ARBRE_ID']) : null;
+        if ($arbreId === '') $arbreId = null;
         $db = pdo();
-        $db->prepare("INSERT INTO modification_log (type, action, description, auteur, object_id) VALUES (?,?,?,?,?)")
-           ->execute([$type, $action, $description, $auteur, $object_id ?: null]);
+        $db->prepare("INSERT INTO modification_log (type, action, description, auteur, object_id, arbre_id) VALUES (?,?,?,?,?,?)")
+           ->execute([$type, $action, $description, $auteur, $object_id ?: null, $arbreId]);
         // Debounce : repousser l'envoi d'1h à chaque modification
         $send_after = date('Y-m-d H:i:s', time() + 3600);
         $existing = $db->query("SELECT id FROM notification_state LIMIT 1")->fetch();

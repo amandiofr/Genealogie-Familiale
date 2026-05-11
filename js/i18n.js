@@ -241,6 +241,8 @@ const LANGS = {
     form_owner:'Propriétaire', form_owner_none:'— Aucun —',
     toast_auto_added:'Voiture ajoutée', toast_auto_edited:'Voiture modifiée', toast_auto_deleted:'Voiture supprimée',
     confirm_delete_auto:'Supprimer cette voiture ?',
+    nav_news:'Dernières news', h_news:'Dernières modifications',
+    news_empty:'Aucune modification enregistrée.', news_load_more:'Charger plus', news_loading:'Chargement…',
   },
   pt: {
     nav_tree:'Árvore', nav_list:'Pessoas', nav_events:'Álbum',
@@ -463,6 +465,8 @@ const LANGS = {
     form_owner:'Proprietário', form_owner_none:'— Nenhum —',
     toast_auto_added:'Carro adicionado', toast_auto_edited:'Carro modificado', toast_auto_deleted:'Carro eliminado',
     confirm_delete_auto:'Eliminar este carro?',
+    nav_news:'Últimas notícias', h_news:'Últimas modificações',
+    news_empty:'Nenhuma modificação registada.', news_load_more:'Carregar mais', news_loading:'A carregar…',
   },
   en: {
     nav_tree:'Tree', nav_list:'People', nav_events:'Album',
@@ -675,6 +679,8 @@ const LANGS = {
     ph_contenu_recette:'Preparation steps…',
     ph_date_recette:'Ex: 1980, Christmas 1995…',
     confirm_delete_recette:'Delete this recipe?',
+    nav_news:'Latest news', h_news:'Latest changes',
+    news_empty:'No modifications recorded.', news_load_more:'Load more', news_loading:'Loading…',
   },
   de: {
     nav_tree:'Stammbaum', nav_list:'Personen', nav_events:'Album',
@@ -887,6 +893,8 @@ const LANGS = {
     ph_contenu_recette:'Zubereitungsschritte…',
     ph_date_recette:'Z.B.: 1980, Weihnachten 1995…',
     confirm_delete_recette:'Dieses Rezept löschen?',
+    nav_news:'Neuigkeiten', h_news:'Letzte Änderungen',
+    news_empty:'Keine Änderungen aufgezeichnet.', news_load_more:'Mehr laden', news_loading:'Wird geladen…',
   },
   fa: {
     nav_tree:'درخت', nav_list:'افراد', nav_events:'آلبوم',
@@ -1099,6 +1107,8 @@ const LANGS = {
     ph_contenu_recette:'مراحل طرز تهیه…',
     ph_date_recette:'مثال: ۱۹۸۰، کریسمس ۱۹۹۵…',
     confirm_delete_recette:'این دستور حذف شود؟',
+    nav_news:'آخرین اخبار', h_news:'آخرین تغییرات',
+    news_empty:'هیچ تغییری ثبت نشده.', news_load_more:'بارگذاری بیشتر', news_loading:'در حال بارگذاری…',
   },
   ht: {
     nav_tree:'Pyebwa', nav_list:'Moun', nav_events:'Albòm',
@@ -1311,6 +1321,8 @@ const LANGS = {
     ph_contenu_recette:'Etap preparasyon yo…',
     ph_date_recette:'Egz: 1980, Nowèl 1995…',
     confirm_delete_recette:'Efase resèt sa a?',
+    nav_news:'Dènye nouvèl', h_news:'Dènye chanjman',
+    news_empty:'Pa gen modifikasyon anrejistre.', news_load_more:'Chaje plis', news_loading:'Ap chaje…',
   },
   es: {
     nav_tree:'Árbol', nav_list:'Personas', nav_events:'Álbum',
@@ -1524,6 +1536,8 @@ const LANGS = {
     form_owner:'Propietario', form_owner_none:'— Ninguno —',
     toast_auto_added:'Coche añadido', toast_auto_edited:'Coche modificado', toast_auto_deleted:'Coche eliminado',
     confirm_delete_auto:'¿Eliminar este coche?',
+    nav_news:'Últimas noticias', h_news:'Últimas modificaciones',
+    news_empty:'No hay modificaciones registradas.', news_load_more:'Cargar más', news_loading:'Cargando…',
   },
   it: {
     nav_tree:'Albero', nav_list:'Persone', nav_events:'Album',
@@ -1737,6 +1751,8 @@ const LANGS = {
     form_owner:'Proprietario', form_owner_none:'— Nessuno —',
     toast_auto_added:'Auto aggiunta', toast_auto_edited:'Auto modificata', toast_auto_deleted:'Auto eliminata',
     confirm_delete_auto:'Eliminare questa auto?',
+    nav_news:'Ultime notizie', h_news:'Ultime modifiche',
+    news_empty:'Nessuna modifica registrata.', news_load_more:'Carica altro', news_loading:'Caricamento…',
   },
   el: {
     nav_tree:'Δέντρο', nav_list:'Άτομα', nav_events:'Άλμπουμ',
@@ -1950,6 +1966,8 @@ const LANGS = {
     form_owner:'Ιδιοκτήτης', form_owner_none:'— Κανένας —',
     toast_auto_added:'Αυτοκίνητο προστέθηκε', toast_auto_edited:'Αυτοκίνητο τροποποιήθηκε', toast_auto_deleted:'Αυτοκίνητο διαγράφηκε',
     confirm_delete_auto:'Διαγραφή αυτού του αυτοκινήτου;',
+    nav_news:'Τελευταία νέα', h_news:'Τελευταίες αλλαγές',
+    news_empty:'Δεν υπάρχουν καταγεγραμμένες τροποποιήσεις.', news_load_more:'Φόρτωση περισσότερων', news_loading:'Φόρτωση…',
   },
 };
 
@@ -2011,7 +2029,7 @@ function applyLang() {
   const badge = document.getElementById('user-badge');
   if (badge && currentUser) badge.textContent = currentUser.nom + ' (' + T('role_' + currentUser.role) + ')';
   // Nav buttons
-  const navMap = {tree:'nav_tree',list:'nav_list',events:'nav_events',anecdotes:'nav_anecdotes',tresors:'nav_tresors',recettes:'nav_recettes',autos:'nav_autos',timeline:'nav_timeline',carte:'nav_carte',admin:'nav_admin','quality':'admin_nav_quality'};
+  const navMap = {tree:'nav_tree',list:'nav_list',events:'nav_events',anecdotes:'nav_anecdotes',tresors:'nav_tresors',recettes:'nav_recettes',autos:'nav_autos',timeline:'nav_timeline',news:'nav_news',carte:'nav_carte',admin:'nav_admin','quality':'admin_nav_quality'};
   document.querySelectorAll('nav button[data-view]').forEach(b => { b.textContent = T(navMap[b.dataset.view]||b.dataset.view); });
   // Logout
   const logoutBtn = document.getElementById('btn-logout');
@@ -2066,6 +2084,7 @@ function applyLang() {
     'view-recettes-heading':  'h_recettes',
     'view-autos-heading':     'h_autos',
     'view-timeline-heading':  'h_timeline',
+    'view-news-heading':      'h_news',
     'view-admin-comptes-heading':  'admin_comptes',
     'view-admin-export-heading':   'admin_export',
     'view-admin-import-heading':   'admin_import',

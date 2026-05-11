@@ -31,7 +31,9 @@ $v = fn($f) => filemtime(__DIR__ . '/' . $f);
           <button data-view="tresors">Trésors</button>
           <button data-view="recettes">Recettes</button>
           <button data-view="autos">Autos</button>
+          <hr style="border:none;border-top:1px solid var(--border);margin:3px 8px;">
           <button data-view="timeline">Timeline</button>
+          <button data-view="news">Dernières news</button>
           <button data-view="quality" id="nav-quality" style="display:none;">Qualité</button>
         </div>
       </div>
@@ -201,6 +203,16 @@ $v = fn($f) => filemtime(__DIR__ . '/' . $f);
     <span id="carte-count" style="font-size:.78rem;color:var(--ink3);white-space:nowrap;"></span>
   </div>
   <div id="carte-map" style="width:100%;height:calc(100vh - 110px);"></div>
+</div>
+
+<!-- ── NEWS ──────────────────────────────────────────────────── -->
+<div id="view-news" class="view">
+  <div class="view-inner">
+    <h2 id="view-news-heading" style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:400;margin-bottom:1.2rem;">Dernières news</h2>
+    <div class="form-card">
+      <div id="news-result"></div>
+    </div>
+  </div>
 </div>
 
 <!-- ── ADMIN ──────────────────────────────────────────────────── -->
@@ -473,5 +485,6 @@ $v = fn($f) => filemtime(__DIR__ . '/' . $f);
 <script src="js/recettes.js?v=<?= $v('js/recettes.js') ?>"></script>
 <script src="js/carte.js?v=<?= $v('js/carte.js') ?>"></script>
 <script src="js/admin.js?v=<?= $v('js/admin.js') ?>"></script>
+<script src="js/news.js?v=<?= $v('js/news.js') ?>"></script>
 </body>
 </html>

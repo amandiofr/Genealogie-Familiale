@@ -252,7 +252,7 @@ async function init() {
 
 const _adminViews = ['admin-comptes','admin-export','admin-import','admin-notif','admin-password','admin-orphans','admin-logs','admin-dev','admin-access','admin-lieux'];
 const _editorViews = ['quality'];
-const _validViews = ['tree','list','events','anecdotes','tresors','recettes','autos','timeline','carte',..._adminViews,..._editorViews];
+const _validViews = ['tree','list','events','anecdotes','tresors','recettes','autos','timeline','news','carte',..._adminViews,..._editorViews];
 
 async function _handleHash(hash) {
   if (!hash) return;
@@ -338,6 +338,7 @@ window.addEventListener('unhandledrejection', e => {
 async function api(method, url, body) {
   const opts = { method, headers:{} };
   if (authorName) opts.headers['X-Author-Name'] = btoa(unescape(encodeURIComponent(authorName)));
+  if (_currentArbreId) opts.headers['X-Arbre-Id'] = _currentArbreId;
   if (body instanceof FormData) { opts.body = body; }
   else if (body) { opts.headers['Content-Type']='application/json'; opts.body=JSON.stringify(body); }
   const r = await fetch(url, opts);
@@ -362,7 +363,7 @@ function showView(name) {
   const navBtn = document.querySelector(`nav button[data-view="${name}"]`);
   if (navBtn) navBtn.classList.add('active');
   if (name.startsWith('admin-') && name !== 'quality') document.getElementById('nav-admin')?.classList.add('active');
-  const _plusViews = ['anecdotes','list','tresors','recettes','autos','timeline','quality'];
+  const _plusViews = ['anecdotes','list','tresors','recettes','autos','timeline','news','quality'];
   if (_plusViews.includes(name)) document.getElementById('nav-plus')?.classList.add('active');
   // Charger les données
   if (name==='tree')             { centerTree(); }
@@ -380,6 +381,7 @@ function showView(name) {
   if (name==='quality')    { loadQualityCheck(); }
   if (name==='admin-lieux')      { loadLieux(); }
   if (name==='admin-access')     { loadAccessLog(); }
+  if (name==='news')             { loadNews(0); }
 }
 
 // ══════════════════════════════════════════════════════════════

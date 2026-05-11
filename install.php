@@ -242,6 +242,7 @@ CREATE TABLE IF NOT EXISTS modification_log (
   description VARCHAR(500) NOT NULL,
   auteur      VARCHAR(200) DEFAULT NULL,
   object_id   INT UNSIGNED DEFAULT NULL,
+  arbre_id    VARCHAR(50)  DEFAULT NULL,
   created_at  DATETIME DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;",
 
@@ -401,6 +402,17 @@ try {
         }
     } catch (PDOException $e) {
         $errors[] = 'Migration object_id modification_log : ' . $e->getMessage();
+    }
+
+    // Migration : arbre_id sur modification_log
+    try {
+        $cols = $db->query("SHOW COLUMNS FROM modification_log LIKE 'arbre_id'")->fetchAll();
+        if (empty($cols)) {
+            $db->exec("ALTER TABLE modification_log ADD COLUMN arbre_id VARCHAR(50) DEFAULT NULL");
+            $done[] = '→ Migration : colonne arbre_id ajoutée à modification_log';
+        }
+    } catch (PDOException $e) {
+        $errors[] = 'Migration arbre_id modification_log : ' . $e->getMessage();
     }
 
     try {
