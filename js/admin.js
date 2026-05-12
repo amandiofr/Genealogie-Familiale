@@ -549,6 +549,8 @@ function _lbOpenPersonFromTag(personId) {
 let _lbGallery = [], _lbIdx = 0;
 let _lbGalleryMeta = []; // parallel: [{photoId, source}] or null per entry
 let _lbTagMode = false, _lbTags = [], _lbNavAnimating = false;
+let _lbGhostGuard = false;
+function _lbSetGhostGuard() { _lbGhostGuard = true; setTimeout(() => { _lbGhostGuard = false; }, 500); }
 let _lbZoomed = false, _lbTx = 0, _lbTy = 0;
 let _lbScale = 1, _lbNaturalRect = null;
 let _lbIdleTimer = null, _lbMouseX = -1, _lbMouseY = -1;
@@ -1131,6 +1133,7 @@ async function _lbShowPersonPicker(px, py, pw, ph, screenX, screenY) {
   document.getElementById('lb-picker-cancel').addEventListener('pointerdown', e => {
     e.preventDefault();
     document.getElementById('lb-person-picker')?.remove();
+    _lbSetGhostGuard();
   });
   if (!('ontouchstart' in window)) {
     setTimeout(() => document.getElementById('lb-picker-input')?.focus(), 50);
@@ -1228,6 +1231,7 @@ function filterLbPicker(q) {
 
 async function _lbSaveTag(personId, px, py, pw, ph, personHint = null) {
   document.getElementById('lb-person-picker')?.remove();
+  _lbSetGhostGuard();
   const meta = _lbGalleryMeta[_lbIdx];
   if (!meta) return;
   const person = personHint || people.find(p => p.id === personId);

@@ -459,7 +459,7 @@ $v = fn($f) => filemtime(__DIR__ . '/' . $f);
 </div>
 
 <!-- ── LIGHTBOX ──────────────────────────────────────────────── -->
-<div class="lightbox" id="lightbox" onclick="closeLightboxAll()">
+<div class="lightbox" id="lightbox" onclick="if(!_lbGhostGuard)closeLightboxAll()">
   <button class="lightbox-close" onclick="event.stopPropagation();closeLightbox()">✕</button>
   <a id="lb-download" class="lb-download" onclick="event.stopPropagation()" title="Télécharger"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="14"/><polyline points="5,8 12,16 19,8"/><line x1="4" y1="21" x2="20" y2="21"/></svg></a>
   <button id="lb-tag-btn" class="lb-download" onclick="event.stopPropagation();lbToggleTagMode()" style="right:100px;display:none;font-size:.9rem;">🏷️</button>
